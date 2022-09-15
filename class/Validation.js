@@ -1,4 +1,4 @@
-const { query } = require("../functions/db");
+const { query } = require("../utils/db");
 
 class Validation {
           constructor(data, validation, customMessages) {
