@@ -114,7 +114,7 @@ const createUser = async (req, res) => {
     try {
 
 
-        const { NOM, PRENOM, EMAIL, USERNAME, PASSWORD, ID_PROFIL, SEXE, DATE_NAISSANCE, COUNTRY_ID, ADRESSE, TELEPHONE_1, TELEPHONE_2 } = req.body
+        const { NOM, PRENOM, EMAIL, USERNAME, PASSWORD, SEXE, DATE_NAISSANCE, COUNTRY_ID, ADRESSE, TELEPHONE_1, TELEPHONE_2 } = req.body
 
         const validation = new Validation(req.body,
             {
@@ -132,18 +132,12 @@ const createUser = async (req, res) => {
                 {
                     required: true,
                 },
-                USERNAME:
-                {
-                    required: true,
-                },
+                
                 PASSWORD:
                 {
                     required: true,
                 },
-                ID_PROFIL:
-                {
-                    required: true,
-                },
+               
             },
             {
                 NOM: {
@@ -159,12 +153,8 @@ const createUser = async (req, res) => {
                 PASSWORD: {
                     required: "Le mot de passe est obligatoire"
                 },
-                USERNAME: {
-                    required: "Le nom d'utilisateur est obligatoire"
-                },
-                ID_PROFIL: {
-                    required: "L'id du profil est obligatoire"
-                },
+               
+               
 
             }
 
@@ -187,7 +177,7 @@ const createUser = async (req, res) => {
             EMAIL,
             USERNAME,
             PASSWORD,
-            ID_PROFIL,
+            1,
             SEXE,
             DATE_NAISSANCE,
             COUNTRY_ID,
