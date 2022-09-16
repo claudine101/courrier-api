@@ -31,8 +31,8 @@ const login = async (req, res) => {
 
                 },
                 email: {
-                    required: "Email est obligatoire",
-                    email: "Invalide email"
+                    required: "L'email est obligatoire",
+                    email: "Email invalide"
                 }
 
             }
