@@ -28,6 +28,10 @@ const login = async (req, res) => {
 
 
                 },
+                email: {
+                    required: "L'email est obligatoire",
+                    email: "Email invalide"
+                }
 
             }
         );
