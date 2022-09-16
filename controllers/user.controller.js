@@ -14,18 +14,18 @@ const login = async (req, res) => {
             req.body,
             {
                 email: "required,email",
-                
+
                 password:
                 {
                     required: true,
                 },
             },
             {
-                
+
                 password:
                 {
                     required: "Mot de passe est obligatoire",
-                    
+
 
                 },
 
@@ -48,8 +48,7 @@ const login = async (req, res) => {
         //console.log('Hello')
         var user = (await userModel.findBy("EMAIL", email))[0];
 
-        if (user) 
-        {
+        if (user) {
             if (user.PASSWORD == password) {
                 const token = generateToken({ user: user.USER_ID }, 3600)
                 const { PASSWORD, ...other } = user
@@ -62,24 +61,24 @@ const login = async (req, res) => {
                         token
                     }
                 })
-
-
-            }
-            else {
-                res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
-                    statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
-                    httpStatus: RESPONSE_STATUS.UNPROCESSABLE_ENTITY,
-                    message: "Le mot de passe incorrect",
+            } else {
+                validation.setError('main', 'Identifiants incorrects')
+                const errors = await validation.getErrors()
+                res.status(RESPONSE_CODES.NOT_FOUND).json({
+                    statusCode: RESPONSE_CODES.NOT_FOUND,
+                    httpStatus: RESPONSE_STATUS.NOT_FOUND,
+                    message: "Utilisateur n'existe pas",
                     result: errors
-
                 })
             }
 
 
         }
         else {
-            res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
-                statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
+            validation.setError('main', 'Identifiants incorrects')
+            const errors = await validation.getErrors()
+            res.status(RESPONSE_CODES.NOT_FOUND).json({
+                statusCode: RESPONSE_CODES.NOT_FOUND,
                 httpStatus: RESPONSE_STATUS.NOT_FOUND,
                 message: "Utilisateur n'existe pas",
                 result: errors
@@ -95,7 +94,7 @@ const login = async (req, res) => {
             statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
             httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
             message: "La connexion echoue Verifier les identifiants",
-            
+
         })
 
     }
@@ -145,7 +144,7 @@ const createUser = async (req, res) => {
             statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
             httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
             message: "Enregistrement echoue",
-            
+
         })
     }
 }
