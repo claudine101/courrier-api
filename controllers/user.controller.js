@@ -19,7 +19,9 @@ const login = async (req, res) => {
                 {
                     required: true,
                 },
+
             },
+
             {
 
                 password:
@@ -28,8 +30,15 @@ const login = async (req, res) => {
 
 
                 },
+                email: {
+                    required: "L'email est obligatoire",
+                    email: "Email invalide"
+                }
 
             }
+
+
+
         );
 
         await validation.run();
@@ -50,8 +59,8 @@ const login = async (req, res) => {
 
         if (user) {
             if (user.PASSWORD == password) {
-                const token = generateToken({ user: user.USER_ID }, 3600)
-                const { PASSWORD, ...other } = user
+                const token = generateToken({ user: user.ID_USER }, 3600)
+                const { PASSWORD, USERNAME, ID_PROFIL, ...other } = user
                 res.status(RESPONSE_CODES.CREATED).json({
                     statusCode: RESPONSE_CODES.CREATED,
                     httpStatus: RESPONSE_STATUS.CREATED,
@@ -100,12 +109,59 @@ const login = async (req, res) => {
     }
 }
 const createUser = async (req, res) => {
+    // const email = (await query("SELECT EMAIL FROM users WHERE 1"))
+    // console.log(email)
     try {
-        const { NOM, PRENOM, EMAIL, USERNAME, PASSWORD, ID_PROFIL, SEXE, DATE_NAISSANCE, COUNTRY_ID, ADRESSE, TELEPHONE_1, TELEPHONE_2 } = req.body
 
-        const validation = new Validation(req.body)
+
+        const { NOM, PRENOM, EMAIL, USERNAME, PASSWORD, SEXE, DATE_NAISSANCE, COUNTRY_ID, ADRESSE, TELEPHONE_1, TELEPHONE_2 } = req.body
+
+        const validation = new Validation(req.body,
+            {
+                EMAIL: "required,email",
+
+                NOM:
+                {
+                    required: true,
+                },
+                PRENOM:
+                {
+                    required: true,
+                },
+                EMAIL:
+                {
+                    required: true,
+                },
+                
+                PASSWORD:
+                {
+                    required: true,
+                },
+               
+            },
+            {
+                NOM: {
+                    required: "Le nom est obligatoire"
+                },
+                PRENOM: {
+                    required: "Le prenom est obligatoire"
+                },
+                EMAIL: {
+                    required: "L'email est obligatoire",
+                    email: "Invalide email"
+                },
+                PASSWORD: {
+                    required: "Le mot de passe est obligatoire"
+                },
+               
+               
+
+            }
+
+        )
         await validation.run();
         const isValide = await validation.isValidate()
+        const errors = await validation.getErrors()
         if (!isValide) {
             return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
                 statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
@@ -121,7 +177,7 @@ const createUser = async (req, res) => {
             EMAIL,
             USERNAME,
             PASSWORD,
-            ID_PROFIL,
+            1,
             SEXE,
             DATE_NAISSANCE,
             COUNTRY_ID,
