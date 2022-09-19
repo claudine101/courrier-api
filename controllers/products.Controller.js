@@ -1,9 +1,11 @@
 const RESPONSE_CODES = require("../constants/RESPONSE_CODES.js")
 const RESPONSE_STATUS = require("../constants/RESPONSE_STATUS.js")
 const productsModel = require("../Models/products.Model.js")
+const { query } = require("../utils/db")
 const getAllProducts = async (req, res) => {
     try {
-        const products = await productsModel.findproducts()
+        const {category}=req.query
+        const products = await productsModel.findproducts(category)
         res.status(RESPONSE_CODES.CREATED).json({
             statusCode: RESPONSE_CODES.CREATED,
             httpStatus: RESPONSE_STATUS.CREATED,
@@ -27,12 +29,12 @@ const getAllProducts = async (req, res) => {
 const getAllCategorie = async (req, res) => {
     try {
         
-        const products = await productsModel.findCategories()
+        const categories = await productsModel.findCategories()
         res.status(RESPONSE_CODES.CREATED).json({
             statusCode: RESPONSE_CODES.CREATED,
             httpStatus: RESPONSE_STATUS.CREATED,
             message: "Liste des categories",
-            result: products
+            result: categories
 
 
         })
@@ -52,12 +54,12 @@ const getAllCategorie = async (req, res) => {
 const getAllSousCategories = async (req, res) => {
     try {
         const { ID_CATEGORIE_PRODUIT } = req.params
-        const products = await productsModel.findSousCategories(ID_CATEGORIE_PRODUIT)
+        const subCategories = await productsModel.findSousCategories(ID_CATEGORIE_PRODUIT)
         res.status(RESPONSE_CODES.CREATED).json({
             statusCode: RESPONSE_CODES.CREATED,
             httpStatus: RESPONSE_STATUS.CREATED,
             message: "Liste des sous categories des produits",
-            result: products
+            result: subCategories
 
 
         })
@@ -76,12 +78,12 @@ const getAllSousCategories = async (req, res) => {
 const getSizes = async (req, res) => {
     try {
         const { ID_CATEGORIE_PRODUIT } = req.params
-        const products = await productsModel.findSizes(ID_CATEGORIE_PRODUIT)
+        const sizes = await productsModel.findSizes(ID_CATEGORIE_PRODUIT)
         res.status(RESPONSE_CODES.CREATED).json({
             statusCode: RESPONSE_CODES.CREATED,
             httpStatus: RESPONSE_STATUS.CREATED,
             message: "Liste des tailles des produits",
-            result: products
+            result:sizes
 
 
         })

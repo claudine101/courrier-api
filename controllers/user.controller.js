@@ -59,7 +59,7 @@ const login = async (req, res) => {
 
         if (user) {
             if (user.PASSWORD == password) {
-                const token = generateToken({ user: user.USER_ID }, 3600)
+                const token = generateToken({ user: user.ID_USER }, 3600)
                 const { PASSWORD, USERNAME, ID_PROFIL, ...other } = user
                 res.status(RESPONSE_CODES.CREATED).json({
                     statusCode: RESPONSE_CODES.CREATED,
