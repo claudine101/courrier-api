@@ -11,7 +11,7 @@ const RESPONSE_CODES = require("./constants/RESPONSE_CODES");
 const RESPONSE_STATUS = require("./constants/RESPONSE_STATUS");
 const testRouter = require("./routes/test.routes");
 const usersRouter = require("./routes/users.routes");
-const productsRouter=require("./routes/products.routes")
+const productsRouter = require("./routes/products.routes")
 const app = express();
 
 dotenv.config({ path: path.join(__dirname, "./.env") });
@@ -24,7 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/test', testRouter)
 app.use('/users', usersRouter)
-app.use('/products',productsRouter)
+app.use('/products', productsRouter)
 
 app.all("*", (req, res) => {
     res.status(RESPONSE_CODES.NOT_FOUND).json({

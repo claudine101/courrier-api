@@ -7,7 +7,7 @@ const getAllProducts = async (req, res) => {
         res.status(RESPONSE_CODES.CREATED).json({
             statusCode: RESPONSE_CODES.CREATED,
             httpStatus: RESPONSE_STATUS.CREATED,
-            message: "Lecture faite avec succès",
+            message: "Liste des produits",
             result: products
 
 
@@ -19,18 +19,19 @@ const getAllProducts = async (req, res) => {
         res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
             statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
             httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-            message: "La Lecture echoue",
+            message: "Erreur interne du serveur, réessayer plus tard",
 
         })
     }
 }
 const getAllCategorie = async (req, res) => {
     try {
+        
         const products = await productsModel.findCategories()
         res.status(RESPONSE_CODES.CREATED).json({
             statusCode: RESPONSE_CODES.CREATED,
             httpStatus: RESPONSE_STATUS.CREATED,
-            message: "Lecture faite avec succès",
+            message: "Liste des categories",
             result: products
 
 
@@ -42,20 +43,20 @@ const getAllCategorie = async (req, res) => {
         res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
             statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
             httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-            message: "Lecture echoue",
+            message: "Erreur interne du serveur, réessayer plus tard",
 
         })
     }
 }
 
 const getAllSousCategories = async (req, res) => {
-    try { 
-        const{ID_CATEGORIE_PRODUIT}=req.params
+    try {
+        const { ID_CATEGORIE_PRODUIT } = req.params
         const products = await productsModel.findSousCategories(ID_CATEGORIE_PRODUIT)
         res.status(RESPONSE_CODES.CREATED).json({
             statusCode: RESPONSE_CODES.CREATED,
             httpStatus: RESPONSE_STATUS.CREATED,
-            message: "Lecture faite avec succès",
+            message: "Liste des sous categories des produits",
             result: products
 
 
@@ -67,18 +68,19 @@ const getAllSousCategories = async (req, res) => {
         res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
             statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
             httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-            message: "Lecture echoue",
+            message: "Erreur interne du serveur, réessayer plus tard",
 
         })
     }
 }
 const getSizes = async (req, res) => {
     try {
-        const products = await productsModel.findSizes()
+        const { ID_CATEGORIE_PRODUIT } = req.params
+        const products = await productsModel.findSizes(ID_CATEGORIE_PRODUIT)
         res.status(RESPONSE_CODES.CREATED).json({
             statusCode: RESPONSE_CODES.CREATED,
             httpStatus: RESPONSE_STATUS.CREATED,
-            message: "La liste des tailles des produits",
+            message: "Liste des tailles des produits",
             result: products
 
 
@@ -90,7 +92,7 @@ const getSizes = async (req, res) => {
         res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
             statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
             httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-            message: "Lecture echoue",
+            message: "Erreur interne du serveur, réessayer plus tard",
 
         })
     }
