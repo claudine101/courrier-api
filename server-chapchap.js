@@ -11,7 +11,9 @@ const RESPONSE_CODES = require("./constants/RESPONSE_CODES");
 const RESPONSE_STATUS = require("./constants/RESPONSE_STATUS");
 const testRouter = require("./routes/test.routes");
 const usersRouter = require("./routes/users.routes");
+const commandeRouter = require("./routes/commandes.routes")
 const app = express();
+const bindUser = require("./middleware/bindUser")
 
 dotenv.config({ path: path.join(__dirname, "./.env") });
 
@@ -21,8 +23,10 @@ app.use(fileUpload());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.all('*',bindUser)
 app.use('/test', testRouter)
 app.use('/users', usersRouter)
+app.use("/commandes",commandeRouter)
 
 app.all("*", (req, res) => {
     res.status(RESPONSE_CODES.NOT_FOUND).json({
