@@ -12,6 +12,7 @@ const RESPONSE_STATUS = require("./constants/RESPONSE_STATUS");
 const testRouter = require("./routes/test.routes");
 const usersRouter = require("./routes/users.routes");
 const commandeRouter = require("./routes/commandes.routes")
+const productsRouter = require("./routes/products.routes")
 const app = express();
 const bindUser = require("./middleware/bindUser")
 
@@ -27,6 +28,7 @@ app.all('*',bindUser)
 app.use('/test', testRouter)
 app.use('/users', usersRouter)
 app.use("/commandes",commandeRouter)
+app.use('/products', productsRouter)
 
 app.all("*", (req, res) => {
     res.status(RESPONSE_CODES.NOT_FOUND).json({
