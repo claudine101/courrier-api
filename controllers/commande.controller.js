@@ -1,4 +1,4 @@
-const commandeModel = require('../Models/commandeModel')
+const commandeModel = require('../models/commande.model')
 const Validation = require('../class/Validation')
 const jwt = require("jsonwebtoken");
 const RESPONSE_CODES = require('../constants/RESPONSE_CODES');

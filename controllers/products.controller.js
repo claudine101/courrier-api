@@ -1,6 +1,6 @@
 const RESPONSE_CODES = require("../constants/RESPONSE_CODES.js")
 const RESPONSE_STATUS = require("../constants/RESPONSE_STATUS.js")
-const productsModel = require("../Models/products.Model.js")
+const productsModel = require("../models/products.model.js")
 const { query } = require("../utils/db")
 const getAllProducts = async (req, res) => {
     try {
