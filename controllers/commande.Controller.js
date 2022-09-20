@@ -50,9 +50,57 @@ const findAllCommandes = async (req, res) => {
 const createAllLivraisons = async (req, res) => {
         try {
                 const { NOM, PRENOM, ADRESSE, LONGITUDE, LATITUDE } = req.body
-                const validation = new Validation(req.body)
+                const validation = new Validation(req.body,
+                        {
+
+                                NOM:
+                                {
+                                        required: true,
+                                },
+                                PRENOM:
+                                {
+                                        required: true,
+                                },
+                                ADRESSE:
+                                {
+                                        required: true,
+                                },
+
+                                LONGITUDE:
+                                {
+                                        required: true,
+                                },
+                                LATITUDE:
+                                {
+                                        required: true,
+                                },
+
+                        },
+                        {
+
+                                NOM:
+                                {
+                                        required: "Mot de passe est obligatoire",
+                                },
+                                PRENOM: {
+                                        required: "L'email est obligatoire",
+                                },
+                                ADRESSE: {
+                                        required: "L'email est obligatoire",
+                                },
+                                LONGITUDE: {
+                                        required: "L'email est obligatoire",
+                                },
+                                LATITUDE: {
+                                        required: "L'email est obligatoire",
+                                }
+
+
+                        }
+                )
                 await validation.run()
                 const isValide = await validation.isValidate()
+                const errors = await validation.getErrors()
                 if (!isValide) {
                         return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
                                 statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
