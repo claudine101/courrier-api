@@ -46,14 +46,14 @@ const createLivraisons = async (ID_USER, NOM, PRENOM, ADRESSE, LONGITUDE, LATITU
 
 }
 
-// const findCommandes = async (userId) => {
-//         try {
-//                 return query("SELECT * FROM `ecommerce_commandes` WHERE ID_USER=?"[userId])
-//         }
-//         catch (error) {
-//                 throw error;
-//         }
-// };
+const findCommandes = async (userId) => {
+        try {
+                return query("SELECT * FROM ecommerce_commandes WHERE ID_USER=?",[userId])
+        }
+        catch (error) {
+                throw error;
+        }
+};
 
 
 module.exports = {
@@ -61,5 +61,5 @@ module.exports = {
         createCommandes,
         createCommandeDetails,
         createLivraisons,
-        // findCommandes
+        findCommandes
 }

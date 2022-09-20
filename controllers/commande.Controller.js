@@ -27,25 +27,25 @@ const findAllLivraisons = async (req, res) => {
         }
 }
 
-// const findAllCommandes = async (req, res) => {
-//         try {
-//                 const les_commandes = await commandeModel.findCommandes(req.userId)
-//                 res.status(RESPONSE_CODES.OK).json({
-//                         statusCode: RESPONSE_CODES.OK,
-//                         httpStatus: RESPONSE_STATUS.OK,
-//                         message: "Vous vez bien retourner les donnees",
-//                         result: les_commandes
-//                 })
-//         }
-//         catch (error) {
-//                 console.log(error)
-//                 res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-//                         statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-//                         httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-//                         message: "Erreur interne du serveur, réessayer plus tard"
-//                 })
-//         }
-// }
+const findAllCommandes = async (req, res) => {
+        try {
+                const Allcommandes = await commandeModel.findCommandes(req.userId)
+                res.status(RESPONSE_CODES.OK).json({
+                        statusCode: RESPONSE_CODES.OK,
+                        httpStatus: RESPONSE_STATUS.OK,
+                        message: "Vous avez bien retourner les donnees",
+                        result: Allcommandes
+                })
+        }
+        catch (error) {
+                console.log(error)
+                res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                        statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                        httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                        message: "Erreur interne du serveur, réessayer plus tard"
+                })
+        }
+}
 
 const createAllLivraisons = async (req, res) => {
         try {
@@ -150,5 +150,5 @@ module.exports = {
         findAllLivraisons,
         createAllCommandes,
         createAllLivraisons,
-        // findAllCommandes
+        findAllCommandes
 }
