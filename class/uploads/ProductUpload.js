@@ -5,7 +5,7 @@ class ProductUpload extends Upload
 {
           constructor() {
                     super()
-                    this.destinationPath = path.resolve('./') + path.sep + 'public' + path.sep + 'uploads' + path.sep + 'product'
+                    this.destinationPath = path.resolve('./') + path.sep + 'public' + path.sep + 'uploads' + path.sep + 'products'
           }
 }
 module.exports = ProductUpload

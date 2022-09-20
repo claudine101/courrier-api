@@ -1,4 +1,6 @@
 const partenaireModel = require('../Models/partenaire.model')
+const UserUpload = require("../class/uploads/UserUpload")
+
 const Validation = require('../class/Validation')
 const jwt = require("jsonwebtoken");
 const RESPONSE_CODES = require('../constants/RESPONSE_CODES');
@@ -15,11 +17,16 @@ const createPartenaire = async (req, res) => {
             NOM_ORGANISATION,
             ID_SERVICE,
             PARTENAIRE_SERVICE_STATUT_ID,
-            } = req.body
+        } = req.body
+        const { IMAGE } = req.files || {}
 
-           const validation = new Validation(
-            req.body,
+        const validation = new Validation(
+            { ...req.body, ...req.files },
             {
+                IMAGE: {
+                    required: true,
+                    image: 21000000
+                },
                 NOM:
                 {
                     required: true,
@@ -29,9 +36,10 @@ const createPartenaire = async (req, res) => {
                     required: true,
                 },
                 // EMAIL: "required,email",
-                EMAIL:{
-                    required:true,
-                    email:true
+                EMAIL: {
+                    required: true,
+                    email: true,
+                    unique: "users,EMAIL"
                 },
                 PASSWORD:
                 {
@@ -79,9 +87,12 @@ const createPartenaire = async (req, res) => {
                     exists: "partenaire_service_statut,ID_PARTENAIRE_SERVICE_STATUT",
 
                 }
-                
+
             },
-            {
+            { IMAGE: {
+                required:"image est obligatoire",
+                image: "taille invalide"
+            },
                 NOM:
                 {
                     required: "Nom d'un utilisateur   est obligatoire",
@@ -92,6 +103,7 @@ const createPartenaire = async (req, res) => {
                 },
                 EMAIL:
                 {
+                    unique:"email est  déjà utilisé",
                     email: "email est invalide",
                     required: "Email d'un utilisateur   est obligatoire",
                 },
@@ -105,42 +117,42 @@ const createPartenaire = async (req, res) => {
                     exists: "profil  est incorerect",
                 },
 
-            SEXE:
-            {
-                required: "Sexe  est obligatoire",
-            },
-             DATE_NAISSANCE:
-             {
-                required: "Date de naissance  est obligatoire",
-            },
-             COUNTRY_ID:
-             {
-                required: "country  est obligatoire",
-            },
-            ADRESSE:
-            {
-                required: "Adresse  est obligatoire",
-            },
-             TELEPHONE_1:
-             {
-                required: "téléphone  est obligatoire",
-            },
-            TELEPHONE_2:
-             {
-                required: "téléphone  est obligatoire",
-            },
-            ID_TYPE_PARTENAIRE:
-            {
-                exists: "type partenaire  est invalide",
-            },
-            ID_SERVICE:
-            {
-                exists: "service  est invalide",
-            },
-            PARTENAIRE_SERVICE_STATUT_ID:
-            {
-                exists: "service partenaire  est invalide",
-            },
+                SEXE:
+                {
+                    required: "Sexe  est obligatoire",
+                },
+                DATE_NAISSANCE:
+                {
+                    required: "Date de naissance  est obligatoire",
+                },
+                COUNTRY_ID:
+                {
+                    required: "country  est obligatoire",
+                },
+                ADRESSE:
+                {
+                    required: "Adresse  est obligatoire",
+                },
+                TELEPHONE_1:
+                {
+                    required: "téléphone  est obligatoire",
+                },
+                TELEPHONE_2:
+                {
+                    required: "téléphone  est obligatoire",
+                },
+                ID_TYPE_PARTENAIRE:
+                {
+                    exists: "type partenaire  est invalide",
+                },
+                ID_SERVICE:
+                {
+                    exists: "service  est invalide",
+                },
+                PARTENAIRE_SERVICE_STATUT_ID:
+                {
+                    exists: "service partenaire  est invalide",
+                },
             }
         );
 
@@ -156,6 +168,9 @@ const createPartenaire = async (req, res) => {
             })
 
         }
+        const userUpload = new UserUpload()
+        const { fileInfo, thumbInfo } = await userUpload.upload(IMAGE, false)
+
         const { insertId: insertUser } = await partenaireModel.createUser(
             NOM,
             PRENOM,
@@ -169,7 +184,7 @@ const createPartenaire = async (req, res) => {
             ADRESSE,
             TELEPHONE_1,
             TELEPHONE_2,
-            //IMAGE
+            fileInfo.fileName
         )
         const { insertId: insertPartenaire } = await partenaireModel.createPartenaire(
             insertUser,
