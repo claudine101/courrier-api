@@ -1,4 +1,4 @@
-const userModel = require('../models/user.model')
+const userModel = require('../models/user.partenaire.model')
 const Validation = require('../class/Validation')
 const jwt = require("jsonwebtoken");
 const RESPONSE_CODES = require('../constants/RESPONSE_CODES');
@@ -58,7 +58,9 @@ const login = async (req, res) => {
         var user = (await userModel.findBy("EMAIL", email))[0];
 
         if (user) {
-            if (user.PASSWORD == password) {
+            if (user.PASSWORD == password) 
+            {
+                
                 const token = generateToken({ user: user.ID_USER }, 3600)
                 const { PASSWORD, USERNAME, ID_PROFIL, ...other } = user
                 res.status(RESPONSE_CODES.CREATED).json({
