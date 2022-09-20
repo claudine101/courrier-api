@@ -28,7 +28,11 @@ const createPartenaire = async (req, res) => {
                 {
                     required: true,
                 },
-                EMAIL: "required,email",
+                // EMAIL: "required,email",
+                EMAIL:{
+                    required:true,
+                    email:true
+                },
                 PASSWORD:
                 {
                     required: true,
