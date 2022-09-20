@@ -1,4 +1,4 @@
-const { query } = require("../functions/db");
+const { query } = require("../utils/db");
 
 class Validation {
           constructor(data, validation, customMessages) {
@@ -48,7 +48,7 @@ class Validation {
            */
           async required(key, value) {
                     try {
-                              if (!this.data[key] || !value || value === "") {
+                              if (!this.data || !key || !this.data[key] || !value || value === "") {
                                         this.setError(
                                                   key,
                                                   this.customMessages?.[key]?.required || `This field is required`
@@ -203,7 +203,7 @@ class Validation {
           }
 
           getValue(key) {
-                    return this.data[key];
+                    return this.data && key ? this.data[key] : null
           }
 }
 module.exports = Validation;

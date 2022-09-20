@@ -10,6 +10,7 @@ const fileUpload = require("express-fileupload");
 const RESPONSE_CODES = require("./constants/RESPONSE_CODES");
 const RESPONSE_STATUS = require("./constants/RESPONSE_STATUS");
 const testRouter = require("./routes/test.routes");
+const multer = require('multer')
 
 const app = express();
 
@@ -17,9 +18,9 @@ dotenv.config({ path: path.join(__dirname, "./.env") });
 
 app.use(cors());
 app.use(express.static(__dirname + "/public"));
+app.use(express.urlencoded({ extended: true }))
+app.use(express.json())
 app.use(fileUpload());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 app.use('/test', testRouter)
 
