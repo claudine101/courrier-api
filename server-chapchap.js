@@ -10,7 +10,7 @@ const fileUpload = require("express-fileupload");
 const RESPONSE_CODES = require("./constants/RESPONSE_CODES");
 const RESPONSE_STATUS = require("./constants/RESPONSE_STATUS");
 const testRouter = require("./routes/test.routes");
-const usersPartenaireRouter = require("./routes/users.partenaire.routes");
+const usersRouter = require("./routes/users.routes");
 const partenaireProduitRouter= require("./routes/partenaire.produit.routes");
 const partenaireRouter= require("./routes/partenaire.routes");
 const serviceRouter= require("./routes/service.routes");
@@ -30,7 +30,7 @@ app.use(fileUpload());
 
 app.all('*', bindUser)
 app.use('/test', testRouter)
-app.use('/users', usersPartenaireRouter)
+app.use('/users', usersRouter)
 app.use('/service', serviceRouter)
 app.use('/partenaire/service', partenaireRouter)
 app.use('/partenaire/produit', partenaireProduitRouter)

@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const RESPONSE_CODES = require('../constants/RESPONSE_CODES');
 const RESPONSE_STATUS = require('../constants/RESPONSE_STATUS');
 const generateToken = require('../utils/generateToken');
+const UserUpload = require("../class/uploads/UserUpload")
 const path = require("path");
 const login = async (req, res) => {
 
@@ -115,10 +116,13 @@ const createUser = async (req, res) => {
 
 
         const { NOM, PRENOM, EMAIL, USERNAME, PASSWORD, SEXE, DATE_NAISSANCE, COUNTRY_ID, ADRESSE, TELEPHONE_1, TELEPHONE_2 } = req.body
-
-        const validation = new Validation(req.body,
+        const { IMAGE } = req.files || {}
+        const validation = new Validation({...req.body,...req.files},
             {
-                EMAIL: "required,email",
+                IMAGE: {
+                    required: true,
+                    image: 21000000
+                },
 
                 NOM:
                 {
@@ -131,15 +135,20 @@ const createUser = async (req, res) => {
                 EMAIL:
                 {
                     required: true,
+                    email: true
                 },
-                
+
                 PASSWORD:
                 {
                     required: true,
                 },
-               
+
             },
             {
+                IMAGE: {
+                    required: "Image Obligatoire",
+                    IMAGE: "La taille invalide"
+                },
                 NOM: {
                     required: "Le nom est obligatoire"
                 },
@@ -153,12 +162,13 @@ const createUser = async (req, res) => {
                 PASSWORD: {
                     required: "Le mot de passe est obligatoire"
                 },
-               
-               
+
+
 
             }
 
         )
+        
         await validation.run();
         const isValide = await validation.isValidate()
         const errors = await validation.getErrors()
@@ -171,6 +181,9 @@ const createUser = async (req, res) => {
             })
 
         }
+        const userUpload = new UserUpload()
+        const { fileInfo, thumbInfo } = await userUpload.upload(IMAGE, false)
+        
         const { insertId } = await userModel.createOne(
             NOM,
             PRENOM,
@@ -184,7 +197,7 @@ const createUser = async (req, res) => {
             ADRESSE,
             TELEPHONE_1,
             TELEPHONE_2,
-            //IMAGE
+            fileInfo.fileName
         )
         const user = (await userModel.findById(insertId))[0]
         res.status(RESPONSE_CODES.CREATED).json({
