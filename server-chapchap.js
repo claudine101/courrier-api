@@ -20,9 +20,9 @@ dotenv.config({ path: path.join(__dirname, "./.env") });
 
 app.use(cors());
 app.use(express.static(__dirname + "/public"));
+app.use(express.urlencoded({ extended: true }))
+app.use(express.json())
 app.use(fileUpload());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 app.all('*',bindUser)
 app.use('/test', testRouter)
