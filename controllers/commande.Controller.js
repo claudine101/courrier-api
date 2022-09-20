@@ -13,7 +13,7 @@ const findAllLivraisons = async (req, res) => {
                 res.status(RESPONSE_CODES.OK).json({
                         statusCode: RESPONSE_CODES.OK,
                         httpStatus: RESPONSE_STATUS.OK,
-                        message: "Vous vez bien retourner les donnees",
+                        message: "Vous avez bien retourner les donnees",
                         result: livraisons
                 })
         }
