@@ -15,9 +15,9 @@ const createPartenaire = async (req, res) => {
             NOM_ORGANISATION,
             ID_SERVICE,
             PARTENAIRE_SERVICE_STATUT_ID,
-            ID_USER } = req.body
+            } = req.body
 
-        const validation = new Validation(
+           const validation = new Validation(
             req.body,
             {
                 NOM:

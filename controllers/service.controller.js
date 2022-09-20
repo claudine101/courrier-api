@@ -16,7 +16,7 @@ const findAllService = async (req, res) => {
             message: "succès",
             result: service
         })
-        console.log(service)
+        console.log(req.userId)
     }
     catch (error) {
         console.log(error)

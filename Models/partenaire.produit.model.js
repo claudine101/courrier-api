@@ -51,9 +51,19 @@ const findById = async (id) => {
       throw error;
     }
   };
+  const findByIdPoduit = async (userID,id) => {
+    try {
+      return query("SELECT * FROM  partenaires p LEFT JOIN ecommerce_produit_partenaire par ON par.ID_PARTENAIRE=p.ID_PARTENAIRE LEFT JOIN  ecommerce_produits pro ON pro.ID_PRODUIT=par.ID_PRODUIT LEFT JOIN ecommerce_produit_stock st ON st.ID_PRODUIT_PARTENAIRE=par.ID_PRODUIT_PARTENAIRE LEFT  JOIN ecommerce_historique_approvisionnement histo on histo.ID_PRODUIT_STOCK=st.ID_PRODUIT_STOCK LEFT JOIN ecommerce_historique_ecoulement ec on ec.ID_PRODUIT_STOCK=st.ID_PRODUIT_STOCK WHERE p.ID_USER=? AND pro.ID_PRODUIT=?", [userID,id]);
+
+    } catch (error) {
+      throw error;
+    }
+  };
 module.exports = {
     createProduit,
     createStock,
     createPrix,
-    findById,findByIdPartenaire
+    findById,
+    findByIdPartenaire,
+    findByIdPoduit
 }

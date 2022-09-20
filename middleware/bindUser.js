@@ -6,7 +6,7 @@ const bindUser = (request, response, next) => {
   const token = bearerToken;
   if (token) {
     jwt.verify(token, process.env.JWT_PRIVATE_KEY, (error, user) => {
-      //console.log(error,user)
+      console.log(error,user)
       if (error) {
         next();
       } else {

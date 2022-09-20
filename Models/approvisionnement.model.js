@@ -18,6 +18,14 @@ const findById = async (id) => {
       throw error;
     }
   };
+  const findByIde = async (id) => {
+    try {
+      return query("SELECT * FROM   ecommerce_produit_stock st LEFT JOIN ecommerce_historique_approvisionnement ap  ON st.ID_PRODUIT_STOCK=ap.ID_PRODUIT_STOCK WHERE  ap.ID_HISTORIQUE_APPROVISIONNEMENT=?", [id]);
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const update = async (QUANTITE_STOCKE,QUANTITE_RESTANTE,id) => {
     try {
       return query("UPDATE ecommerce_produit_stock SET QUANTITE_STOCKE=?, QUANTITE_RESTANTE=? ,QUANTITE_VENDUE=null WHERE ID_PRODUIT_STOCK=? ", [QUANTITE_STOCKE,QUANTITE_RESTANTE,id]);
@@ -30,5 +38,6 @@ const findById = async (id) => {
 module.exports = {
     createApprovisionne,
     findById,
-    update
+    update,
+    findByIde
 }

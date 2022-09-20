@@ -10,14 +10,14 @@ const fileUpload = require("express-fileupload");
 const RESPONSE_CODES = require("./constants/RESPONSE_CODES");
 const RESPONSE_STATUS = require("./constants/RESPONSE_STATUS");
 const testRouter = require("./routes/test.routes");
-const usersRouter = require("./routes/users.routes");
+const usersPartenaireRouter = require("./routes/users.partenaire.routes");
 const partenaireProduitRouter= require("./routes/partenaire.produit.routes");
 const partenaireRouter= require("./routes/partenaire.routes");
 const serviceRouter= require("./routes/service.routes");
 const approvisionnementRouter= require("./routes/approvisionnement.routes");
 
 const app = express();
-
+const bindUser=require("./middleware/bindUser")
 dotenv.config({ path: path.join(__dirname, "./.env") });
 
 app.use(cors());
@@ -26,17 +26,13 @@ app.use(fileUpload());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.all('*', bindUser)
 app.use('/test', testRouter)
-app.use('/users', usersRouter)
+app.use('/users', usersPartenaireRouter)
 app.use('/service', serviceRouter)
 app.use('/partenaire/service', partenaireRouter)
 app.use('/partenaire/produit', partenaireProduitRouter)
 app.use('/partenaire/stock/approvisionnement', approvisionnementRouter)
-
-// app.use('/partenaire/stock/produit', produitRouter)
-
-
-
 
 app.all("*", (req, res) => {
     res.status(RESPONSE_CODES.NOT_FOUND).json({

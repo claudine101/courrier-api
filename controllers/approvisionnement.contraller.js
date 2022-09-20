@@ -3,16 +3,41 @@ const Validation = require('../class/Validation')
 const RESPONSE_CODES = require('../constants/RESPONSE_CODES');
 const RESPONSE_STATUS = require('../constants/RESPONSE_STATUS');
 const generateToken = require('../utils/generateToken');
-    const  createApprovisionne= async (req, res) => {
+const createApprovisionne = async (req, res) => {
     try {
-        const { 
+        const {
             ID_PRODUIT_STOCK,
             QUANTITE_APPROVISIONNER,
         } = req.body
 
-        const validation = new Validation(req.body)
+        const validation = new Validation(
+            req.body,
+            {
+                QUANTITE_APPROVISIONNER: 
+                {
+                    length:[0,1],
+                    required: true,
+                },
+                ID_PRODUIT_STOCK:
+                {
+                    exists: "ecommerce_produit_stock,ID_PRODUIT_STOCK",
+                },
+
+            },
+            {
+                QUANTITE_APPROVISIONNER:
+                {
+                    required: "Quantite est obligatoire",
+                },
+                ID_PRODUIT_STOCK:
+                {
+                    exists: "produit  invalide",
+                }
+            }
+        );
         await validation.run();
         const isValide = await validation.isValidate()
+        const errors = await validation.getErrors()
         if (!isValide) {
             return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
                 statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
@@ -22,20 +47,21 @@ const generateToken = require('../utils/generateToken');
             })
 
         }
-        const prod= (await approvisionnementModel.findById(ID_PRODUIT_STOCK))[0]
-        const { insertId} = await approvisionnementModel.createApprovisionne(
+        const prod = (await approvisionnementModel.findById(ID_PRODUIT_STOCK))[0]
+        const { insertId } = await approvisionnementModel.createApprovisionne(
             ID_PRODUIT_STOCK,
-            prod.QUANTITE_STOCKE-prod.QUANTITE_VENDUE,
+            parseInt(prod.QUANTITE_STOCKE) - parseInt(prod.QUANTITE_VENDUE),
             QUANTITE_APPROVISIONNER,
-            prod.QUANTITE_RESTANTE+QUANTITE_APPROVISIONNER,
+            parseInt(prod.QUANTITE_RESTANTE) + parseInt(QUANTITE_APPROVISIONNER),
+
         )
-      await approvisionnementModel.update(
-        prod.QUANTITE_RESTANTE+QUANTITE_APPROVISIONNER,
-            prod.QUANTITE_RESTANTE+QUANTITE_APPROVISIONNER,
+        await approvisionnementModel.update(
+            parseInt(prod.QUANTITE_RESTANTE) + parseInt(QUANTITE_APPROVISIONNER),
+            parseInt(prod.QUANTITE_RESTANTE) + parseInt(QUANTITE_APPROVISIONNER),
             ID_PRODUIT_STOCK
         )
-       
-        const produit = (await approvisionnementModel.findById(insertId))[0]
+
+        const produit = (await approvisionnementModel.findByIde(insertId))[0]
         res.status(RESPONSE_CODES.CREATED).json({
             statusCode: RESPONSE_CODES.CREATED,
             httpStatus: RESPONSE_STATUS.CREATED,
