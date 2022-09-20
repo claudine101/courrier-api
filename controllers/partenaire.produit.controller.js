@@ -5,6 +5,7 @@ const RESPONSE_CODES = require('../constants/RESPONSE_CODES');
 const RESPONSE_STATUS = require('../constants/RESPONSE_STATUS');
 const generateToken = require('../utils/generateToken');
 const path = require("path");
+const ProductUpload = require("../class/uploads/ProductUpload")
 const createProduit = async (req, res) => {
     try {
         const {
@@ -17,13 +18,23 @@ const createProduit = async (req, res) => {
             QUANTITE_STOCKE,
             QUANTIPRIX,
             ID_STATUT
-
-
         } = req.body
-
+        const { IMAGE_1, IMAGE_2, IMAGE_3 } = req.files || {}
         const validation = new Validation(
-            req.body,
+            { ...req.body, ...req.files },
             {
+                IMAGE_1: {
+                    required: true,
+                    image: 21000000
+                },
+                IMAGE_2: {
+                    required: true,
+                    image: 21000000
+                },
+                IMAGE_3: {
+                    required: true,
+                    image: 21000000
+                },
                 ID_PRODUIT:
                 {
                     exists: "ecommerce_produits,ID_PRODUIT",
@@ -62,6 +73,18 @@ const createProduit = async (req, res) => {
 
             },
             {
+                IMAGE_1: {
+                    required: "Image d'un produit est obligatoire",
+                    image: "taille invalide"
+                },
+                IMAGE_2: {
+                    required: "Image d'un produit est obligatoire",
+                    image: "taille invalide"
+                },
+                IMAGE_3: {
+                    required: "Image d'un produit est obligatoire",
+                    image: "taille invalide"
+                },
                 ID_PRODUIT:
                 {
                     exists: "Produit  invalide",
@@ -88,10 +111,10 @@ const createProduit = async (req, res) => {
                 },
                 QUANTITE_STOCKE:
                 {
-                    required:  "quantite  est obligatoire",
+                    required: "quantite  est obligatoire",
                 },
                 QUANTIPRIX: {
-                    required:  "prix  est obligatoire",
+                    required: "prix  est obligatoire",
                 },
                 ID_STATUT:
                 {
@@ -112,6 +135,11 @@ const createProduit = async (req, res) => {
             })
 
         }
+        const productUpload = new ProductUpload()
+                    const { fileInfo:fileInfo_1,thumbInfo:thumbInfo_1 } = await productUpload.upload(IMAGE_1, false)
+                    const { fileInfo:fileInfo_2 ,thumbInfo:thumbInfo_2} = await productUpload.upload(IMAGE_2, false)
+                    const { fileInfo:fileInfo_3,thumbInfo:thumbInfo_3} = await productUpload.upload(IMAGE_3, false)
+
         const { insertId: insertProduit } = await partenaireProduitModel.createProduit(
             ID_PRODUIT,
             req.userId,
@@ -119,8 +147,11 @@ const createProduit = async (req, res) => {
             ID_PRODUIT_SOUS_CATEGORIE,
             ID_TAILLE,
             NOM,
-            DESCRIPTION
-            //IMAGE
+            DESCRIPTION,
+            fileInfo_1.fileName,
+            fileInfo_2.fileName,
+            fileInfo_3.fileName
+            
         )
         const { insertId: insertStock } = await partenaireProduitModel.createStock(
             insertProduit,
@@ -179,7 +210,7 @@ const findByIdProduit = async (req, res) => {
     const { id } = req.params
     try {
 
-        const produit = await partenaireProduitModel.findByIdPoduit(req.userId,id)
+        const produit = await partenaireProduitModel.findByIdPoduit(req.userId, id)
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_STATUS.OK,

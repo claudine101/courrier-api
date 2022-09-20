@@ -15,7 +15,7 @@ const createApprovisionne = async (req, res) => {
             {
                 QUANTITE_APPROVISIONNER: 
                 {
-                    length:[0,1],
+                   
                     required: true,
                 },
                 ID_PRODUIT_STOCK:

@@ -15,6 +15,7 @@ const partenaireProduitRouter= require("./routes/partenaire.produit.routes");
 const partenaireRouter= require("./routes/partenaire.routes");
 const serviceRouter= require("./routes/service.routes");
 const approvisionnementRouter= require("./routes/approvisionnement.routes");
+const userPartenaireRouter= require("./routes/users.partenaire.routes");
 
 const app = express();
 const bindUser=require("./middleware/bindUser");
@@ -31,6 +32,7 @@ app.use(fileUpload());
 app.all('*', bindUser)
 app.use('/test', testRouter)
 app.use('/users', usersRouter)
+app.use('/partenaire', userPartenaireRouter)
 app.use('/service', serviceRouter)
 app.use('/partenaire/service', partenaireRouter)
 app.use('/partenaire/produit', partenaireProduitRouter)
