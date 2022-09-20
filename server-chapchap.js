@@ -17,7 +17,8 @@ const serviceRouter= require("./routes/service.routes");
 const approvisionnementRouter= require("./routes/approvisionnement.routes");
 
 const app = express();
-const bindUser=require("./middleware/bindUser")
+const bindUser=require("./middleware/bindUser");
+const commandeRouter = require("./routes/commandes.routes");
 dotenv.config({ path: path.join(__dirname, "./.env") });
 
 app.use(cors());
@@ -33,6 +34,7 @@ app.use('/service', serviceRouter)
 app.use('/partenaire/service', partenaireRouter)
 app.use('/partenaire/produit', partenaireProduitRouter)
 app.use('/partenaire/stock/approvisionnement', approvisionnementRouter)
+app.use("/commandes",commandeRouter)
 
 app.all("*", (req, res) => {
     res.status(RESPONSE_CODES.NOT_FOUND).json({
