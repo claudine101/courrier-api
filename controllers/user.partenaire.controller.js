@@ -1,4 +1,4 @@
-const userModel = require('../Models/user.partenaire.model')
+const userModel = require('../models/user.partenaire.model')
 const Validation = require('../class/Validation')
 const jwt = require("jsonwebtoken");
 const RESPONSE_CODES = require('../constants/RESPONSE_CODES');
