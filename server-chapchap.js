@@ -28,7 +28,7 @@ app.use(fileUpload());
 
 app.all('*', bindUser)
 app.use('/test', testRouter)
-app.use('/users', usersPartenaireRouter)
+app.use('/partenaire', usersPartenaireRouter)
 app.use('/service', serviceRouter)
 app.use('/partenaire/service', partenaireRouter)
 app.use('/partenaire/produit', partenaireProduitRouter)
