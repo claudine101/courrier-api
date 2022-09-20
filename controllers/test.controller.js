@@ -26,6 +26,7 @@ const test = async (req, res) => {
                     }
                     const userUpload = new UserUpload()
                     const { fileInfo, thumbInfo } = await userUpload.upload(image, false)
+                    fileInfo.fileName
                     res.status(RESPONSE_CODES.CREATED).json({
                               statusCode: RESPONSE_CODES.CREATED,
                               httpStatus: RESPONSE_STATUS.CREATED,
