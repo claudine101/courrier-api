@@ -55,11 +55,32 @@ const findCommandes = async (userId) => {
         }
 };
 
+const findCommandesbyId = async (userId) => {
+        try {
+                return query("SELECT comm.DATE_INSERTION,comm.PRIX_COMMANDE,comm.PRIX_LIVRAISON,comm.SOMME_TOTALE,comm.DATE_DEBUT_LIVRAISON,comm.DATE_FIN_LIVRAISON, us.NOM, us.PRENOM FROM ecommerce_commandes comm LEFT JOIN users us on us.ID_USER=comm.ID_USER WHERE comm.ID_COMMANDE = ?",[userId])
+        }
+        catch (error) {
+                throw error;
+        }
+};
+
+const findAllLivraisonById = async (userId) => {
+        try {
+                return query("SELECT livr.NOM,livr.PRENOM, livr.ADRESSE, livr.LONGITUDE, livr.LATITUDE FROM ecommerce_clients_livraison livr WHERE livr.ID_LIVRAISON=?",[userId])
+        }
+        catch (error) {
+                throw error;
+        }
+};
+
+
 
 module.exports = {
         findAll,
         createCommandes,
         createCommandeDetails,
         createLivraisons,
-        findCommandes
+        findCommandes,
+        findCommandesbyId,
+        findAllLivraisonById
 }

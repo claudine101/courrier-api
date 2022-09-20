@@ -6,6 +6,7 @@ const RESPONSE_STATUS = require('../constants/RESPONSE_STATUS');
 const generateToken = require('../utils/generateToken');
 const path = require("path");
 const moment = require("moment");
+const { query } = require('../utils/db');
 
 const findAllLivraisons = async (req, res) => {
         try {
@@ -56,23 +57,28 @@ const createAllLivraisons = async (req, res) => {
                                 NOM:
                                 {
                                         required: true,
+                                        length :[0,255]
                                 },
                                 PRENOM:
                                 {
                                         required: true,
+                                        length :[0,255]
                                 },
                                 ADRESSE:
                                 {
                                         required: true,
+                                        length :[0,255]
                                 },
 
                                 LONGITUDE:
                                 {
                                         required: true,
+                                        length :[0,255]
                                 },
                                 LATITUDE:
                                 {
                                         required: true,
+                                        length :[0,255]
                                 },
 
                         },
@@ -80,19 +86,19 @@ const createAllLivraisons = async (req, res) => {
 
                                 NOM:
                                 {
-                                        required: "Mot de passe est obligatoire",
+                                        required: "Le nom est obligatoire",
                                 },
                                 PRENOM: {
-                                        required: "L'email est obligatoire",
+                                        required: "Le prenom est obligatoire",
                                 },
                                 ADRESSE: {
-                                        required: "L'email est obligatoire",
+                                        required: "L'adresse est obligatoire",
                                 },
                                 LONGITUDE: {
-                                        required: "L'email est obligatoire",
+                                        required: "Longitude est obligatoire",
                                 },
                                 LATITUDE: {
-                                        required: "L'email est obligatoire",
+                                        required: "Laltitude est obligatoire",
                                 }
 
 
@@ -119,10 +125,13 @@ const createAllLivraisons = async (req, res) => {
                         LONGITUDE,
                         LATITUDE,
                 )
+
+                const tous_livraisons = (await commandeModel.findAllLivraisonById(insertId)) [0]
                 res.status(RESPONSE_CODES.OK).json({
                         statusCode: RESPONSE_CODES.OK,
                         httpStatus: RESPONSE_STATUS.OK,
                         message: "enregistrement reussi avec Succès",
+                        result: tous_livraisons
                 })
         }
         catch (error) {
@@ -138,8 +147,35 @@ const createAllLivraisons = async (req, res) => {
 const createAllCommandes = async (req, res) => {
         try {
                 const { ID_LIVRAISON, DATE_DEBUT_LIVRAISON, result } = req.body
-                // const validation = new Validation(req.body)
-                // await validation.run()
+                const validation = new Validation(req.body, {
+                        ID_LIVRAISON: {
+                                required: true,
+                                exists: 'ecommerce_clients_livraison,ID_LIVRAISON'
+                        }
+                }, {
+                        ID_LIVRAISON: {
+                                required: 'Champs obligatoire'
+                        }
+                })
+                
+                await Promise.all(result.map(async element => {
+                        const stock = (await query("SELECT QUANTITE_STOCKE FROM ecommerce_produit_stock WHERE ID_PRODUIT_STOCK=?",[element.ID_PRODUIT_STOCK]))[0]
+                        if(stock.QUANTITE_STOCKE < element.QUANTITE){
+                                await validation.setError(`ID_PRODUIT_STOCK_${element.ID_PRODUIT_STOCK}`, 'Quantite insuffisante')
+                        }
+                }))
+                await validation.run()
+                const isValid = await validation.isValidate()
+                if(!isValid) {
+                        const erros = await validation.getErrors()
+                        return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
+                                statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
+                                httpStatus: RESPONSE_STATUS.UNPROCESSABLE_ENTITY,
+                                message: "Probleme de validation de donnees",
+                                result: erros
+                        })
+                }
+                
 
                 let PRIX_COMMANDE = 0
                 let PRIX_LIVRAISON = 0
@@ -174,11 +210,15 @@ const createAllCommandes = async (req, res) => {
                         );
                 }))
 
+                const tout_commandes = (await commandeModel.findCommandesbyId(insertId))[0]
+                console.log(tout_commandes)
+                
 
                 res.status(RESPONSE_CODES.OK).json({
                         statusCode: RESPONSE_CODES.OK,
                         httpStatus: RESPONSE_STATUS.OK,
                         message: "enregistrement reussi avec Succès",
+                        result: tout_commandes
                 })
 
 
