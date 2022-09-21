@@ -20,7 +20,18 @@ const findCategories = async () => {
 
     }
 }
-const findSousCategories = async (ID_CATEGORIE_PRODUIT) => {
+const findSousCategories = async () => {
+    try {
+
+        return query("SELECT * FROM `ecommerce_produit_sous_categorie` WHERE 1");
+    }
+    catch (error) {
+        throw error
+
+    }
+}
+
+const findSousCategoriesBy = async (ID_CATEGORIE_PRODUIT) => {
     try {
 
         return query("SELECT pc.NOM AS NOM_CATEGORIE,psc.NOM AS NOM_SOUS_CATEGORIE FROM ecommerce_produit_sous_categorie psc LEFT JOIN ecommerce_produit_categorie pc ON pc.ID_CATEGORIE_PRODUIT=psc.ID_CATEGORIE_PRODUIT  WHERE 1 AND psc.ID_CATEGORIE_PRODUIT=?",[ID_CATEGORIE_PRODUIT]);
@@ -45,6 +56,7 @@ const findSizes = async (ID_CATEGORIE_PRODUIT) => {
 module.exports = {
     findproducts,
     findCategories,
-    findSousCategories,
-    findSizes
+    findSousCategoriesBy,
+    findSizes,
+    findSousCategories
 }

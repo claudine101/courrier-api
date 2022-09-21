@@ -50,11 +50,36 @@ const getAllCategorie = async (req, res) => {
         })
     }
 }
+const getAllSubCategories = async (req, res) => {
+    try {
+        
+        const sous_categories = await productsModel.findSousCategories()
+        res.status(RESPONSE_CODES.CREATED).json({
+            statusCode: RESPONSE_CODES.CREATED,
+            httpStatus: RESPONSE_STATUS.CREATED,
+            message: "Liste des sous categories",
+            result: sous_categories
 
-const getAllSousCategories = async (req, res) => {
+
+        })
+
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
+
+
+const getSousCategoriesBy = async (req, res) => {
     try {
         const { ID_CATEGORIE_PRODUIT } = req.params
-        const subCategories = await productsModel.findSousCategories(ID_CATEGORIE_PRODUIT)
+        const subCategories = await productsModel.findSousCategoriesBy(ID_CATEGORIE_PRODUIT)
         res.status(RESPONSE_CODES.CREATED).json({
             statusCode: RESPONSE_CODES.CREATED,
             httpStatus: RESPONSE_STATUS.CREATED,
@@ -104,6 +129,7 @@ module.exports = {
 
     getAllProducts,
     getAllCategorie,
-    getAllSousCategories,
-    getSizes
+    getSousCategoriesBy,
+    getSizes,
+    getAllSubCategories
 }

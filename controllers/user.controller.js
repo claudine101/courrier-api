@@ -135,7 +135,8 @@ const createUser = async (req, res) => {
                 EMAIL:
                 {
                     required: true,
-                    email: true
+                    email: true,
+                    unique:"users,EMAIL"
                 },
 
                 PASSWORD:
@@ -157,7 +158,8 @@ const createUser = async (req, res) => {
                 },
                 EMAIL: {
                     required: "L'email est obligatoire",
-                    email: "Invalide email"
+                    email: "Email invalide",
+                    unique:"email deja utilise"
                 },
                 PASSWORD: {
                     required: "Le mot de passe est obligatoire"
