@@ -34,7 +34,7 @@ const findSousCategories = async () => {
 const findSousCategoriesBy = async (ID_CATEGORIE_PRODUIT) => {
     try {
 
-        return query("SELECT pc.NOM AS NOM_CATEGORIE,psc.NOM AS NOM_SOUS_CATEGORIE FROM ecommerce_produit_sous_categorie psc LEFT JOIN ecommerce_produit_categorie pc ON pc.ID_CATEGORIE_PRODUIT=psc.ID_CATEGORIE_PRODUIT  WHERE 1 AND psc.ID_CATEGORIE_PRODUIT=?",[ID_CATEGORIE_PRODUIT]);
+        return query("SELECT pc.NOM AS NOM_CATEGORIE,psc.ID_PRODUIT_SOUS_CATEGORIE,psc.NOM AS NOM_SOUS_CATEGORIE FROM ecommerce_produit_sous_categorie psc LEFT JOIN ecommerce_produit_categorie pc ON pc.ID_CATEGORIE_PRODUIT=psc.ID_CATEGORIE_PRODUIT  WHERE 1 AND psc.ID_CATEGORIE_PRODUIT=?",[ID_CATEGORIE_PRODUIT]);
     }
     catch (error) {
         throw error
