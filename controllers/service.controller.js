@@ -1,5 +1,5 @@
 
-const serviceModel = require('../Models/service.model')
+const serviceModel = require('../models/service.model')
 const Validation = require('../class/Validation')
 const jwt = require("jsonwebtoken");
 const RESPONSE_CODES = require('../constants/RESPONSE_CODES');

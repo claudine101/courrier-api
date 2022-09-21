@@ -1,4 +1,4 @@
-const approvisionnementModel = require('../Models/approvisionnement.model')
+const approvisionnementModel = require('../models/approvisionnement.model')
 const Validation = require('../class/Validation')
 const RESPONSE_CODES = require('../constants/RESPONSE_CODES');
 const RESPONSE_STATUS = require('../constants/RESPONSE_STATUS');

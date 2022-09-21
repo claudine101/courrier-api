@@ -1,4 +1,4 @@
-const partenaireModel = require('../Models/partenaire.model')
+const partenaireModel = require('../models/partenaire.model')
 const UserUpload = require("../class/uploads/UserUpload")
 
 const Validation = require('../class/Validation')
