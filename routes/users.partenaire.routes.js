@@ -4,4 +4,5 @@ const userPartenaireRouter = express.Router()
 
 userPartenaireRouter.post('/login', userPartenairecontroller.login)
 userPartenaireRouter.post('/', userPartenairecontroller.createUser)
+
 module.exports = userPartenaireRouter

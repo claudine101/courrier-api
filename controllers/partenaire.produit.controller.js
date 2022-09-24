@@ -187,7 +187,6 @@ const createProduit = async (req, res) => {
 const findByIdPartenaire = async (req, res) => {
     const { id } = req.params
     try {
-
         const service = await partenaireProduitModel.findByIdPartenaire(id)
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
