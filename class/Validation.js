@@ -132,6 +132,7 @@ class Validation {
           }
           async exists(key, value, params) {
                     try {
+                              if(!value) return
                               const [tableName, columnName] = params.split(',')
                               const row = (await query(`SELECT ${columnName} FROM ${tableName} WHERE ${columnName} = ?`, [value]))[0]
                               if(!row) {
@@ -147,6 +148,7 @@ class Validation {
           }
           async unique(key, value, params) {
                     try {
+                              if (!value) return;
                               const [tableName, columnName] = params.split(',')
                               const row = (await query(`SELECT ${columnName} FROM ${tableName} WHERE ${columnName} = ?`, [value]))[0]
                               if(row) {
