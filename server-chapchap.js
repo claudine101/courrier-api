@@ -16,10 +16,9 @@ const partenaireRouter= require("./routes/partenaire.routes");
 const serviceRouter= require("./routes/service.routes");
 const approvisionnementRouter= require("./routes/approvisionnement.routes");
 const userPartenaireRouter= require("./routes/users.partenaire.routes");
+const restoMenuRouter=require("./routes/resto.menu.routes");
 const restoCommandeRouter = require("./routes/resto.commandes.routes");
 const menuRouter= require("./routes/restaurent.menu.routes");
-
-
 const app = express();
 const bindUser=require("./middleware/bindUser");
 const commandeRouter = require("./routes/commandes.routes");
@@ -44,6 +43,7 @@ app.use('/partenaire/stock/approvisionnement', approvisionnementRouter)
 app.use("/commandes",commandeRouter)
 app.use("/resto/commandes",restoCommandeRouter)
 app.use("/products", productsRouter)
+app.use("/resto/menu", restoMenuRouter)
 
 app.all("*", (req, res) => {
     res.status(RESPONSE_CODES.NOT_FOUND).json({
