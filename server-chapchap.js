@@ -16,7 +16,9 @@ const partenaireRouter= require("./routes/partenaire.routes");
 const serviceRouter= require("./routes/service.routes");
 const approvisionnementRouter= require("./routes/approvisionnement.routes");
 const userPartenaireRouter= require("./routes/users.partenaire.routes");
-
+const restoMenuRouter=require("./routes/resto.menu.routes");
+const restoCommandeRouter = require("./routes/resto.commandes.routes");
+const menuRouter= require("./routes/restaurent.menu.routes");
 const app = express();
 const bindUser=require("./middleware/bindUser");
 const commandeRouter = require("./routes/commandes.routes");
@@ -28,7 +30,6 @@ app.use(express.static(__dirname + "/public"));
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(fileUpload());
-
 app.all('*', bindUser)
 app.use('/test', testRouter)
 app.use('/users', usersRouter)
@@ -36,9 +37,13 @@ app.use('/partenaire', userPartenaireRouter)
 app.use('/service', serviceRouter)
 app.use('/partenaire/service', partenaireRouter)
 app.use('/partenaire/produit', partenaireProduitRouter)
+app.use('/resto/menu', menuRouter)
+
 app.use('/partenaire/stock/approvisionnement', approvisionnementRouter)
 app.use("/commandes",commandeRouter)
+app.use("/resto/commandes",restoCommandeRouter)
 app.use("/products", productsRouter)
+app.use("/resto/menu", restoMenuRouter)
 
 app.all("*", (req, res) => {
     res.status(RESPONSE_CODES.NOT_FOUND).json({
@@ -48,7 +53,6 @@ app.all("*", (req, res) => {
         result: []
     })
 });
-
 const port = process.env.PORT || 8000;
 const isHttps = false
 if (isHttps) {
