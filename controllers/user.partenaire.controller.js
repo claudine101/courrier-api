@@ -46,8 +46,7 @@ const login = async (req, res) => {
         //console.log('Hello')
         var user = (await userModel.findBy("EMAIL", email))[0];
         if (user) {
-            if (user.PASSWORD == password) 
-            {
+            if (user.PASSWORD == password) {
                 const token = generateToken({ user: user.ID_USER }, 3600)
                 const { PASSWORD, USERNAME, ID_PROFIL, ...other } = user
                 res.status(RESPONSE_CODES.CREATED).json({
@@ -121,12 +120,12 @@ const createUser = async (req, res) => {
                 {
                     required: true,
                 },
-                
+
                 PASSWORD:
                 {
                     required: true,
                 },
-               
+
             },
             {
                 NOM: {
@@ -142,8 +141,8 @@ const createUser = async (req, res) => {
                 PASSWORD: {
                     required: "Le mot de passe est obligatoire"
                 },
-               
-               
+
+
 
             }
 
@@ -195,14 +194,44 @@ const createUser = async (req, res) => {
 }
 const getAllPartenaire = async (req, res) => {
     try {
-              const { category, subCategory, limit, offset } = req.query
-              const allPartenaire = await userModel.findpartenaire(category, subCategory, limit, offset)
-              
+        const { category, subCategory, limit, offset } = req.query
+       
+       console.log(subCategory) 
+       const allPartenaire = await userModel.findpartenaire(category, subCategory, limit, offset)
+        const partenaires = await Promise.all(allPartenaire.map(async partenaire => {
+            const categorie = await userModel.findbycategorie(partenaire.ID_PARTENAIRE)
+            return {
+                ...partenaire,
+                categories: categorie
+            }
+        }))
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Liste des produits",
+            result: partenaires
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
+const findByIdPartenaire = async (req, res) => {
+    const { id } = req.params
+    try {
+
+              const service = await userModel.findByIdPartenaire(id)
               res.status(RESPONSE_CODES.OK).json({
                         statusCode: RESPONSE_CODES.OK,
                         httpStatus: RESPONSE_STATUS.OK,
-                        message: "Liste des produits",
-                        result: allPartenaire
+                        message: "succès",
+                        result: service
               })
     }
     catch (error) {
@@ -210,7 +239,7 @@ const getAllPartenaire = async (req, res) => {
               res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
                         statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
                         httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-                        message: "Erreur interne du serveur, réessayer plus tard",
+                        message: "echoue",
 
               })
     }
@@ -218,5 +247,6 @@ const getAllPartenaire = async (req, res) => {
 module.exports = {
     login,
     createUser,
-    getAllPartenaire
+    getAllPartenaire,
+    findByIdPartenaire
 }
