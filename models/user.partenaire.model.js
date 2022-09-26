@@ -60,7 +60,7 @@ const findbycategorie = async (id) => {
             sqlQuery += " LEFT JOIN ecommerce_produit_categorie epc " 
             sqlQuery += " ON epc.ID_CATEGORIE_PRODUIT = epp.ID_CATEGORIE_PRODUIT " 
             sqlQuery += " WHERE ID_PARTENAIRE = ? GROUP BY epc.ID_CATEGORIE_PRODUIT "
-            sqlQuery += " ORDER BY NOMBRE_PRODUITS DESC"
+            sqlQuery += " ORDER BY NOMBRE_PRODUITS DESC LIMIT 2 "
             return query(sqlQuery, [id]);
   }
   catch (error) {

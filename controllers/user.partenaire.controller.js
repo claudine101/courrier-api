@@ -5,6 +5,8 @@ const RESPONSE_CODES = require('../constants/RESPONSE_CODES');
 const RESPONSE_STATUS = require('../constants/RESPONSE_STATUS');
 const generateToken = require('../utils/generateToken');
 const path = require("path");
+const md5 = require('md5');
+
 const login = async (req, res) => {
 
     try {
@@ -46,7 +48,7 @@ const login = async (req, res) => {
         //console.log('Hello')
         var user = (await userModel.findBy("EMAIL", email))[0];
         if (user) {
-            if (user.PASSWORD == password) {
+            if (user.PASSWORD == md5(password)) {
                 const token = generateToken({ user: user.ID_USER }, 3600)
                 const { PASSWORD, USERNAME, ID_PROFIL, ...other } = user
                 res.status(RESPONSE_CODES.CREATED).json({
@@ -97,8 +99,7 @@ const login = async (req, res) => {
     }
 }
 const createUser = async (req, res) => {
-    // const email = (await query("SELECT EMAIL FROM users WHERE 1"))
-    // console.log(email)
+
     try {
 
 
@@ -164,7 +165,7 @@ const createUser = async (req, res) => {
             PRENOM,
             EMAIL,
             USERNAME,
-            PASSWORD,
+            md5(PASSWORD),
             1,
             SEXE,
             DATE_NAISSANCE,
