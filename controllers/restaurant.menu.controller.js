@@ -47,11 +47,6 @@ const createMenu = async (req, res) => {
                 ID_PARTENAIRE:{
                     exists: "partenaires,ID_PARTENAIRE",
                 },
-                // ID_TAILLE:{
-                //     exists: "restaurant_sous_categorie_menu,ID_TAILLE",
-                // },
-
-
             },
             {
                 IMAGE_1: {
@@ -83,8 +78,6 @@ const createMenu = async (req, res) => {
                 ID_TAILLE:{
                     exists: "taille invalide",
                 },
-
-
             }
         );
         await validation.run();
@@ -97,15 +90,12 @@ const createMenu = async (req, res) => {
                 message: "Probleme de validation des donnees",
                 result: errors
             })
-
         }
         const menuUpload = new MenuUpload()
                     const { fileInfo:fileInfo_1,thumbInfo:thumbInfo_1 } = await menuUpload.upload(IMAGE_1, false)
                     const { fileInfo:fileInfo_2 ,thumbInfo:thumbInfo_2} = await menuUpload.upload(IMAGE_2, false)
                     const { fileInfo:fileInfo_3,thumbInfo:thumbInfo_3} = await menuUpload.upload(IMAGE_3, false)
-
         const { insertId} = await menuModel.createMenu(
-
             ID_CATEGORIE_MENU,
             ID_SOUS_CATEGORIE_MENU,
             ID_SOUS_SOUS_CATEGORIE,
@@ -115,12 +105,8 @@ const createMenu = async (req, res) => {
             fileInfo_1.fileName,
             fileInfo_2.fileName,
             fileInfo_3.fileName,
-            req.userId,
-            
-            
+            req.userId,    
         )
-  
-      
         const menu = (await menuModel.findById(insertId))[0]
         res.status(RESPONSE_CODES.CREATED).json({
             statusCode: RESPONSE_CODES.CREATED,
