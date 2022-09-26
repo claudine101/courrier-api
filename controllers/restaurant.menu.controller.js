@@ -8,7 +8,7 @@ const path = require("path");
 const MenuUpload = require("../class/uploads/MenuUpload")
 const createMenu = async (req, res) => {
     try {
-        const {
+        const {     
             ID_CATEGORIE_MENU,
             ID_SOUS_CATEGORIE_MENU,
             ID_SOUS_SOUS_CATEGORIE,
