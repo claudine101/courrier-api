@@ -46,8 +46,6 @@ app.use("/resto/commandes",restoCommandeRouter)
 app.use("/products", productsRouter)
 app.use("/resto/menu", restoMenuRouter)
 app.use("/resto/repas", repasRouter)
-
-
 app.all("*", (req, res) => {
     res.status(RESPONSE_CODES.NOT_FOUND).json({
         statusCode: RESPONSE_CODES.NOT_FOUND,

@@ -4,5 +4,5 @@ const userPartenaireRouter = express.Router()
 
 userPartenaireRouter.post('/login', userPartenairecontroller.login)
 userPartenaireRouter.post('/', userPartenairecontroller.createUser)
-
+userPartenaireRouter.get('/ecommerce', userPartenairecontroller.getAllPartenaire)
 module.exports = userPartenaireRouter
