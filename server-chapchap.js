@@ -16,14 +16,9 @@ const partenaireRouter= require("./routes/partenaire.routes");
 const serviceRouter= require("./routes/service.routes");
 const approvisionnementRouter= require("./routes/approvisionnement.routes");
 const userPartenaireRouter= require("./routes/users.partenaire.routes");
-<<<<<<< HEAD
 const restoMenuRouter=require("./routes/resto.menu.routes");
-=======
 const restoCommandeRouter = require("./routes/resto.commandes.routes");
 const menuRouter= require("./routes/restaurent.menu.routes");
-
-
->>>>>>> 5ff9a917f8e96b0c56714c2cca67f0ed47231b72
 const app = express();
 const bindUser=require("./middleware/bindUser");
 const commandeRouter = require("./routes/commandes.routes");
