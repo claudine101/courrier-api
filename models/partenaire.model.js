@@ -53,7 +53,7 @@ const createUser = (NOM, PRENOM, EMAIL, USERNAME, PASSWORD, ID_PROFIL, SEXE, DAT
   };
   const findByService = async (ID_SERVICE) => {
     try {
-      return query("SELECT * FROM   users u  LEFT JOIN partenaires p ON u.ID_USER=p.ID_USER LEFT JOIN partenaire_service pa on pa.ID_PARTENAIRE=p.ID_PARTENAIRE LEFT JOIN services se ON se.ID_SERVICE=pa.ID_SERVICE LEFT JOIN partenaire_service_statut st ON st.ID_PARTENAIRE_SERVICE_STATUT=pa.PARTENAIRE_SERVICE_STATUT_ID LEFT JOIN partenaires_types ty ON ty.ID_PARTENAIRE_TYPE=p.ID_TYPE_PARTENAIRE where se.ID_SERVICE=?", [ID_SERVICE]);
+      return query("SELECT * ROM   users u  LEFT JOIN partenaires p ON u.ID_USER=p.ID_USER LEFT JOIN partenaire_service pa on pa.ID_PARTENAIRE=p.ID_PARTENAIRE LEFT JOIN services se ON se.ID_SERVICE=pa.ID_SERVICE LEFT JOIN partenaire_service_statut st ON st.ID_PARTENAIRE_SERVICE_STATUT=pa.PARTENAIRE_SERVICE_STATUT_ID LEFT JOIN partenaires_types ty ON ty.ID_PARTENAIRE_TYPE=p.ID_TYPE_PARTENAIRE where se.ID_SERVICE=?", [ID_SERVICE]);
     } 
     catch (error) {
       throw error;
