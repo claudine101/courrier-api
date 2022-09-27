@@ -5,9 +5,9 @@ const getAllCategories = async (req, res) => {
     try {
 
         const menucategories = await restoMenuModel.findmenucategories()
-        res.status(RESPONSE_CODES.CREATED).json({
-            statusCode: RESPONSE_CODES.CREATED,
-            httpStatus: RESPONSE_STATUS.CREATED,
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_CODES.OK,
             message: "Liste des menucategories",
             result: menucategories
 
@@ -29,9 +29,9 @@ const getSousCategories = async (req, res) => {
     try {
         const { ID_CATEGORIE_MENU } = req.params
         const menusouscategories = await restoMenuModel.findmenusouscategories(ID_CATEGORIE_MENU)
-        res.status(RESPONSE_CODES.CREATED).json({
-            statusCode: RESPONSE_CODES.CREATED,
-            httpStatus: RESPONSE_STATUS.CREATED,
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_CODES.OK,
             message: "Liste des  sous menu categories",
             result: menusouscategories
 
@@ -53,10 +53,10 @@ const getmenu = async (req, res) => {
     try {
         const { category } = req.query
         const menu = await restoMenuModel.findmenu(category)
-        res.status(RESPONSE_CODES.CREATED).json({
-            statusCode: RESPONSE_CODES.CREATED,
-            httpStatus: RESPONSE_STATUS.CREATED,
-            message: "Liste des  menu categories",
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_CODES.OK,
+            message: "Liste des  menu restaurants",
             result: menu
 
 

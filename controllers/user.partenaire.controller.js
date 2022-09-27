@@ -14,33 +14,22 @@ const login = async (req, res) => {
             req.body,
             {
                 email: "required,email",
-
                 password:
                 {
                     required: true,
                 },
-
             },
-
             {
-
                 password:
                 {
                     required: "Mot de passe est obligatoire",
-
-
                 },
                 email: {
                     required: "L'email est obligatoire",
                     email: "Email invalide"
                 }
-
             }
-
-
-
         );
-
         await validation.run();
         const isValid = await validation.isValidate()
         const errors = await validation.getErrors()
@@ -56,11 +45,8 @@ const login = async (req, res) => {
         }
         //console.log('Hello')
         var user = (await userModel.findBy("EMAIL", email))[0];
-
         if (user) {
-            if (user.PASSWORD == password) 
-            {
-                
+            if (user.PASSWORD == password) {
                 const token = generateToken({ user: user.ID_USER }, 3600)
                 const { PASSWORD, USERNAME, ID_PROFIL, ...other } = user
                 res.status(RESPONSE_CODES.CREATED).json({
@@ -134,12 +120,12 @@ const createUser = async (req, res) => {
                 {
                     required: true,
                 },
-                
+
                 PASSWORD:
                 {
                     required: true,
                 },
-               
+
             },
             {
                 NOM: {
@@ -155,8 +141,8 @@ const createUser = async (req, res) => {
                 PASSWORD: {
                     required: "Le mot de passe est obligatoire"
                 },
-               
-               
+
+
 
             }
 
@@ -206,7 +192,124 @@ const createUser = async (req, res) => {
         })
     }
 }
-module.exports = {
+const getAllPartenaire = async (req, res) => {
+    try {
+        const { category, subCategory, limit, offset } = req.query
+
+        console.log(subCategory)
+        const allPartenaire = await userModel.findpartenaire(category, subCategory, limit, offset)
+        const partenaires = await Promise.all(allPartenaire.map(async partenaire => {
+            const categorie = await userModel.findbycategorie(partenaire.ID_PARTENAIRE)
+            return {
+                ...partenaire,
+                categories: categorie
+            }
+        }))
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Liste des produits",
+            result: partenaires
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
+const getcategories = async (req, res) => {
+    try {
+        const { ID_PARTENAIRE } = req.params
+        const categories = await userModel.findcategories(ID_PARTENAIRE)
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_CODES.OK,
+            message: "Liste  categories",
+            result: categories
+
+
+        })
+
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
+
+const findByIdPartenaire = async (req, res) => {
+    const { id } = req.params
+    try {
+        const getImageUri = (fileName) => {
+            if (!fileName) return null
+            if (fileName.indexOf("http") === 0) return fileName
+            return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+        }
+        const { category, subCategory, limit, offset } = req.query
+
+        const Allservice = await userModel.findByIdPartenaire(id, category, subCategory, limit, offset)
+        console.log(Allservice)
+        const products = Allservice.map(product => ({
+            produit: {
+                ID_PRODUIT: product.ID_PRODUIT,
+                NOM: product.NOM,
+                IMAGE: product.IMAGE
+      },
+      produit_partenaire: {
+                ID_PRODUIT_PARTENAIRE: product.ID_PRODUIT_PARTENAIRE,
+                NOM: product.NOM_PRODUIT_PARTENAIRE,
+                DESCRIPTION: product.DESCRIPTION,
+                IMAGE_1: getImageUri(product.IMAGE_1),
+                IMAGE_2: getImageUri(product.IMAGE_2),
+                IMAGE_3: getImageUri(product.IMAGE_3),
+                TAILLE: product.NOM_TAILLE,
+                PRIX: product.PRIX
+      },
+      categorie: {
+                ID_CATEGORIE_PRODUIT: product.ID_CATEGORIE_PRODUIT,
+                NOM: product.NOM_CATEGORIE
+      },
+      sous_categorie: {
+                ID_PRODUIT_SOUS_CATEGORIE: product.ID_PRODUIT_SOUS_CATEGORIE,
+                NOM: product.NOM_SOUS_CATEGORIE
+      },
+      stock: {
+                QUANTITE_STOCKE: product.QUANTITE_STOCKE,
+                QUANTITE_RESTANTE: product.QUANTITE_RESTANTE,
+                QUANTITE_VENDUE: product.QUANTITE_VENDUE
+      }
+        }))
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "succès",
+            result: products
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "echoue",
+
+        })
+    }
+}
+module.exports ={
     login,
     createUser,
+    getAllPartenaire,
+    findByIdPartenaire,
+    getcategories
 }
