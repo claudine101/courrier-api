@@ -222,6 +222,31 @@ const getAllPartenaire = async (req, res) => {
         })
     }
 }
+const getcategories = async (req, res) => {
+    try {
+        const { ID_PARTENAIRE } = req.params
+        const categories = await userModel.findcategories(ID_PARTENAIRE)
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_CODES.OK,
+            message: "Liste  categories",
+            result: categories
+
+
+        })
+
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
+
 const findByIdPartenaire = async (req, res) => {
     const { id } = req.params
     try {
@@ -281,9 +306,10 @@ const findByIdPartenaire = async (req, res) => {
         })
     }
 }
-module.exports = {
+module.exports ={
     login,
     createUser,
     getAllPartenaire,
-    findByIdPartenaire
+    findByIdPartenaire,
+    getcategories
 }
