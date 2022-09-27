@@ -1,5 +1,6 @@
 const commandeModel = require('../models/commande.model')
 const Validation = require('../class/Validation')
+
 const jwt = require("jsonwebtoken");
 const RESPONSE_CODES = require('../constants/RESPONSE_CODES');
 const RESPONSE_STATUS = require('../constants/RESPONSE_STATUS');
@@ -7,6 +8,9 @@ const generateToken = require('../utils/generateToken');
 const path = require("path");
 const moment = require("moment");
 const { query } = require('../utils/db');
+const getReferenceCode = require('../utils/getReferenceCode');
+
+
 
 const findAllLivraisons = async (req, res) => {
         try {
@@ -57,28 +61,28 @@ const createAllLivraisons = async (req, res) => {
                                 NOM:
                                 {
                                         required: true,
-                                        length :[0,255]
+                                        length: [0, 255]
                                 },
                                 PRENOM:
                                 {
                                         required: true,
-                                        length :[0,255]
+                                        length: [0, 255]
                                 },
                                 ADRESSE:
                                 {
                                         required: true,
-                                        length :[0,255]
+                                        length: [0, 255]
                                 },
 
                                 LONGITUDE:
                                 {
                                         required: true,
-                                        length :[0,255]
+                                        length: [0, 255]
                                 },
                                 LATITUDE:
                                 {
                                         required: true,
-                                        length :[0,255]
+                                        length: [0, 255]
                                 },
 
                         },
@@ -126,7 +130,7 @@ const createAllLivraisons = async (req, res) => {
                         LATITUDE,
                 )
 
-                const tous_livraisons = (await commandeModel.findAllLivraisonById(insertId)) [0]
+                const tous_livraisons = (await commandeModel.findAllLivraisonById(insertId))[0]
                 res.status(RESPONSE_CODES.OK).json({
                         statusCode: RESPONSE_CODES.OK,
                         httpStatus: RESPONSE_STATUS.OK,
@@ -146,27 +150,21 @@ const createAllLivraisons = async (req, res) => {
 
 const createAllCommandes = async (req, res) => {
         try {
-                const { ID_LIVRAISON, DATE_DEBUT_LIVRAISON, result } = req.body
-                const validation = new Validation(req.body, {
-                        ID_LIVRAISON: {
-                                required: true,
-                                exists: 'ecommerce_clients_livraison,ID_LIVRAISON'
-                        }
-                }, {
-                        ID_LIVRAISON: {
-                                required: 'Champs obligatoire'
-                        }
-                })
-                
+                const { DATE_LIVRAISON, result } = req.body
+                console.log(result)
+
+                const validation = new Validation(
+                        
+                )
                 await Promise.all(result.map(async element => {
-                        const stock = (await query("SELECT QUANTITE_STOCKE FROM ecommerce_produit_stock WHERE ID_PRODUIT_STOCK=?",[element.ID_PRODUIT_STOCK]))[0]
-                        if(stock.QUANTITE_STOCKE < element.QUANTITE){
+                        const stock = (await query("SELECT QUANTITE_STOCKE FROM ecommerce_produit_stock WHERE ID_PRODUIT_STOCK=?", [element.ID_PRODUIT_STOCK]))[0]
+                        if (stock.QUANTITE_STOCKE < element.QUANTITE) {
                                 await validation.setError(`ID_PRODUIT_STOCK_${element.ID_PRODUIT_STOCK}`, 'Quantite insuffisante')
                         }
                 }))
                 await validation.run()
                 const isValid = await validation.isValidate()
-                if(!isValid) {
+                if (!isValid) {
                         const erros = await validation.getErrors()
                         return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
                                 statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
@@ -175,31 +173,13 @@ const createAllCommandes = async (req, res) => {
                                 result: erros
                         })
                 }
-                
-
-                let PRIX_COMMANDE = 0
-                let PRIX_LIVRAISON = 0
-                let SOMME_TOTALE = 0
-
-                result.forEach(detail => {
-                        PRIX_COMMANDE += detail.PRIX * detail.QUANTITE
-                })
-                SOMME_TOTALE += PRIX_COMMANDE + PRIX_LIVRAISON
-
-                const DATE_FIN_LIVRAISON = moment(DATE_DEBUT_LIVRAISON).add(5, 'hours').format('YYYY/MM/DD HH:mm:ss')
-
+                const CODE_UNIQUE = await getReferenceCode()
                 const { insertId } = await commandeModel.createCommandes(
                         req.userId,
-                        ID_LIVRAISON,
-                        PRIX_COMMANDE,
-                        PRIX_LIVRAISON,
-                        SOMME_TOTALE,
-                        0,
-                        1,
-                        DATE_DEBUT_LIVRAISON,
-                        DATE_FIN_LIVRAISON
-                )
+                        DATE_LIVRAISON,
+                        CODE_UNIQUE
 
+                )
                 await Promise.all(result.map(async detail => {
                         const { insertId: id_details } = await commandeModel.createCommandeDetails(
                                 insertId,
@@ -209,16 +189,17 @@ const createAllCommandes = async (req, res) => {
                                 detail.QUANTITE * detail.PRIX
                         );
                 }))
-
                 const tout_commandes = (await commandeModel.findCommandesbyId(insertId))[0]
-                console.log(tout_commandes)
+                const produit = await commandeModel.findProduit(insertId)
                 
-
                 res.status(RESPONSE_CODES.OK).json({
                         statusCode: RESPONSE_CODES.OK,
                         httpStatus: RESPONSE_STATUS.OK,
                         message: "enregistrement reussi avec Succès",
-                        result: tout_commandes
+                        result: {
+                                ...tout_commandes,
+                                produits: produit
+                        }
                 })
 
 

@@ -9,15 +9,11 @@ const findAll = async () => {
         }
 };
 
-const createCommandes = async (ID_USER, ID_LIVRAISON, PRIX_COMMANDE, PRIX_LIVRAISON, SOMME_TOTALE,
-        ID_STATUT, ID_LIVREUR, DATE_DEBUT_LIVRAISON, DATE_FIN_LIVRAISON) => {
+const createCommandes = async (ID_USER,DATE_LIVRAISON,CODE_UNIQUE) => {
         try {
-                var sqlQuery = "INSERT INTO ecommerce_commandes(ID_USER, ID_LIVRAISON, PRIX_COMMANDE, PRIX_LIVRAISON, SOMME_TOTALE,ID_STATUT,ID_LIVREUR, DATE_DEBUT_LIVRAISON, DATE_FIN_LIVRAISON)";
-                sqlQuery += "VALUES(?,?,?,?,?,?,?,?,?)"
-                return query(sqlQuery, [
-                        ID_USER, ID_LIVRAISON, PRIX_COMMANDE, PRIX_LIVRAISON, SOMME_TOTALE,
-                        ID_STATUT, ID_LIVREUR, DATE_DEBUT_LIVRAISON, DATE_FIN_LIVRAISON
-                ]);
+                var sqlQuery = "INSERT INTO ecommerce_commandes(ID_USER,DATE_LIVRAISON,CODE_UNIQUE)";
+                sqlQuery += "VALUES(?,?,?)"
+                return query(sqlQuery, [ID_USER,DATE_LIVRAISON,CODE_UNIQUE]);
         } catch (error) {
                 throw error
         }
@@ -57,12 +53,29 @@ const findCommandes = async (userId) => {
 
 const findCommandesbyId = async (userId) => {
         try {
-                return query("SELECT comm.DATE_INSERTION,comm.PRIX_COMMANDE,comm.PRIX_LIVRAISON,comm.SOMME_TOTALE,comm.DATE_DEBUT_LIVRAISON,comm.DATE_FIN_LIVRAISON, us.NOM, us.PRENOM FROM ecommerce_commandes comm LEFT JOIN users us on us.ID_USER=comm.ID_USER WHERE comm.ID_COMMANDE = ?",[userId])
+                return query("SELECT comm.DATE_COMMANDE,comm.DATE_LIVRAISON,comm.CODE_UNIQUE,comm.STATUT_LIVRAISON,comm.ID_STATUT , us.NOM, us.PRENOM FROM ecommerce_commandes comm LEFT JOIN users us on us.ID_USER=comm.ID_USER WHERE comm.ID_COMMANDE = ?",[userId])
         }
         catch (error) {
                 throw error;
         }
 };
+const findProduit= async (userId) => {
+        try {
+                var sqlQuery = "SELECT com.ID_COMMANDE_DETAIL,prx.NOM,com.QUANTITE, "
+                sqlQuery += "com.SOMME,com.PRIX FROM ecommerce_commande_details com  "
+                sqlQuery +="LEFT JOIN  ecommerce_produit_stock st ON  "
+                sqlQuery +="com.ID_PRODUIT_STOCK=st.ID_PRODUIT_STOCK LEFT JOIN " 
+                sqlQuery +="ecommerce_produit_partenaire  pr  ON pr.ID_PRODUIT_PARTENAIRE=st.ID_PRODUIT_PARTENAIRE  "
+                sqlQuery +="LEFT JOIN ecommerce_produits prx ON prx.ID_PRODUIT=pr.ID_PARTENAIRE  "
+                sqlQuery +=" WHERE com.ID_COMMANDE=?",[userId]
+                return query(sqlQuery, [userId]);
+
+        }
+        catch (error) {
+                throw error;
+        }
+};
+
 
 const findAllLivraisonById = async (userId) => {
         try {
@@ -82,5 +95,6 @@ module.exports = {
         createLivraisons,
         findCommandes,
         findCommandesbyId,
-        findAllLivraisonById
+        findAllLivraisonById,
+        findProduit
 }

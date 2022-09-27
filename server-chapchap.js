@@ -39,7 +39,6 @@ app.use('/service', serviceRouter)
 app.use('/partenaire/service', partenaireRouter)
 app.use('/partenaire/produit', partenaireProduitRouter)
 app.use('/resto/menu', menuRouter)
-
 app.use('/partenaire/stock/approvisionnement', approvisionnementRouter)
 app.use("/commandes",commandeRouter)
 app.use("/resto/commandes",restoCommandeRouter)
