@@ -11,13 +11,19 @@ const getAllProducts = async (req, res) => {
                               return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
                     }
                     const { category, subCategory, limit, offset } = req.query
-                    console.log(category)
                     const allProducts = await productsModel.findproducts(category, subCategory, limit, offset)
                     const products = allProducts.map(product => ({
                               produit: {
                                         ID_PRODUIT: product.ID_PRODUIT,
                                         NOM: product.NOM,
                                         IMAGE: product.IMAGE
+                              },
+                              partenaire: {
+                                        NOM_ORGANISATION: product.NOM_ORGANISATION,
+                                        ID_PARTENAIRE: product.ID_PARTENAIRE,
+                                        ID_TYPE_PARTENAIRE: product.ID_TYPE_PARTENAIRE,
+                                        NOM: product.NOM_USER,
+                                        PRENOM: product.PRENOM
                               },
                               produit_partenaire: {
                                         ID_PRODUIT_PARTENAIRE: product.ID_PRODUIT_PARTENAIRE,
