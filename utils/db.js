@@ -2,15 +2,17 @@ const { createPool } = require('mysql2/promise')
 const dotenv = require('dotenv')
 
 dotenv.config()
+var globalPool = undefined
 const connection = async () => {
           try {
-                    const pool = await createPool({
+                    if(globalPool) return globalPool
+                    globalPool = await createPool({
                               host: process.env.BD_HOST,
                               user: process.env.DB_USER,
                               password: process.env.DB_PASSWORD,
                               database: process.env.DB_NAME,
                     })
-                    return pool
+                    return globalPool
           } catch (error) {
                     throw error
           }

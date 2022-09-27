@@ -55,13 +55,13 @@ const findpartenaire = async (category, subCategory, limit = 10, offset = 0) => 
 const findbycategorie = async (id) => {
   try {
 
-    var sqlQuery = "SELECT epc.NOM,COUNT(epc.ID_CATEGORIE_PRODUIT) NOMBRE_PRODUITS "
-    sqlQuery += " FROM `ecommerce_produit_partenaire` epp "
-    sqlQuery += " LEFT JOIN ecommerce_produit_categorie epc "
-    sqlQuery += " ON epc.ID_CATEGORIE_PRODUIT = epp.ID_CATEGORIE_PRODUIT "
-    sqlQuery += " WHERE ID_PARTENAIRE = ? GROUP BY epc.ID_CATEGORIE_PRODUIT "
-    sqlQuery += " ORDER BY NOMBRE_PRODUITS DESC"
-    return query(sqlQuery, [id]);
+            var sqlQuery = "SELECT epc.NOM,COUNT(epc.ID_CATEGORIE_PRODUIT) NOMBRE_PRODUITS " 
+            sqlQuery += " FROM `ecommerce_produit_partenaire` epp "
+            sqlQuery += " LEFT JOIN ecommerce_produit_categorie epc " 
+            sqlQuery += " ON epc.ID_CATEGORIE_PRODUIT = epp.ID_CATEGORIE_PRODUIT " 
+            sqlQuery += " WHERE ID_PARTENAIRE = ? GROUP BY epc.ID_CATEGORIE_PRODUIT "
+            sqlQuery += " ORDER BY NOMBRE_PRODUITS DESC LIMIT 2 "
+            return query(sqlQuery, [id]);
   }
   catch (error) {
     throw error
