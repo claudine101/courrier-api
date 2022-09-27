@@ -75,12 +75,25 @@ const findByIdPartenaire = async (id) => {
             throw error;
   }
 };
+const findcategories = async (ID_PARTENAIRE) => {
+  try {
+            var sqlQuery="SELECT epc.ID_CATEGORIE_PRODUIT,epc.NOM,epc.IMAGE FROM ecommerce_produit_partenaire epp LEFT JOIN partenaires p ON p.ID_PARTENAIRE=epp.ID_PARTENAIRE  LEFT JOIN ecommerce_produit_categorie epc ON epc.ID_CATEGORIE_PRODUIT=epp.ID_CATEGORIE_PRODUIT WHERE 1 AND epp.ID_PARTENAIRE=?GROUP BY epc.ID_CATEGORIE_PRODUIT "
+
+
+            return query(sqlQuery, [ID_PARTENAIRE]);
+
+  } catch (error) {
+            throw error;
+  }
+};
+
 module.exports = {
   findBy,
   createOne,
   findById,
   findpartenaire,
   findbycategorie,
-  findByIdPartenaire
+  findByIdPartenaire,
+  findcategories
   
 }

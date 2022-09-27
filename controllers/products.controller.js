@@ -61,36 +61,7 @@ const getAllProducts = async (req, res) => {
         })
     }
 }
-const getproducts = async (req, res) => {
-    try {
-        const getImageUri = (fileName) => {
-            if (!fileName) return null
-            if (fileName.indexOf("http") === 0) return fileName
-            return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
-        }
-        const { category, subCategory, limit, offset } = req.query
-        const { ID_PARTENAIRE } = req.params
 
-        //console.log(category)
-        const Productspartenaire = await productsModel.findproductsby(ID_PARTENAIRE, category, subCategory, limit, offset)
-       
-        res.status(RESPONSE_CODES.OK).json({
-            statusCode: RESPONSE_CODES.OK,
-            httpStatus: RESPONSE_STATUS.OK,
-            message: "Liste des produits du boutique",
-            result: Productspartenaire
-        })
-    }
-    catch (error) {
-        console.log(error)
-        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-            message: "Erreur interne du serveur, réessayer plus tard",
-
-        })
-    }
-}
 const getOne = async (req, res) => {
     try {
         const getImageUri = (fileName) => {
@@ -253,6 +224,6 @@ module.exports = {
     getSizes,
     getAllSubCategories,
     getOne,
-    getproducts
+    
 
 }

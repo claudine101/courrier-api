@@ -58,19 +58,19 @@ const findone = async (ID_PRODUIT_PARTENAIRE) => {
 
     }
 }
-const findproductsby = async (ID_PARTENAIRE) => {
-    try {
+// const findproductsby = async (ID_PARTENAIRE) => {
+//     try {
         
-        var sqlQuery="SELECT epc.ID_CATEGORIE_PRODUIT,epc.NOM,epc.IMAGE FROM ecommerce_produit_partenaire epp LEFT JOIN partenaires p ON p.ID_PARTENAIRE=epp.ID_PARTENAIRE  LEFT JOIN ecommerce_produit_categorie epc ON epc.ID_CATEGORIE_PRODUIT=epp.ID_CATEGORIE_PRODUIT WHERE 1 AND epp.ID_PARTENAIRE=?GROUP BY epc.ID_CATEGORIE_PRODUIT "
+//         var sqlQuery="SELECT epc.ID_CATEGORIE_PRODUIT,epc.NOM,epc.IMAGE FROM ecommerce_produit_partenaire epp LEFT JOIN partenaires p ON p.ID_PARTENAIRE=epp.ID_PARTENAIRE  LEFT JOIN ecommerce_produit_categorie epc ON epc.ID_CATEGORIE_PRODUIT=epp.ID_CATEGORIE_PRODUIT WHERE 1 AND epp.ID_PARTENAIRE=?GROUP BY epc.ID_CATEGORIE_PRODUIT "
 
 
-        return query(sqlQuery, [ID_PARTENAIRE]);
-    }
-    catch (error) {
-        throw error
+//         return query(sqlQuery, [ID_PARTENAIRE]);
+//     }
+//     catch (error) {
+//         throw error
 
-    }
-}
+//     }
+// }
 
 const findCategories = async () => {
     try {
@@ -120,5 +120,5 @@ module.exports = {
     findSizes,
     findSousCategories,
     findone,
-    findproductsby
+    
 }
