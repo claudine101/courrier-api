@@ -89,10 +89,11 @@ const createPartenaire = async (req, res) => {
                 }
 
             },
-            { IMAGE: {
-                required:"image est obligatoire",
-                image: "taille invalide"
-            },
+            {
+                IMAGE: {
+                    required: "image est obligatoire",
+                    image: "taille invalide"
+                },
                 NOM:
                 {
                     required: "Nom d'un utilisateur   est obligatoire",
@@ -103,7 +104,7 @@ const createPartenaire = async (req, res) => {
                 },
                 EMAIL:
                 {
-                    unique:"email est  déjà utilisé",
+                    unique: "email est  déjà utilisé",
                     email: "email est invalide",
                     required: "Email d'un utilisateur   est obligatoire",
                 },
@@ -216,18 +217,27 @@ const createPartenaire = async (req, res) => {
         })
     }
 }
-const findByService=async(req,res)=>{
-    const { id} = req.params
+const findByService = async (req, res) => {
+    const { id } = req.params
     console.log(id)
 
     try {
-    
-        const service = await partenaireModel.findByService(id)
+        const getImageUri = (fileName) => {
+            if (!fileName) return null
+            if (fileName.indexOf("http") === 0) return fileName
+            return `${req.protocol}://${req.get("host")}/uploads/users/${fileName}`
+        }
+
+        const Allservice = await partenaireModel.findByService(id)
+        const products = Allservice.map(product => ({
+            ...product,
+            IMAGE: getImageUri(product.IMAGE)
+        }))
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_STATUS.OK,
             message: "succès",
-            result: service
+            result: products
         })
     }
     catch (error) {

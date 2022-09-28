@@ -6,7 +6,7 @@ const RESPONSE_STATUS = require('../constants/RESPONSE_STATUS');
 const generateToken = require('../utils/generateToken');
 const path = require("path");
 const md5 = require('md5');
-
+const UserUpload = require("../class/uploads/UserUpload")
 const login = async (req, res) => {
 
     try {
@@ -47,10 +47,11 @@ const login = async (req, res) => {
         }
         //console.log('Hello')
         var user = (await userModel.findBy("EMAIL", email))[0];
+        console.log(user)
         if (user) {
             if (user.PASSWORD == md5(password)) {
                 const token = generateToken({ user: user.ID_USER }, 3600)
-                const { PASSWORD, USERNAME, ID_PROFIL, ...other } = user
+                const { PASSWORD, USERNAME, ID_PROFIL,IMAGE,ID_PARTENAIRE,ID_TYPE_PARTENAIRE,COUNTRY_ID, ...other } = user
                 res.status(RESPONSE_CODES.CREATED).json({
                     statusCode: RESPONSE_CODES.CREATED,
                     httpStatus: RESPONSE_STATUS.CREATED,
@@ -104,14 +105,17 @@ const createUser = async (req, res) => {
 
 
         const { NOM, PRENOM, EMAIL, USERNAME, PASSWORD, SEXE, DATE_NAISSANCE, COUNTRY_ID, ADRESSE, TELEPHONE_1, TELEPHONE_2 } = req.body
-
-        const validation = new Validation(req.body,
+        const { IMAGE } = req.files || {}
+        const validation = new Validation({...req.body,...req.files},
             {
-                EMAIL: "required,email",
+                
 
                 NOM:
                 {
                     required: true,
+                },
+                IMAGE:{
+                    image: 21000000
                 },
                 PRENOM:
                 {
@@ -119,7 +123,9 @@ const createUser = async (req, res) => {
                 },
                 EMAIL:
                 {
-                    required: true,
+                          required: true,
+                          email: true,
+                          unique: "users,EMAIL"
                 },
 
                 PASSWORD:
@@ -129,23 +135,28 @@ const createUser = async (req, res) => {
 
             },
             {
+                IMAGE: {
+                          IMAGE: "La taille invalide"
+                },
                 NOM: {
-                    required: "Le nom est obligatoire"
+                          required: "Le nom est obligatoire"
                 },
                 PRENOM: {
-                    required: "Le prenom est obligatoire"
+                          required: "Le prenom est obligatoire"
                 },
                 EMAIL: {
-                    required: "L'email est obligatoire",
-                    email: "Invalide email"
+                          required: "L'email est obligatoire",
+                          email: "Email invalide",
+                          unique: "Email déjà utilisé"
                 },
                 PASSWORD: {
-                    required: "Le mot de passe est obligatoire"
+                          required: "Le mot de passe est obligatoire"
                 },
 
 
 
-            }
+        }
+            
 
         )
         await validation.run();
@@ -160,6 +171,12 @@ const createUser = async (req, res) => {
             })
 
         }
+        const userUpload = new UserUpload()
+        var filename
+        if(IMAGE) {
+                  const { fileInfo } = await userUpload.upload(IMAGE, false)
+                  filename = fileInfo.fileName
+        }
         const { insertId } = await userModel.createOne(
             NOM,
             PRENOM,
@@ -173,7 +190,7 @@ const createUser = async (req, res) => {
             ADRESSE,
             TELEPHONE_1,
             TELEPHONE_2,
-            //IMAGE
+            filename ? filename : null
         )
         const user = (await userModel.findById(insertId))[0]
         res.status(RESPONSE_CODES.CREATED).json({
