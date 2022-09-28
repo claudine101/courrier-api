@@ -100,8 +100,7 @@ const login = async (req, res) => {
     }
 }
 const createUser = async (req, res) => {
-    // const email = (await query("SELECT EMAIL FROM users WHERE 1"))
-    // console.log(email)
+
     try {
 
 
@@ -183,7 +182,7 @@ const createUser = async (req, res) => {
             PRENOM,
             EMAIL,
             USERNAME,
-            PASSWORD,
+            md5(PASSWORD),
             1,
             SEXE,
             DATE_NAISSANCE,
@@ -214,9 +213,9 @@ const createUser = async (req, res) => {
 const getAllPartenaire = async (req, res) => {
     try {
         const { category, subCategory, limit, offset } = req.query
-       
-       console.log(subCategory) 
-       const allPartenaire = await userModel.findpartenaire(category, subCategory, limit, offset)
+
+        console.log(subCategory)
+        const allPartenaire = await userModel.findpartenaire(category, subCategory, limit, offset)
         const partenaires = await Promise.all(allPartenaire.map(async partenaire => {
             const categorie = await userModel.findbycategorie(partenaire.ID_PARTENAIRE)
             return {
@@ -269,23 +268,60 @@ const getcategories = async (req, res) => {
 const findByIdPartenaire = async (req, res) => {
     const { id } = req.params
     try {
+        const getImageUri = (fileName) => {
+            if (!fileName) return null
+            if (fileName.indexOf("http") === 0) return fileName
+            return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+        }
+        const { category, subCategory, limit, offset } = req.query
 
-              const service = await userModel.findByIdPartenaire(id)
-              res.status(RESPONSE_CODES.OK).json({
-                        statusCode: RESPONSE_CODES.OK,
-                        httpStatus: RESPONSE_STATUS.OK,
-                        message: "succès",
-                        result: service
-              })
+        const Allservice = await userModel.findByIdPartenaire(id, category, subCategory, limit, offset)
+        console.log(Allservice)
+        const products = Allservice.map(product => ({
+            produit: {
+                ID_PRODUIT: product.ID_PRODUIT,
+                NOM: product.NOM,
+                IMAGE: product.IMAGE
+      },
+      produit_partenaire: {
+                ID_PRODUIT_PARTENAIRE: product.ID_PRODUIT_PARTENAIRE,
+                NOM: product.NOM_PRODUIT_PARTENAIRE,
+                DESCRIPTION: product.DESCRIPTION,
+                IMAGE_1: getImageUri(product.IMAGE_1),
+                IMAGE_2: getImageUri(product.IMAGE_2),
+                IMAGE_3: getImageUri(product.IMAGE_3),
+                TAILLE: product.NOM_TAILLE,
+                PRIX: product.PRIX
+      },
+      categorie: {
+                ID_CATEGORIE_PRODUIT: product.ID_CATEGORIE_PRODUIT,
+                NOM: product.NOM_CATEGORIE
+      },
+      sous_categorie: {
+                ID_PRODUIT_SOUS_CATEGORIE: product.ID_PRODUIT_SOUS_CATEGORIE,
+                NOM: product.NOM_SOUS_CATEGORIE
+      },
+      stock: {
+                QUANTITE_STOCKE: product.QUANTITE_STOCKE,
+                QUANTITE_RESTANTE: product.QUANTITE_RESTANTE,
+                QUANTITE_VENDUE: product.QUANTITE_VENDUE
+      }
+        }))
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "succès",
+            result: products
+        })
     }
     catch (error) {
-              console.log(error)
-              res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-                        statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-                        httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-                        message: "echoue",
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "echoue",
 
-              })
+        })
     }
 }
 module.exports ={

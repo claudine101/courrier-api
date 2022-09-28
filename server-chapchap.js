@@ -17,9 +17,10 @@ const serviceRouter= require("./routes/service.routes");
 const approvisionnementRouter= require("./routes/approvisionnement.routes");
 const userPartenaireRouter= require("./routes/users.partenaire.routes");
 const restoMenuRouter=require("./routes/resto.menu.routes");
-const restoCommandeRouter = require("./routes/resto.commandes.routes");
+ const restoCommandeRouter = require("./routes/resto.commandes.routes");
 const menuRouter= require("./routes/restaurant.menu.routes");
 const repasRouter= require("./routes/restaurant.repas.routes");
+const driverCourseRouter=require("./routes/driver.course.routes");
 const app = express();
 const bindUser=require("./middleware/bindUser");
 const commandeRouter = require("./routes/commandes.routes");
@@ -39,13 +40,14 @@ app.use('/service', serviceRouter)
 app.use('/partenaire/service', partenaireRouter)
 app.use('/partenaire/produit', partenaireProduitRouter)
 app.use('/resto/menu', menuRouter)
-
 app.use('/partenaire/stock/approvisionnement', approvisionnementRouter)
 app.use("/commandes",commandeRouter)
 app.use("/resto/commandes",restoCommandeRouter)
 app.use("/products", productsRouter)
 app.use("/resto/menu", restoMenuRouter)
 app.use("/resto/repas", repasRouter)
+app.use("/driver/course",driverCourseRouter)
+
 app.all("*", (req, res) => {
     res.status(RESPONSE_CODES.NOT_FOUND).json({
         statusCode: RESPONSE_CODES.NOT_FOUND,
