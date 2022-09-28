@@ -28,7 +28,6 @@ const findById = async (id) => {
           }
 };
 const findpartenaire = async (category, subCategory, limit = 10, offset = 0) => {
-<<<<<<< HEAD
   try {
     var binds = []
     var sqlQuery = "SELECT * FROM partenaires p LEFT JOIN  partenaires_types t "
@@ -56,37 +55,11 @@ const findpartenaire = async (category, subCategory, limit = 10, offset = 0) => 
   catch (error) {
     throw error
   }
-=======
-          try {
-                    var binds = []
-                    var sqlQuery = "SELECT * FROM partenaires p "
-                    sqlQuery += "  "
-                    sqlQuery += " WHERE p.ID_TYPE_PARTENAIRE = 2 "
-                    sqlQuery += `LIMIT ${offset}, ${limit}`;
-                    return query(sqlQuery, binds);
-          }
-          catch (error) {
-                    throw error
-          }
->>>>>>> 96a7c03f51faab7aced0404a234f2f4af34c28e7
+         
 }
 const findbycategorie = async (id) => {
           try {
 
-<<<<<<< HEAD
-            var sqlQuery = "SELECT epc.NOM,COUNT(epc.ID_CATEGORIE_PRODUIT) NOMBRE_PRODUITS " 
-            sqlQuery += " FROM `ecommerce_produit_partenaire` epp "
-            sqlQuery += " LEFT JOIN ecommerce_produit_categorie epc " 
-            sqlQuery += " ON epc.ID_CATEGORIE_PRODUIT = epp.ID_CATEGORIE_PRODUIT " 
-            sqlQuery += " WHERE ID_PARTENAIRE = ? GROUP BY epc.ID_CATEGORIE_PRODUIT "
-            sqlQuery += " ORDER BY NOMBRE_PRODUITS DESC LIMIT 2 "
-            return query(sqlQuery, [id]);
-   
-  }
-  catch (error) {
-    throw error
-  }
-=======
                     var sqlQuery = "SELECT epc.NOM,COUNT(epc.ID_CATEGORIE_PRODUIT) NOMBRE_PRODUITS "
                     sqlQuery += " FROM `ecommerce_produit_partenaire` epp "
                     sqlQuery += " LEFT JOIN ecommerce_produit_categorie epc "
@@ -98,7 +71,6 @@ const findbycategorie = async (id) => {
           catch (error) {
                     throw error
           }
->>>>>>> 96a7c03f51faab7aced0404a234f2f4af34c28e7
 }
 const findByIdPartenaire = async (id, category, subCategory, limit = 10, offset = 0) => {
           try {
