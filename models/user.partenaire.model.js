@@ -19,10 +19,40 @@ const createOne = (NOM, PRENOM, EMAIL, USERNAME, PASSWORD, ID_PROFIL, SEXE, DATE
 
     throw error
   }
-}
+};
+// const createPartenaire = () => {
+//   try {
+//     var sqlQuery ="INSERT INTO partenaires (ID_USER,ID_TYPE_PARTENAIRE,NOM_ORGANISATION,TELEPHONE,NIF,EMAIL,LOGO,BACKGROUND_IMAGE,	DATE_DEBIT_EXP,ADRESSE_COMPLETE,LATITUDE,LONGITUDE,IS_VALIDE,DATE_VALIDATION)";
+//     sqlQuery += "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+//     return query(sqlQuery,[ID_USER,ID_TYPE_PARTENAIRE,NOM_ORGANISATION,TELEPHONE,NIF,EMAIL,LOGO,BACKGROUND_IMAGE,	DATE_DEBIT_EXP,ADRESSE_COMPLETE,LATITUDE,LONGITUDE,IS_VALIDE,DATE_VALIDATION])
+//   }
+//   catch (error) {
+
+//     throw error
+//   }
+// }
+const createpartenaire = (ID_USER,ID_TYPE_PARTENAIRE,NOM_ORGANISATION,TELEPHONE,NIF,EMAIL,LOGO,BACKGROUND_IMAGE,ADRESSE_COMPLETE,LATITUDE,LONGITUDE) => {
+  try {
+    var sqlQuery = "INSERT INTO partenaires (ID_USER,ID_TYPE_PARTENAIRE,NOM_ORGANISATION,TELEPHONE,NIF,EMAIL,LOGO,BACKGROUND_IMAGE,ADRESSE_COMPLETE,LATITUDE,LONGITUDE)";
+    sqlQuery += "values (?,?,?,?,?,?,?,?,?,?,?)";
+    return query(sqlQuery, [
+      ID_USER,ID_TYPE_PARTENAIRE,NOM_ORGANISATION,TELEPHONE,NIF,EMAIL,LOGO,BACKGROUND_IMAGE,ADRESSE_COMPLETE,LATITUDE,LONGITUDE])
+  }
+  catch (error) {
+
+    throw error
+  }
+};
 const findById = async (id) => {
   try {
     return query("SELECT * FROM users WHERE ID_USER  = ?", [id]);
+  } catch (error) {
+    throw error;
+  }
+};
+const findByIdPartenai = async (id) => {
+  try {
+    return query("SELECT * FROM partenaires WHERE ID_PARTENAIRE  = ?", [id]);
   } catch (error) {
     throw error;
   }
@@ -118,5 +148,7 @@ module.exports = {
   findpartenaire,
   findbycategorie,
   findByIdPartenaire,
-  findcategories
+  findcategories,
+  createpartenaire,
+  findByIdPartenai
 }

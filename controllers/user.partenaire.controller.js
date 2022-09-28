@@ -1,5 +1,6 @@
 const userModel = require('../models/user.partenaire.model')
 const Validation = require('../class/Validation')
+const PartenaireUpload = require("../class/uploads/PartenaireUpload")
 const jwt = require("jsonwebtoken");
 const RESPONSE_CODES = require('../constants/RESPONSE_CODES');
 const RESPONSE_STATUS = require('../constants/RESPONSE_STATUS');
@@ -51,7 +52,7 @@ const login = async (req, res) => {
         if (user) {
             if (user.PASSWORD == md5(password)) {
                 const token = generateToken({ user: user.ID_USER }, 3600)
-                const { PASSWORD, USERNAME, ID_PROFIL,IMAGE,ID_PARTENAIRE,ID_TYPE_PARTENAIRE,COUNTRY_ID, ...other } = user
+                const { PASSWORD, USERNAME, ID_PROFIL, IMAGE, ID_PARTENAIRE, ID_TYPE_PARTENAIRE, COUNTRY_ID, ...other } = user
                 res.status(RESPONSE_CODES.CREATED).json({
                     statusCode: RESPONSE_CODES.CREATED,
                     httpStatus: RESPONSE_STATUS.CREATED,
@@ -106,15 +107,15 @@ const createUser = async (req, res) => {
 
         const { NOM, PRENOM, EMAIL, USERNAME, PASSWORD, SEXE, DATE_NAISSANCE, COUNTRY_ID, ADRESSE, TELEPHONE_1, TELEPHONE_2 } = req.body
         const { IMAGE } = req.files || {}
-        const validation = new Validation({...req.body,...req.files},
+        const validation = new Validation({ ...req.body, ...req.files },
             {
-                
+
 
                 NOM:
                 {
                     required: true,
                 },
-                IMAGE:{
+                IMAGE: {
                     image: 21000000
                 },
                 PRENOM:
@@ -123,9 +124,9 @@ const createUser = async (req, res) => {
                 },
                 EMAIL:
                 {
-                          required: true,
-                          email: true,
-                          unique: "users,EMAIL"
+                    required: true,
+                    email: true,
+                    unique: "users,EMAIL"
                 },
 
                 PASSWORD:
@@ -136,27 +137,27 @@ const createUser = async (req, res) => {
             },
             {
                 IMAGE: {
-                          IMAGE: "La taille invalide"
+                    IMAGE: "La taille invalide"
                 },
                 NOM: {
-                          required: "Le nom est obligatoire"
+                    required: "Le nom est obligatoire"
                 },
                 PRENOM: {
-                          required: "Le prenom est obligatoire"
+                    required: "Le prenom est obligatoire"
                 },
                 EMAIL: {
-                          required: "L'email est obligatoire",
-                          email: "Email invalide",
-                          unique: "Email déjà utilisé"
+                    required: "L'email est obligatoire",
+                    email: "Email invalide",
+                    unique: "Email déjà utilisé"
                 },
                 PASSWORD: {
-                          required: "Le mot de passe est obligatoire"
+                    required: "Le mot de passe est obligatoire"
                 },
 
 
 
-        }
-            
+            }
+
 
         )
         await validation.run();
@@ -173,17 +174,17 @@ const createUser = async (req, res) => {
         }
         const userUpload = new UserUpload()
         var filename
-        if(IMAGE) {
-                  const { fileInfo } = await userUpload.upload(IMAGE, false)
-                  filename = fileInfo.fileName
+        if (IMAGE) {
+            const { fileInfo } = await userUpload.upload(IMAGE, false)
+            filename = fileInfo.fileName
         }
         const { insertId } = await userModel.createOne(
             NOM,
             PRENOM,
             EMAIL,
             USERNAME,
-            md5(PASSWORD),
-            1,
+            PASSWORD,
+            2,
             SEXE,
             DATE_NAISSANCE,
             COUNTRY_ID,
@@ -209,6 +210,99 @@ const createUser = async (req, res) => {
 
         })
     }
+}
+const createPartenaire = async (req, res) => {
+    try {
+        const { ID_USER, ID_TYPE_PARTENAIRE, NOM_ORGANISATION, TELEPHONE, NIF, EMAIL, ADRESSE_COMPLETE, LATITUDE, LONGITUDE } = req.body
+        const { LOGO, BACKGROUND_IMAGE } = req.files || {}
+        const validation = new Validation({ ...req.body, ...req.files },
+            {
+
+
+                LOGO: {
+                    image: 21000000
+                },
+                BACKGROUND_IMAGE: {
+                    image: 21000000
+                },
+
+
+            },
+            {
+                LOGO: {
+                    IMAGE: "La taille invalide"
+                },
+                BACKGROUND_IMAGE: {
+                    IMAGE: "La taille invalide"
+                },
+
+
+
+            }
+
+        )
+        await validation.run();
+        const isValide = await validation.isValidate()
+        const errors = await validation.getErrors()
+        if (!isValide) {
+            return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
+                statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
+                httpStatus: RESPONSE_STATUS.UNPROCESSABLE_ENTITY,
+                message: "Probleme de validation des donnees",
+                result: errors
+            })
+
+        }
+
+        const partenaireUpload = new PartenaireUpload()
+       
+        const { fileInfo: fileInfo_1, thumbInfo: thumbInfo_1 } = await partenaireUpload.upload(LOGO, false)
+       const { fileInfo: fileInfo_2, thumbInfo: thumbInfo_2 } = await partenaireUpload.upload(BACKGROUND_IMAGE, false)
+        
+
+        
+       
+
+        const { insertId } = await userModel.createpartenaire(
+            ID_USER,
+            ID_TYPE_PARTENAIRE,
+            NOM_ORGANISATION,
+            TELEPHONE,
+            NIF,
+            EMAIL,
+            fileInfo_1.fileName,
+            fileInfo_2.fileName,
+           
+            ADRESSE_COMPLETE,
+            LATITUDE,
+            LONGITUDE,
+            
+            
+
+
+
+
+
+        )
+        const partenaire = (await userModel.findByIdPartenai(insertId))[0]
+        res.status(RESPONSE_CODES.CREATED).json({
+            statusCode: RESPONSE_CODES.CREATED,
+            httpStatus: RESPONSE_STATUS.CREATED,
+            message: "Enregistrement est fait avec succès",
+            result: partenaire
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Enregistrement echoue",
+
+        })
+
+    }
+
 }
 const getAllPartenaire = async (req, res) => {
     try {
@@ -268,50 +362,13 @@ const getcategories = async (req, res) => {
 const findByIdPartenaire = async (req, res) => {
     const { id } = req.params
     try {
-        const getImageUri = (fileName) => {
-            if (!fileName) return null
-            if (fileName.indexOf("http") === 0) return fileName
-            return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
-        }
-        const { category, subCategory, limit, offset } = req.query
 
-        const Allservice = await userModel.findByIdPartenaire(id, category, subCategory, limit, offset)
-        console.log(Allservice)
-        const products = Allservice.map(product => ({
-            produit: {
-                ID_PRODUIT: product.ID_PRODUIT,
-                NOM: product.NOM,
-                IMAGE: product.IMAGE
-      },
-      produit_partenaire: {
-                ID_PRODUIT_PARTENAIRE: product.ID_PRODUIT_PARTENAIRE,
-                NOM: product.NOM_PRODUIT_PARTENAIRE,
-                DESCRIPTION: product.DESCRIPTION,
-                IMAGE_1: getImageUri(product.IMAGE_1),
-                IMAGE_2: getImageUri(product.IMAGE_2),
-                IMAGE_3: getImageUri(product.IMAGE_3),
-                TAILLE: product.NOM_TAILLE,
-                PRIX: product.PRIX
-      },
-      categorie: {
-                ID_CATEGORIE_PRODUIT: product.ID_CATEGORIE_PRODUIT,
-                NOM: product.NOM_CATEGORIE
-      },
-      sous_categorie: {
-                ID_PRODUIT_SOUS_CATEGORIE: product.ID_PRODUIT_SOUS_CATEGORIE,
-                NOM: product.NOM_SOUS_CATEGORIE
-      },
-      stock: {
-                QUANTITE_STOCKE: product.QUANTITE_STOCKE,
-                QUANTITE_RESTANTE: product.QUANTITE_RESTANTE,
-                QUANTITE_VENDUE: product.QUANTITE_VENDUE
-      }
-        }))
+        const service = await userModel.findByIdPartenaire(id)
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_STATUS.OK,
             message: "succès",
-            result: products
+            result: service
         })
     }
     catch (error) {
@@ -324,10 +381,12 @@ const findByIdPartenaire = async (req, res) => {
         })
     }
 }
-module.exports ={
+module.exports = {
     login,
     createUser,
     getAllPartenaire,
     findByIdPartenaire,
-    getcategories
+    getcategories,
+    createPartenaire
+
 }
