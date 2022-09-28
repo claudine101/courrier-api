@@ -197,8 +197,9 @@ const getAllPartenaire = async (req, res) => {
     try {
         const { category, subCategory, limit, offset } = req.query
 
-        console.log(subCategory)
         const allPartenaire = await userModel.findpartenaire(category, subCategory, limit, offset)
+        console.log(allPartenaire)
+        
         const partenaires = await Promise.all(allPartenaire.map(async partenaire => {
             const categorie = await userModel.findbycategorie(partenaire.ID_PARTENAIRE)
             return {

@@ -34,15 +34,19 @@ const findpartenaire = async (category, subCategory, limit = 10, offset = 0) => 
     sqlQuery += " ON p.ID_TYPE_PARTENAIRE=t.ID_PARTENAIRE_TYPE "
     sqlQuery += "   LEFT JOIN partenaire_service s ON s.ID_PARTENAIRE=p.ID_PARTENAIRE "
     sqlQuery += "  LEFT JOIN services ser ON ser.ID_SERVICE=s.ID_SERVICE "
-    sqlQuery += "LEFT JOIN ecommerce_produit_partenaire  pr ON pr.ID_PARTENAIRE=p.ID_PARTENAIRE "
-    sqlQuery += " LEFT JOIN ecommerce_produit_categorie cat ON cat.ID_CATEGORIE_PRODUIT=pr.ID_CATEGORIE_PRODUIT "
+  //   sqlQuery += "LEFT JOIN ecommerce_produit_partenaire  pr ON pr.ID_PARTENAIRE=p.ID_PARTENAIRE "
+  //  sqlQuery += " LEFT JOIN ecommerce_produit_categorie cat ON cat.ID_CATEGORIE_PRODUIT=pr.ID_CATEGORIE_PRODUIT "
     sqlQuery += " LEFT JOIN users u  ON u.ID_USER=p.ID_USER WHERE t.ID_PARTENAIRE_TYPE=2 AND s.ID_SERVICE=1 "
     if (category) {
-      sqlQuery += " AND cat.ID_CATEGORIE_PRODUIT = ?  "
+      sqlQuery = " SELECT p.ID_PARTENAIRE,px.ID_CATEGORIE_PRODUIT,p.NOM_ORGANISATION  "
+      sqlQuery += " FROM partenaires p LEFT JOIN ecommerce_produit_partenaire "
+      sqlQuery += " px ON px.ID_PARTENAIRE = p.ID_PARTENAIRE WHERE pX.ID_CATEGORIE_PRODUIT=?  "
       binds.push(category)
     }
     if (subCategory) {
-      sqlQuery += " AND pr.ID_PRODUIT_SOUS_CATEGORIE= ? "
+      sqlQuery = " SELECT p.ID_PARTENAIRE,px.ID_CATEGORIE_PRODUIT,p.NOM_ORGANISATION  "
+      sqlQuery += " FROM partenaires p LEFT JOIN ecommerce_produit_partenaire "
+      sqlQuery += " px ON px.ID_PARTENAIRE = p.ID_PARTENAIRE WHERE px.ID_PRODUIT_SOUS_CATEGORIE=?  "
       binds.push(subCategory)
     }
     sqlQuery += `LIMIT ${offset}, ${limit}`;
@@ -62,6 +66,7 @@ const findbycategorie = async (id) => {
             sqlQuery += " WHERE ID_PARTENAIRE = ? GROUP BY epc.ID_CATEGORIE_PRODUIT "
             sqlQuery += " ORDER BY NOMBRE_PRODUITS DESC LIMIT 2 "
             return query(sqlQuery, [id]);
+   
   }
   catch (error) {
     throw error
