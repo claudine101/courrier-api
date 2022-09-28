@@ -1,7 +1,7 @@
 const { query } = require("../utils/db");
 const findBy = async (column, value) => {
   try {
-    var sqlQuery = `SELECT * FROM users  WHERE ${column} = ? `;
+    var sqlQuery = `SELECT * FROM users JOIN partenaires ON users.ID_USER=partenaires.ID_USER WHERE ${column} = ? `;
     return query(sqlQuery, [value]);
   }
   catch (error) {
