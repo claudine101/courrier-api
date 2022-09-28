@@ -21,7 +21,7 @@ const findbyId = async (id) => {
   };
   const updateOne = async (id) => {
     try {
-      return query("UPDATE ecommerce_commandes SET STATUT_LIVRAISON=1 WHERE CODE_UNIQUE=?", [id]);
+      return query("UPDATE ecommerce_commandes SET 	ID_STATUT=3 WHERE CODE_UNIQUE=?", [id]);
 } catch (error) {
       throw error;
     }
