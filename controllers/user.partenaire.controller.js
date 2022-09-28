@@ -212,18 +212,23 @@ const createUser = async (req, res) => {
 }
 const getAllPartenaire = async (req, res) => {
     try {
+        const getImageUri = (fileName) => {
+            if (!fileName) return null
+            if (fileName.indexOf("http") === 0) return fileName
+            return `${req.protocol}://${req.get("host")}/uploads/users/${fileName}`
+        }
         const { category, subCategory, limit, offset } = req.query
-
         const allPartenaire = await userModel.findpartenaire(category, subCategory, limit, offset)
-        console.log(allPartenaire)
         
         const partenaires = await Promise.all(allPartenaire.map(async partenaire => {
             const categorie = await userModel.findbycategorie(partenaire.ID_PARTENAIRE)
             return {
                 ...partenaire,
+                image:getImageUri(partenaire.IMAGE),
                 categories: categorie
             }
         }))
+        console.log(partenaires)
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_STATUS.OK,

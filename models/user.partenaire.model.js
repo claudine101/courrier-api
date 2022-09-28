@@ -38,16 +38,11 @@ const findpartenaire = async (category, subCategory, limit = 10, offset = 0) => 
   //  sqlQuery += " LEFT JOIN ecommerce_produit_categorie cat ON cat.ID_CATEGORIE_PRODUIT=pr.ID_CATEGORIE_PRODUIT "
     sqlQuery += " LEFT JOIN users u  ON u.ID_USER=p.ID_USER WHERE t.ID_PARTENAIRE_TYPE=2 AND s.ID_SERVICE=1 "
     if (category) {
-      sqlQuery = " SELECT p.ID_PARTENAIRE,px.ID_CATEGORIE_PRODUIT,p.NOM_ORGANISATION  "
+      sqlQuery = " SELECT u.IMAGE,p.ID_PARTENAIRE,px.ID_CATEGORIE_PRODUIT,p.NOM_ORGANISATION  "
       sqlQuery += " FROM partenaires p LEFT JOIN ecommerce_produit_partenaire "
-      sqlQuery += " px ON px.ID_PARTENAIRE = p.ID_PARTENAIRE WHERE pX.ID_CATEGORIE_PRODUIT=?  "
+      sqlQuery += " px ON px.ID_PARTENAIRE = p.ID_PARTENAIRE LEFT JOIN users u  ON u.ID_USER=p.ID_USER WHERE px.ID_CATEGORIE_PRODUIT=?  "
       binds.push(category)
-    }
-    if (subCategory) {
-      sqlQuery = " SELECT p.ID_PARTENAIRE,px.ID_CATEGORIE_PRODUIT,p.NOM_ORGANISATION  "
-      sqlQuery += " FROM partenaires p LEFT JOIN ecommerce_produit_partenaire "
-      sqlQuery += " px ON px.ID_PARTENAIRE = p.ID_PARTENAIRE WHERE px.ID_PRODUIT_SOUS_CATEGORIE=?  "
-      binds.push(subCategory)
+      
     }
     sqlQuery += `LIMIT ${offset}, ${limit}`;
     return query(sqlQuery, binds);
