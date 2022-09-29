@@ -52,7 +52,12 @@ const getSousCategories = async (req, res) => {
 const getmenu = async (req, res) => {
     try {
         const { category } = req.query
-        const menu = await restoMenuModel.findmenu(category)
+        var menu
+        if(category){
+            var menu = await restoMenuModel.findmenu(category)
+        }else{
+            var menu = await restoMenuModel.findAllmenu()
+        }
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_CODES.OK,
