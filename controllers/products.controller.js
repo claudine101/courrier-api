@@ -87,6 +87,7 @@ const getOne = async (req, res) => {
             },
             produit_partenaire: {
                 ID_PRODUIT_PARTENAIRE: product.ID_PRODUIT_PARTENAIRE,
+                NOM_ORGANISATION: product.NOM_ORGANISATION,
                 NOM: product.NOM_PRODUIT_PARTENAIRE,
                 DESCRIPTION: product.DESCRIPTION,
                 IMAGE_1: getImageUri(product.IMAGE_1),
@@ -130,6 +131,33 @@ const getAllCategorie = async (req, res) => {
     try {
 
         const categories = await productsModel.findCategories()
+        
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Liste des categories",
+            result: categories
+
+
+        })
+
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
+
+const getCategorieByPartenaire = async (req, res) => {
+    try {
+        const { ID_PRODUIT_PARTENAIRE } = req.params
+
+        const categories = await productsModel.findById(ID_PRODUIT_PARTENAIRE)
         
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
@@ -231,6 +259,7 @@ module.exports = {
     getSizes,
     getAllSubCategories,
     getOne,
+    getCategorieByPartenaire
     
 
 }
