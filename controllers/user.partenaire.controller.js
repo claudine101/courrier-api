@@ -434,5 +434,6 @@ module.exports = {
           createUser,
           getAllPartenaire,
           findByIdPartenaire,
-          getcategories
+          getcategories,
+          createPartenaire
 }

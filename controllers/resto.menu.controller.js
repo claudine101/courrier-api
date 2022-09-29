@@ -72,10 +72,35 @@ const getmenu = async (req, res) => {
 
         })
     }
+};
+const getmenubyIdPartenaire = async (req, res) => {
+    try {
+        const { ID_PARTENAIRE } = req.params
+        const menu = await restoMenuModel.findmenubyPartenaire(ID_PARTENAIRE)
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_CODES.OK,
+            message: "Liste des  menu restaurants du partenaire",
+            result: menu
+
+
+        })
+
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
 }
 
 module.exports = {
     getAllCategories,
     getSousCategories,
-    getmenu
+    getmenu,
+    getmenubyIdPartenaire
 }
