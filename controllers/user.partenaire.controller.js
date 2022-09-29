@@ -1,5 +1,6 @@
 const userModel = require('../models/user.partenaire.model')
 const Validation = require('../class/Validation')
+const PartenaireUpload = require("../class/uploads/PartenaireUpload")
 const jwt = require("jsonwebtoken");
 const RESPONSE_CODES = require('../constants/RESPONSE_CODES');
 const RESPONSE_STATUS = require('../constants/RESPONSE_STATUS');
@@ -210,6 +211,99 @@ const createUser = async (req, res) => {
                     })
           }
 }
+const createPartenaire = async (req, res) => {
+    try {
+        const { ID_USER, ID_TYPE_PARTENAIRE, NOM_ORGANISATION, TELEPHONE, NIF, EMAIL, ADRESSE_COMPLETE, LATITUDE, LONGITUDE } = req.body
+        const { LOGO, BACKGROUND_IMAGE } = req.files || {}
+        const validation = new Validation({ ...req.body, ...req.files },
+            {
+
+
+                LOGO: {
+                    image: 21000000
+                },
+                BACKGROUND_IMAGE: {
+                    image: 21000000
+                },
+
+
+            },
+            {
+                LOGO: {
+                    IMAGE: "La taille invalide"
+                },
+                BACKGROUND_IMAGE: {
+                    IMAGE: "La taille invalide"
+                },
+
+
+
+            }
+
+        )
+        await validation.run();
+        const isValide = await validation.isValidate()
+        const errors = await validation.getErrors()
+        if (!isValide) {
+            return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
+                statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
+                httpStatus: RESPONSE_STATUS.UNPROCESSABLE_ENTITY,
+                message: "Probleme de validation des donnees",
+                result: errors
+            })
+
+        }
+
+        const partenaireUpload = new PartenaireUpload()
+       
+        const { fileInfo: fileInfo_1, thumbInfo: thumbInfo_1 } = await partenaireUpload.upload(LOGO, false)
+       const { fileInfo: fileInfo_2, thumbInfo: thumbInfo_2 } = await partenaireUpload.upload(BACKGROUND_IMAGE, false)
+        
+
+        
+       
+
+        const { insertId } = await userModel.createpartenaire(
+            ID_USER,
+            ID_TYPE_PARTENAIRE,
+            NOM_ORGANISATION,
+            TELEPHONE,
+            NIF,
+            EMAIL,
+            fileInfo_1.fileName,
+            fileInfo_2.fileName,
+           
+            ADRESSE_COMPLETE,
+            LATITUDE,
+            LONGITUDE,
+            
+            
+
+
+
+
+
+        )
+        const partenaire = (await userModel.findByIdPartenai(insertId))[0]
+        res.status(RESPONSE_CODES.CREATED).json({
+            statusCode: RESPONSE_CODES.CREATED,
+            httpStatus: RESPONSE_STATUS.CREATED,
+            message: "Enregistrement est fait avec succès",
+            result: partenaire
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Enregistrement echoue",
+
+        })
+
+    }
+
+}
 const getAllPartenaire = async (req, res) => {
 
     try {
@@ -340,5 +434,6 @@ module.exports = {
           createUser,
           getAllPartenaire,
           findByIdPartenaire,
-          getcategories
+          getcategories,
+          createPartenaire
 }

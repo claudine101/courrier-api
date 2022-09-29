@@ -27,6 +27,13 @@ const findById = async (id) => {
                     throw error;
           }
 };
+const findByIdPartenai = async (id) => {
+  try {
+    return query("SELECT * FROM partenaires WHERE ID_PARTENAIRE  = ?", [id]);
+  } catch (error) {
+    throw error;
+  }
+};
 const findpartenaire = async (category, subCategory, limit = 10, offset = 0) => {
   try {
     var binds = []
