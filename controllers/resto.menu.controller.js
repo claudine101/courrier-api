@@ -88,11 +88,14 @@ const getAllPartenaire = async (req, res) => {
 }}
 const getmenu = async (req, res) => {
     try {
-        const { category } = req.query
+        const { category, partenaire } = req.query
         var menu
         if(category){
             var menu = await restoMenuModel.findmenu(category)
-        }else{
+        } else if (partenaire){
+            var menu = await restoMenuModel.findmenu(partenaire)
+        }
+        else{
             var menu = await restoMenuModel.findAllmenu()
         }
         res.status(RESPONSE_CODES.OK).json({
