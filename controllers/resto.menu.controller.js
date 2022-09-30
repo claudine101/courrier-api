@@ -49,6 +49,43 @@ const getSousCategories = async (req, res) => {
         })
     }
 }
+
+const getAllPartenaire = async (req, res) => {
+
+    try {
+        const getImageUri = (fileName) => {
+            if (!fileName) return null
+            if (fileName.indexOf("http") === 0) return fileName
+            return `${req.protocol}://${req.get("host")}/uploads/users/${fileName}`
+        }
+        const { category, subCategory, limit, offset } = req.query
+        const allPartenaire = await userModel.findpartenaire(category, subCategory, limit, offset)
+        
+        const partenaires = await Promise.all(allPartenaire.map(async partenaire => {
+            const categorie = await userModel.findbycategorie(partenaire.ID_PARTENAIRE)
+            return {
+                ...partenaire,
+                image:getImageUri(partenaire.IMAGE),
+                categories: categorie
+            }
+        }))
+        console.log(partenaires)
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Liste des produits",
+            result: partenaires
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",         
+          })
+          
+}}
 const getmenu = async (req, res) => {
     try {
         const { category } = req.query
