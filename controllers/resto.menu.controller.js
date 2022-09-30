@@ -60,12 +60,12 @@ const getAllPartenaire = async (req, res) => {
         }
         const { category, subCategory, limit, offset } = req.query
         const allPartenaire = await userModel.findpartenaire(category, subCategory, limit, offset)
-        
+
         const partenaires = await Promise.all(allPartenaire.map(async partenaire => {
             const categorie = await userModel.findbycategorie(partenaire.ID_PARTENAIRE)
             return {
                 ...partenaire,
-                image:getImageUri(partenaire.IMAGE),
+                image: getImageUri(partenaire.IMAGE),
                 categories: categorie
             }
         }))
@@ -82,19 +82,19 @@ const getAllPartenaire = async (req, res) => {
         res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
             statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
             httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-            message: "Erreur interne du serveur, réessayer plus tard",         
-          })
-          
-}}
+            message: "Erreur interne du serveur, réessayer plus tard",
+        })
+
+    }
+}
 const getmenu = async (req, res) => {
     try {
-        const { category } = req.query
-        var menu
-        if(category){
-            var menu = await restoMenuModel.findmenu(category)
-        }else{
-            var menu = await restoMenuModel.findAllmenu()
-        }
+        const { partenaire,category } = req.query
+        var menu = await restoMenuModel.findmenu(category, partenaire)
+
+        // else{
+        //     var menu = await restoMenuModel.findAllmenu()
+        // }
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_CODES.OK,
