@@ -73,7 +73,7 @@ const getmenu = async (req, res) => {
         })
     }
 };
-const getmenubyIdPartenaire = async (req, res) => {
+const  getmenubyIdPartenaire = async (req, res) => {
     try {
         const { ID_PARTENAIRE } = req.params
         const menu = await restoMenuModel.findmenubyPartenaire(ID_PARTENAIRE)

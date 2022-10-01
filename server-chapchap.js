@@ -19,6 +19,7 @@ const userPartenaireRouter= require("./routes/users.partenaire.routes");
 const restoMenuRouter=require("./routes/resto.menu.routes");
  const restoCommandeRouter = require("./routes/resto.commandes.routes");
 const menuRouter= require("./routes/restaurant.menu.routes");
+const partenaireTypeRouter=require("./routes/partenaire.type.routes")
 const repasRouter= require("./routes/restaurant.repas.routes");
 const driverCourseRouter=require("./routes/driver.course.routes");
 const app = express();
@@ -37,6 +38,7 @@ app.use('/test', testRouter)
 app.use('/users', usersRouter)
 app.use('/partenaire', userPartenaireRouter)
 app.use('/service', serviceRouter)
+app.use('/partenaire/type',partenaireTypeRouter)
 app.use('/partenaire/service', partenaireRouter)
 app.use('/partenaire/produit', partenaireProduitRouter)
 app.use('/resto/menu', menuRouter)
