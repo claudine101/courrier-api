@@ -7,7 +7,8 @@ const RESPONSE_STATUS = require('../constants/RESPONSE_STATUS');
 const generateToken = require('../utils/generateToken');
 const path = require("path");
 const md5 = require('md5');
-const UserUpload = require("../class/uploads/UserUpload")
+const UserUpload = require("../class/uploads/UserUpload");
+const { query } = require('../utils/db');
 const login = async (req, res) => {
 
           try {
@@ -429,11 +430,31 @@ const findByIdPartenaire = async (req, res) => {
                     })
           }
 }
+
+const getProduits = async (req, res) => {
+          try  {
+                    const produits = await query("SELECT * FROM ecommerce_produits");
+                    res.status(RESPONSE_CODES.OK).json({
+                              statusCode: RESPONSE_CODES.OK,
+                              httpStatus: RESPONSE_STATUS.OK,
+                              message: "Liste de tous les produits",
+                              result: produits
+                    })
+          } catch (error) {
+                    console.log(error)
+                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                              message: "Erreur interne du serveur, réessayer plus tard"
+                    })
+          }
+}
 module.exports = {
           login,
           createUser,
           getAllPartenaire,
           findByIdPartenaire,
           getcategories,
-          createPartenaire
+          createPartenaire,
+          getProduits
 }
