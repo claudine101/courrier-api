@@ -430,8 +430,10 @@ const findByIdPartenaire = async (req, res) => {
 }
 
 const getProduits = async (req, res) => {
+    const { id } = req.params
+    console.log(id)
           try  {
-                    const produits = await query("SELECT * FROM ecommerce_produits");
+                    const produits = await query("SELECT cat.NOM,pt.ID_PRODUIT,pt.NOM as NOM_PRODUIT  FROM ecommerce_produits  pt LEFT JOIN ecommerce_produit_categorie cat ON pt.ID_CATEGORIE_PRODUIT=cat.ID_CATEGORIE_PRODUIT WHERE cat.ID_CATEGORIE_PRODUIT="+id);
                     res.status(RESPONSE_CODES.OK).json({
                               statusCode: RESPONSE_CODES.OK,
                               httpStatus: RESPONSE_STATUS.OK,
