@@ -91,10 +91,6 @@ const getmenu = async (req, res) => {
     try {
         const { partenaire,category } = req.query
         var menu = await restoMenuModel.findmenu(category, partenaire)
-
-        // else{
-        //     var menu = await restoMenuModel.findAllmenu()
-        // }
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_CODES.OK,
