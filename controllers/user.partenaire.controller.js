@@ -220,10 +220,10 @@ const createPartenaire = async (req, res) => {
 
 
                 LOGO: {
-                    image: 100000000
+                    image: 20000000
                 },
                 BACKGROUND_IMAGE: {
-                    image: 100000000
+                    image: 20000000
                 },
 
 
