@@ -19,22 +19,22 @@ const createCommandes = async (ID_USER,DATE_LIVRAISON,CODE_UNIQUE) => {
         }
 
 }
-const createDetailLivraison = async (CODE_UNIQUE,N0M,PRENOM,ADRESSE,AVENUE,ID_COUNTRY) => {
+const createDetailLivraison = async (CODE_UNIQUE,N0M,PRENOM,ADRESSE,TELEPHONE,AVENUE,ID_COUNTRY) => {
         try {
-                var sqlQuery = "INSERT  INTO driver_details_livraison(CODE_UNIQUE,N0M,PRENOM,ADRESSE,AVENUE,ID_COUNTRY)";
-                sqlQuery += "VALUES(?,?,?,?,?,?)"
-                return query(sqlQuery, [CODE_UNIQUE,N0M,PRENOM,ADRESSE,AVENUE,ID_COUNTRY]);
+                var sqlQuery = "INSERT  INTO driver_details_livraison(CODE_UNIQUE,N0M,PRENOM,ADRESSE,TELEPHONE,AVENUE,ID_COUNTRY)";
+                sqlQuery += "VALUES(?,?,?,?,?,?,?)"
+                return query(sqlQuery, [CODE_UNIQUE,N0M,PRENOM,ADRESSE,TELEPHONE,AVENUE,ID_COUNTRY]);
         } catch (error) {
                 throw error
         }
 
 }
 
-const createCommandeDetails = async (ID_COMMANDE, ID_PRODUIT_STOCK, QUANTITE, PRIX, SOMME) => {
+const createCommandeDetails = async (ecommerce_commande_details) => {
         try {
                 var sqlQuery = "INSERT INTO ecommerce_commande_details(ID_COMMANDE, ID_PRODUIT_STOCK, QUANTITE, PRIX, SOMME)";
-                sqlQuery += "VALUES(?,?,?,?,?)"
-                return query(sqlQuery, [ID_COMMANDE, ID_PRODUIT_STOCK, QUANTITE, PRIX, SOMME]);
+                sqlQuery += "VALUES ?"
+                return query(sqlQuery, [ecommerce_commande_details]);
         } catch (error) {
                 throw error
         }
@@ -48,6 +48,15 @@ const findCommandesbyId = async (userId) => {
                 throw error;
         }
 };
+const findDetail = async (ID_USER) => {
+        try {
+                return query("SELECT ecd.SOMME,ecs.DESCRIPTION ,ecd.QUANTITE,ec.DATE_COMMANDE FROM ecommerce_commandes ec LEFT JOIN ecommerce_commande_details ecd  ON ec.ID_COMMANDE=ecd.ID_COMMANDE LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT=ec.ID_STATUT LEFT JOIN users u ON u.ID_USER =ec.ID_USER WHERE 1 AND ec.ID_USER=?",[ID_USER])
+        }
+        catch (error) {
+                throw error;
+        }
+};
+
 const findProduit= async (userId) => {
         try {
                 var sqlQuery = "SELECT com.ID_COMMANDE_DETAIL,prx.NOM,com.QUANTITE, "
@@ -84,5 +93,6 @@ module.exports = {
         findCommandesbyId,
         findAllLivraisonById,
         findProduit,
-        createDetailLivraison
+        createDetailLivraison,
+        findDetail
 }
