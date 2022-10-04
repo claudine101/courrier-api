@@ -7,7 +7,8 @@ const RESPONSE_STATUS = require('../constants/RESPONSE_STATUS');
 const generateToken = require('../utils/generateToken');
 const path = require("path");
 const md5 = require('md5');
-const UserUpload = require("../class/uploads/UserUpload")
+const UserUpload = require("../class/uploads/UserUpload");
+const { query } = require('../utils/db');
 const login = async (req, res) => {
 
     try {
@@ -424,14 +425,36 @@ const findByIdPartenaire = async (req, res) => {
             httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
             message: "echoue",
 
-        })
-    }
+                    })
+          }
+}
+
+const getProduits = async (req, res) => {
+    const { id } = req.params
+    console.log(id)
+          try  {
+                    const produits = await query("SELECT cat.NOM,pt.ID_PRODUIT,pt.NOM as NOM_PRODUIT  FROM ecommerce_produits  pt LEFT JOIN ecommerce_produit_categorie cat ON pt.ID_CATEGORIE_PRODUIT=cat.ID_CATEGORIE_PRODUIT WHERE cat.ID_CATEGORIE_PRODUIT="+id);
+                    res.status(RESPONSE_CODES.OK).json({
+                              statusCode: RESPONSE_CODES.OK,
+                              httpStatus: RESPONSE_STATUS.OK,
+                              message: "Liste de tous les produits",
+                              result: produits
+                    })
+          } catch (error) {
+                    console.log(error)
+                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                              message: "Erreur interne du serveur, réessayer plus tard"
+                    })
+          }
 }
 module.exports = {
-    login,
-    createUser,
-    getAllPartenaire,
-    findByIdPartenaire,
-    getcategories,
-    createPartenaire
+          login,
+          createUser,
+          getAllPartenaire,
+          findByIdPartenaire,
+          getcategories,
+          createPartenaire,
+          getProduits
 }

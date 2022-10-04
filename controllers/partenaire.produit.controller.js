@@ -55,7 +55,7 @@ const createProduit = async (req, res) => {
                                         },
                                         DESCRIPTION:
                                         {
-                                                  required: true,
+                                                  length: [1, 3000],
                                         },
                                         QUANTITE_STOCKE:
                                         {
@@ -73,15 +73,16 @@ const createProduit = async (req, res) => {
                               {
                                         IMAGE_1: {
                                                   required: "Image d'un produit est obligatoire",
-                                                  image: "taille invalide"
+                                                  image: "Veuillez choisir une image valide",
+                                                  size: "L'image est trop volumineux"
                                         },
                                         IMAGE_2: {
-                                                  required: "Image d'un produit est obligatoire",
-                                                  image: "taille invalide"
+                                                  image: "Veuillez choisir une image valide",
+                                                  size: "L'image est trop volumineux"
                                         },
                                         IMAGE_3: {
-                                                  required: "Image d'un produit est obligatoire",
-                                                  image: "taille invalide"
+                                                  image: "Veuillez choisir une image valide",
+                                                  size: "L'image est trop volumineux"
                                         },
                                         ID_PRODUIT:
                                         {
@@ -105,7 +106,7 @@ const createProduit = async (req, res) => {
                                         },
                                         DESCRIPTION:
                                         {
-                                                  required: "description d'un produit  est obligatoire",
+                                                  required: "Vérifier la taille de votre description(max: 3000 caractères)",
                                         },
                                         QUANTITE_STOCKE:
                                         {
@@ -131,7 +132,6 @@ const createProduit = async (req, res) => {
                                         message: "Probleme de validation des donnees",
                                         result: errors
                               })
-
                     }
                     const productUpload = new ProductUpload()
                     var filename_2
@@ -153,7 +153,7 @@ const createProduit = async (req, res) => {
                               ID_PRODUIT_SOUS_CATEGORIE,
                               ID_TAILLE,
                               NOM,
-                              DESCRIPTION,
+                              DESCRIPTION ? DESCRIPTION : null,
                               fileInfo_1.fileName,
                               filename_2 ? filename_2 : null,
                               filename_3 ? filename_3 : null
