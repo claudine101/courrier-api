@@ -172,6 +172,7 @@ const createUser = async (req, res) => {
                 result: errors
             })
 
+
         }
         const userUpload = new UserUpload()
         var filename
@@ -209,10 +210,12 @@ const createUser = async (req, res) => {
             httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
             message: "Enregistrement echoue",
 
+
         })
     }
 }
 const createPartenaire = async (req, res) => {
+
     try {
         const { ID_USER, ID_TYPE_PARTENAIRE, NOM_ORGANISATION, TELEPHONE, NIF, EMAIL, ADRESSE_COMPLETE, LATITUDE, LONGITUDE, ID_SERVICE } = req.body
         const { LOGO, BACKGROUND_IMAGE } = req.files || {}
@@ -225,6 +228,7 @@ const createPartenaire = async (req, res) => {
                 BACKGROUND_IMAGE: {
                     image: 21000000
                 },
+
 
 
             },
@@ -406,6 +410,7 @@ const findByIdPartenaire = async (req, res) => {
                 NOM: product.NOM_SOUS_CATEGORIE
             },
             stock: {
+                ID_PRODUIT_STOCK: product.ID_PRODUIT_STOCK,
                 QUANTITE_STOCKE: product.QUANTITE_STOCKE,
                 QUANTITE_RESTANTE: product.QUANTITE_RESTANTE,
                 QUANTITE_VENDUE: product.QUANTITE_VENDUE
@@ -425,36 +430,36 @@ const findByIdPartenaire = async (req, res) => {
             httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
             message: "echoue",
 
-                    })
-          }
+        })
+    }
 }
 
 const getProduits = async (req, res) => {
     const { id } = req.params
     console.log(id)
-          try  {
-                    const produits = await query("SELECT cat.NOM,pt.ID_PRODUIT,pt.NOM as NOM_PRODUIT  FROM ecommerce_produits  pt LEFT JOIN ecommerce_produit_categorie cat ON pt.ID_CATEGORIE_PRODUIT=cat.ID_CATEGORIE_PRODUIT WHERE cat.ID_CATEGORIE_PRODUIT="+id);
-                    res.status(RESPONSE_CODES.OK).json({
-                              statusCode: RESPONSE_CODES.OK,
-                              httpStatus: RESPONSE_STATUS.OK,
-                              message: "Liste de tous les produits",
-                              result: produits
-                    })
-          } catch (error) {
-                    console.log(error)
-                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-                              message: "Erreur interne du serveur, réessayer plus tard"
-                    })
-          }
+    try {
+        const produits = await query("SELECT cat.NOM,pt.ID_PRODUIT,pt.NOM as NOM_PRODUIT  FROM ecommerce_produits  pt LEFT JOIN ecommerce_produit_categorie cat ON pt.ID_CATEGORIE_PRODUIT=cat.ID_CATEGORIE_PRODUIT WHERE cat.ID_CATEGORIE_PRODUIT=" + id);
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Liste de tous les produits",
+            result: produits
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard"
+        })
+    }
 }
 module.exports = {
-          login,
-          createUser,
-          getAllPartenaire,
-          findByIdPartenaire,
-          getcategories,
-          createPartenaire,
-          getProduits
+    login,
+    createUser,
+    getAllPartenaire,
+    findByIdPartenaire,
+    getcategories,
+    createPartenaire,
+    getProduits
 }
