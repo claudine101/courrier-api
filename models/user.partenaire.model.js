@@ -130,6 +130,18 @@ const createpartenaire = (ID_USER, ID_TYPE_PARTENAIRE, NOM_ORGANISATION, TELEPHO
             throw error
   }
 }
+const CreatePartenaireService = (ID_PARTENAIRE,ID_SERVICE,PARTENAIRE_SERVICE_STATUT_ID) => {
+  try {
+            var sqlQuery = "INSERT INTO partenaire_service (ID_PARTENAIRE,ID_SERVICE,PARTENAIRE_SERVICE_STATUT_ID)";
+            sqlQuery += "values (?,?,?)";
+            return query(sqlQuery, [ID_PARTENAIRE,ID_SERVICE,PARTENAIRE_SERVICE_STATUT_ID
+              ])
+  }
+  catch (error) {
+
+            throw error
+  }
+}
 
 module.exports = {
           findBy,
@@ -140,5 +152,6 @@ module.exports = {
           findByIdPartenaire,
           findcategories,
           findByIdPartenai,
-          createpartenaire
+          createpartenaire,
+          CreatePartenaireService
 }

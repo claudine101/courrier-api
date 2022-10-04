@@ -184,7 +184,7 @@ const createUser = async (req, res) => {
             EMAIL,
             USERNAME,
             md5(PASSWORD),
-            1,
+            2,
             SEXE,
             DATE_NAISSANCE,
             COUNTRY_ID,
@@ -213,17 +213,16 @@ const createUser = async (req, res) => {
 }
 const createPartenaire = async (req, res) => {
     try {
-        const { ID_USER, ID_TYPE_PARTENAIRE, NOM_ORGANISATION, TELEPHONE, NIF, EMAIL, ADRESSE_COMPLETE, LATITUDE, LONGITUDE } = req.body
+        const { ID_USER, ID_TYPE_PARTENAIRE, NOM_ORGANISATION, TELEPHONE, NIF, EMAIL, ADRESSE_COMPLETE, LATITUDE, LONGITUDE, ID_SERVICE } = req.body
         const { LOGO, BACKGROUND_IMAGE } = req.files || {}
         const validation = new Validation({ ...req.body, ...req.files },
             {
 
-
                 LOGO: {
-                    image: 20000000
+                    image: 21000000
                 },
                 BACKGROUND_IMAGE: {
-                    image: 20000000
+                    image: 21000000
                 },
 
 
@@ -275,10 +274,11 @@ const createPartenaire = async (req, res) => {
             LONGITUDE,
 
 
-
-
-
-
+        )
+        const { IdServiceInserted } = await userModel.CreatePartenaireService(
+            insertId,
+            ID_SERVICE,
+            1,
 
         )
         const partenaire = (await userModel.findByIdPartenai(insertId))[0]

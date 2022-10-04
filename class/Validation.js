@@ -115,7 +115,7 @@ class Validation {
 
           async image(key, value, params) {
                     if (!value) return;
-                    const IMAGES_MIMES = ["image/jpeg", "image/gif", "image/png"];
+                    const IMAGES_MIMES = ["image/jpeg", "image/jpg", "image/gif", "image/png"];
                     if (!IMAGES_MIMES.includes(value.mimetype)) {
                               this.setError(
                                         key,
