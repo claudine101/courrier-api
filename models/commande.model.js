@@ -19,22 +19,22 @@ const createCommandes = async (ID_USER,DATE_LIVRAISON,CODE_UNIQUE) => {
         }
 
 }
-const createDetailLivraison = async (CODE_UNIQUE,N0M,PRENOM,ADRESSE,AVENUE,ID_COUNTRY) => {
+const createDetailLivraison = async (CODE_UNIQUE,N0M,PRENOM,ADRESSE,TELEPHONE,AVENUE,ID_COUNTRY) => {
         try {
-                var sqlQuery = "INSERT  INTO driver_details_livraison(CODE_UNIQUE,N0M,PRENOM,ADRESSE,AVENUE,ID_COUNTRY)";
-                sqlQuery += "VALUES(?,?,?,?,?,?)"
-                return query(sqlQuery, [CODE_UNIQUE,N0M,PRENOM,ADRESSE,AVENUE,ID_COUNTRY]);
+                var sqlQuery = "INSERT  INTO driver_details_livraison(CODE_UNIQUE,N0M,PRENOM,ADRESSE,TELEPHONE,AVENUE,ID_COUNTRY)";
+                sqlQuery += "VALUES(?,?,?,?,?,?,?)"
+                return query(sqlQuery, [CODE_UNIQUE,N0M,PRENOM,ADRESSE,TELEPHONE,AVENUE,ID_COUNTRY]);
         } catch (error) {
                 throw error
         }
 
 }
 
-const createCommandeDetails = async (ID_COMMANDE, ID_PRODUIT_STOCK, QUANTITE, PRIX, SOMME) => {
+const createCommandeDetails = async (ecommerce_commande_details) => {
         try {
                 var sqlQuery = "INSERT INTO ecommerce_commande_details(ID_COMMANDE, ID_PRODUIT_STOCK, QUANTITE, PRIX, SOMME)";
-                sqlQuery += "VALUES(?,?,?,?,?)"
-                return query(sqlQuery, [ID_COMMANDE, ID_PRODUIT_STOCK, QUANTITE, PRIX, SOMME]);
+                sqlQuery += "VALUES ?"
+                return query(sqlQuery, [ecommerce_commande_details]);
         } catch (error) {
                 throw error
         }

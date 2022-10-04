@@ -81,7 +81,7 @@ const findByIdPartenaire = async (id, category, subCategory, limit = 10, offset 
                     sqlQuery += " pp.ID_PRODUIT_PARTENAIRE, pp.NOM AS NOM_PRODUIT_PARTENAIRE,pp.DESCRIPTION,pp.IMAGE_1,pp.IMAGE_2, pp.IMAGE_3, "
                     sqlQuery += " p.NOM_ORGANISATION, p.ID_PARTENAIRE, p.ID_TYPE_PARTENAIRE, u.NOM NOM_USER, u.PRENOM, "
                     sqlQuery += " pc.ID_CATEGORIE_PRODUIT, pc.NOM AS NOM_CATEGORIE, psc.ID_PRODUIT_SOUS_CATEGORIE, psc.NOM AS NOM_SOUS_CATEGORIE, pt.NOM NOM_TAILLE,sp.PRIX, "
-                    sqlQuery += " ps.QUANTITE_STOCKE, ps.QUANTITE_RESTANTE, ps.QUANTITE_VENDUE "
+                    sqlQuery += " psr.ID_PRODUIT_STOCK, ps.QUANTITE_STOCKE, ps.QUANTITE_RESTANTE, ps.QUANTITE_VENDUE "
                     sqlQuery += "FROM ecommerce_produit_partenaire pp "
                     sqlQuery += " LEFT JOIN ecommerce_produits ep ON ep.ID_PRODUIT=pp.ID_PRODUIT "
                     sqlQuery += " LEFT JOIN partenaires p ON pp.ID_PARTENAIRE=p.ID_PARTENAIRE "
