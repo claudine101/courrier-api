@@ -4,7 +4,8 @@ const commandeController = require("../controllers/commande.controller")
 const commandeRouter = express.Router()
 
 commandeRouter.post('/clients', commandeController.createAllCommandes)
-commandeRouter.get('/', commandeController.commandeDetail)
-
+commandeRouter.get('/', commandeController.getCommandes)
+commandeRouter.get('/status', commandeController.getStatus)
+commandeRouter.get('/status/:ID_COMMANDE', commandeController.getCommandeStatus)
 
 module.exports = commandeRouter
