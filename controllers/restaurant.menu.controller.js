@@ -115,11 +115,11 @@ const createMenu = async (req, res) => {
             MONTANT,
             2,
             id_menu,
-            2
+            3
         );
 
         const menu = (await menuModel.findById(insertId))[0]
-        const allmenu = (await query("SELECT IMAGES_1 AS IMAGE,IMAGES_2,IMAGES_3 FROM restaurant_menu WHERE ID_RESTAURANT_MENU=" + menu.ID_RESTAURANT_MENU))[0]
+        const allmenu = (await query("SELECT IMAGES_1,IMAGES_2 ,IMAGES_3 FROM restaurant_menu WHERE ID_RESTAURANT_MENU=" + menu.ID_RESTAURANT_MENU))[0]
         const categorie = (await query("SELECT NOM AS NOM_CATEGORIE,DESCRIPTION AS DESCRIPTION_MENU FROM restaurant_categorie_menu WHERE ID_CATEGORIE_MENU=" + menu.ID_CATEGORIE_MENU))[0]
         const Subcategorie = (await query("SELECT NOM AS NOM_SUB_CATEGORY, DESCRIPTION AS DESC_SUB_CSTEGORY FROM restaurant_sous_categorie_menu WHERE ID_SOUS_CATEGORIE_MENU=" + menu.ID_SOUS_CATEGORIE_MENU))[0]
         const SubSubcategorie = (await query("SELECT DESCRIPTION FROM restaurant_sous_sous_categorie WHERE ID_SOUS_SOUS_CATEGORIE=" + menu.ID_SOUS_SOUS_CATEGORIE))[0]
@@ -139,9 +139,9 @@ const createMenu = async (req, res) => {
             message: "Enregistrement est fait avec succès",
             result: {
                 ...menu,
-                IMAGE: getImageUri(menu.IMAGE),
-                IMAGE2: getImageUri(menu.IMAGE2),
-                IMAGE3: getImageUri(menu.IMAGE3),
+                IMAGES_1:getImageUri(menu.IMAGES_1),
+                IMAGES_2:getImageUri(menu.IMAGES_2),
+                IMAGES_3:getImageUri(menu.IMAGES_3),
                 allmenu:allmenu,
                 categorie:categorie,
                 Subcategorie:Subcategorie,
