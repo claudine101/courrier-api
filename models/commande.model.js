@@ -10,13 +10,13 @@ const findAll = async () => {
 };
 
 const createCommandes = async (ID_USER, DATE_LIVRAISON, CODE_UNIQUE) => {
-          try {
-                    var sqlQuery = "INSERT INTO ecommerce_commandes(ID_USER,DATE_LIVRAISON,CODE_UNIQUE)";
-                    sqlQuery += "VALUES(?,?,?)"
-                    return query(sqlQuery, [ID_USER, DATE_LIVRAISON, CODE_UNIQUE]);
-          } catch (error) {
-                    throw error
-          }
+        try {
+                var sqlQuery = "INSERT INTO ecommerce_commandes(ID_USER,DATE_LIVRAISON,CODE_UNIQUE)";
+                sqlQuery += "VALUES(?,?,?)"
+                return query(sqlQuery, [ID_USER, DATE_LIVRAISON, CODE_UNIQUE]);
+        } catch (error) {
+                throw error
+        }
 
 }
 const createDetailLivraison = async (CODE_UNIQUE, N0M, PRENOM, ADRESSE, TELEPHONE, AVENUE, ID_COUNTRY) => {

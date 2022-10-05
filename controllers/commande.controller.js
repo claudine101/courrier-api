@@ -167,45 +167,6 @@ const createAllCommandes = async (req, res) => {
                               message: "Enregistrement reussi avec succès",
                               result: commande
                     })
-          }
-          catch (error) {
-                    console.log(error)
-                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-                              message: "Erreur interne du serveur, réessayer plus tard"
-                    })
-          }
-}
-
-const getCommandes = async (req, res) => {
-          try {
-                    const getImageUri = (fileName) => {
-                              if (!fileName) return null
-                              if (fileName.indexOf("http") === 0) return fileName
-                              return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
-                    }
-                    var commandesIds = []
-                    const commandes = await commandeModel.getUserCommandes(req.userId)
-                    commandes.forEach(commande => commandesIds.push(commande.ID_COMMANDE))
-                    var details = 0
-                    if(commandesIds.length > 0) {
-                              details = await commandeModel.getManyCommandesDetails(commandesIds)
-                    }
-                    const commandesDetails = commandes.map(commande => {
-                              var TOTAL_COMMANDE = 0
-                              const myDetails = details.filter(d => d.ID_COMMANDE == commande.ID_COMMANDE)
-                              myDetails.forEach(detail => TOTAL_COMMANDE += detail.QUANTITE * detail.PRIX)
-                              return {
-                                        ...commande,
-                                        ITEMS: myDetails.length,
-                                        TOTAL: TOTAL_COMMANDE,
-                                        details: myDetails.map(detail => ({
-                                                  ...detail,
-                                                  IMAGE_1: getImageUri(detail.IMAGE_1)
-                                        }))
-                              }
-                    })
                     res.status(RESPONSE_CODES.OK).json({
                               statusCode: RESPONSE_CODES.OK,
                               httpStatus: RESPONSE_STATUS.OK,
@@ -276,6 +237,53 @@ const getCommandeStatus = async (req, res) => {
           }
 }
 
+const getCommandes = async (req, res) => {
+          try {
+                    const getImageUri = (fileName) => {
+                              if (!fileName) return null
+                              if (fileName.indexOf("http") === 0) return fileName
+                              return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+                    }
+                    var commandesIds = []
+                    const commandes = await commandeModel.getUserCommandes(req.userId)
+                    commandes.forEach(commande => commandesIds.push(commande.ID_COMMANDE))
+                    var details = 0
+                    if(commandesIds.length > 0) {
+                              details = await commandeModel.getManyCommandesDetails(commandesIds)
+                    }
+                    const commandesDetails = commandes.map(commande => {
+                              var TOTAL_COMMANDE = 0
+                              const myDetails = details.filter(d => d.ID_COMMANDE == commande.ID_COMMANDE)
+                              myDetails.forEach(detail => TOTAL_COMMANDE += detail.QUANTITE * detail.PRIX)
+                              return {
+                                        ...commande,
+                                        ITEMS: myDetails.length,
+                                        TOTAL: TOTAL_COMMANDE,
+                                        details: myDetails.map(detail => ({
+                                                  ...detail,
+                                                  IMAGE_1: getImageUri(detail.IMAGE_1)
+                                        }))
+                              }
+                    })
+                    res.status(RESPONSE_CODES.OK).json({
+                              statusCode: RESPONSE_CODES.OK,
+                              httpStatus: RESPONSE_STATUS.OK,
+                              message: "succès",
+                              result: commandesDetails
+                    })
+          }
+          catch (error) {
+                    console.log(error)
+                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                              message: "Erreur interne du serveur, réessayer plus tard",
+
+                    })
+          }
+}
+
+    
 module.exports = {
           createAllCommandes,
           getCommandes,

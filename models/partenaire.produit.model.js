@@ -36,6 +36,18 @@ const createPrix = (ID_PRODUIT_STOCK, PRIX) => {
           }
 
 }
+const createDetails = (ID_PRODUIT_PARTENAIRE,ID_TAILLE,ID_COULEUR,QUANTITE) => {
+    try {
+              var sqlQuery = "INSERT INTO  ecommerce_produit_details (ID_PRODUIT_PARTENAIRE,ID_TAILLE,ID_COULEUR,QUANTITE)";
+              sqlQuery += "values (?,?,?,?)";
+              return query(sqlQuery, ([ID_PRODUIT_PARTENAIRE,ID_TAILLE,ID_COULEUR,QUANTITE]))
+    }
+    catch (error) {
+
+              throw error
+    }
+
+}
 const findById = async (id) => {
           try {
                     return query("SELECT * FROM  ecommerce_produits pr LEFT JOIN ecommerce_produit_partenaire pro ON  pr.ID_PRODUIT=pr.ID_PRODUIT LEFT JOIN ecommerce_produit_stock st ON st.ID_PRODUIT_PARTENAIRE=pro.ID_PRODUIT_PARTENAIRE LEFT JOIN ecommerce_stock_prix pri ON pri.ID_PRODUIT_STOCK=st.ID_PRODUIT_STOCK WHERE pro.ID_PRODUIT_PARTENAIRE=?", [id]);
@@ -65,5 +77,6 @@ module.exports = {
           createPrix,
           findById,
           findByIdPartenaire,
-          findByIdPoduit
+          findByIdPoduit,
+          createDetails
 }
