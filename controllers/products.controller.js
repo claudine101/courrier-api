@@ -304,16 +304,6 @@ const getSousCategoriesBy = async (req, res) => {
 
                     })
 
-<<<<<<< HEAD
-    }
-
-    catch (error) {
-        console.log(error)
-        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-            message: "Erreur interne du serveur, réessayer plus tard",
-=======
           }
           catch (error) {
                     console.log(error)
@@ -321,13 +311,11 @@ const getSousCategoriesBy = async (req, res) => {
                               statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
                               httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
                               message: "Erreur interne du serveur, réessayer plus tard",
->>>>>>> ef7f2ce3e507e79b30030edeaa26461f4815bb72
 
                     })
           }
 }
 const getSizes = async (req, res) => {
-<<<<<<< HEAD
     try {
         const { ID_CATEGORIE_PRODUIT,ID_PRODUIT_SOUS_CATEGORIE } = req.params
         console.log(ID_PRODUIT_SOUS_CATEGORIE)
@@ -345,32 +333,12 @@ const getSizes = async (req, res) => {
             statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
             httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
             message: "Erreur interne du serveur, réessayer plus tard",
-=======
-          try {
-                    const { ID_CATEGORIE_PRODUIT } = req.params
-                    const sizes = await productsModel.findSizes(ID_CATEGORIE_PRODUIT)
-                    res.status(RESPONSE_CODES.OK).json({
-                              statusCode: RESPONSE_CODES.OK,
-                              httpStatus: RESPONSE_STATUS.OK,
-                              message: "Liste des tailles des produits",
-                              result: sizes
-                    })
-          }
-          catch (error) {
-                    console.log(error)
-                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-                              message: "Erreur interne du serveur, réessayer plus tard",
->>>>>>> ef7f2ce3e507e79b30030edeaa26461f4815bb72
 
                     })
           }
 }
 
 module.exports = {
-
-<<<<<<< HEAD
     getAllProducts,
     getAllCategorie,
     getSousCategoriesBy,
@@ -381,16 +349,5 @@ module.exports = {
     getbyID,
     getAllColors
     
-=======
-          getAllProducts,
-          getAllCategorie,
-          getSousCategoriesBy,
-          getSizes,
-          getAllSubCategories,
-          getOne,
-          getCategorieByPartenaire,
-          getbyID
-
->>>>>>> ef7f2ce3e507e79b30030edeaa26461f4815bb72
 
 }
