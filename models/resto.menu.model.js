@@ -24,16 +24,16 @@ const findmenusouscategories = async (ID_CATEGORIE_MENU) => {
 const findmenu = async (ID_CATEGORIE_MENU, ID_PARTENAIRE) => {
     try {
         var binds = []
-        var sqlQuery = " SELECT rm.ID_RESTAURANT_MENU, rcm.NOM AS NOM_CATEGORIE,rscm.NOM AS NOM_SOUS_CATEGORIE,"
-        sqlQuery += " rscm.DESCRIPTION AS DESCRIPTION_SOUS_CATEGORIE,rmd.TAILLE,rm.IMAGES_1 AS IMAGE, rm.IMAGES_2 AS IMAGE2, rm.IMAGES_3 AS IMAGE3, "
-        sqlQuery += " rmu.UNITES_MESURES,rpc.MONTANT, rm.ID_PARTENAIRE, rsrepas.DESCRIPTION AS NOM_MENU FROM restaurant_menu rm"
-        sqlQuery += " LEFT JOIN restaurant_sous_categorie_menu rscm ON rm.ID_SOUS_CATEGORIE_MENU=rscm.ID_SOUS_CATEGORIE_MENU"
-        sqlQuery += " LEFT JOIN restaurant_categorie_menu rcm ON rcm.ID_CATEGORIE_MENU=rm.ID_CATEGORIE_MENU"
-        sqlQuery += " LEFT JOIN restaurant_menu_details rmd ON rmd.ID_MENU_DETAIL=rm.ID_MENU_DETAIL"
-        sqlQuery += " LEFT JOIN restaurant_menu_unite rmu ON rmu.ID_UNITE=rmd.ID_UNITE"
-        sqlQuery += " LEFT JOIN restaurant_prix_categorie rpc ON rpc.ID_RESTAURANT_MENU=rm.ID_RESTAURANT_MENU"
-        sqlQuery += " LEFT JOIN partenaires part ON part.ID_PARTENAIRE=rm.ID_PARTENAIRE "
-        sqlQuery += " LEFT JOIN restaurant_repas rsrepas ON rsrepas.ID_REPAS=rm.ID_REPAS WHERE 1 "
+        var sqlQuery = " SELECT rmenu.ID_RESTAURANT_MENU,rcm.NOM AS NOM_CATEGORIE, rmenu.IMAGES_1 AS IMAGE, rmenu.IMAGES_2 AS IMAGE2,"
+        sqlQuery += " rmenu.IMAGES_3 AS IMAGE3,rmenu.ID_PARTENAIRE, rscm.NOM AS NOM_SOUS_CATEGORIE, rscm.DESCRIPTION AS DESCRIPTION_SOUS_CATEGORIE, "
+        sqlQuery += " rmd.QUANTITE,rmd.DESCRIPTION As DESCR_TAILLE, rsmu.UNITES_MESURES, rsprix.MONTANT, rsrepas.DESCRIPTION AS NOM_MENU FROM restaurant_menu rmenu "
+        sqlQuery += " LEFT JOIN restaurant_sous_categorie_menu rscm ON rmenu.ID_SOUS_CATEGORIE_MENU=rscm.ID_SOUS_CATEGORIE_MENU"
+        sqlQuery += " LEFT JOIN restaurant_categorie_menu rcm ON rcm.ID_CATEGORIE_MENU=rmenu.ID_CATEGORIE_MENU"
+        sqlQuery += " LEFT JOIN restaurant_menu_taille rmd ON rmd.ID_MENU_QUANTITE=rmenu.ID_MENU_QUANTITE "
+        sqlQuery += " LEFT JOIN restaurant_menu_unite rsmu ON rsmu.ID_UNITE=rmd.ID_UNITE"
+        sqlQuery += " LEFT JOIN restaurant_menu_prix rsprix ON rsprix.ID_RESTAURANT_MENU=rmenu.ID_RESTAURANT_MENU"
+        sqlQuery += " LEFT JOIN partenaires part ON part.ID_PARTENAIRE=rmenu.ID_PARTENAIRE "
+        sqlQuery += " LEFT JOIN restaurant_repas rsrepas ON rsrepas.ID_REPAS=rmenu.ID_REPAS WHERE 1 "
 
         if(ID_CATEGORIE_MENU){
             sqlQuery += " AND rcm.ID_CATEGORIE_MENU=? "
