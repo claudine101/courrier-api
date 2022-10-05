@@ -5,6 +5,7 @@ const commandeRouter = express.Router()
 
 commandeRouter.post('/clients', commandeController.createAllCommandes)
 commandeRouter.get('/', commandeController.commandeDetail)
+commandeRouter.get('/partenaire', commandeController.commandePartenaire)
 
 
 module.exports = commandeRouter
