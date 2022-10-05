@@ -211,7 +211,31 @@ const getAllCategorie = async (req, res) => {
         })
     }
 }
+const getAllColors = async (req, res) => {
+    try {
 
+        const colors = await  query("SELECT * FROM ecommerce_produit_couleur")
+        
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Liste des colors",
+            result: colors
+
+
+        })
+
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
 const getCategorieByPartenaire = async (req, res) => {
     try {
         const { ID_PRODUIT_PARTENAIRE } = req.params
@@ -278,6 +302,7 @@ const getSousCategoriesBy = async (req, res) => {
         })
 
     }
+
     catch (error) {
         console.log(error)
         res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
@@ -290,8 +315,9 @@ const getSousCategoriesBy = async (req, res) => {
 }
 const getSizes = async (req, res) => {
     try {
-        const { ID_CATEGORIE_PRODUIT } = req.params
-        const sizes = await productsModel.findSizes(ID_CATEGORIE_PRODUIT)
+        const { ID_CATEGORIE_PRODUIT,ID_PRODUIT_SOUS_CATEGORIE } = req.params
+        console.log(ID_PRODUIT_SOUS_CATEGORIE)
+        const sizes = await productsModel.findSizes(ID_CATEGORIE_PRODUIT,ID_PRODUIT_SOUS_CATEGORIE)
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_STATUS.OK,
@@ -319,7 +345,8 @@ module.exports = {
     getAllSubCategories,
     getOne,
     getCategorieByPartenaire,
-    getbyID
+    getbyID,
+    getAllColors
     
 
 }

@@ -7,6 +7,7 @@ const generateToken = require('../utils/generateToken');
 const path = require("path");
 const ProductUpload = require("../class/uploads/ProductUpload");
 const { query } = require('../utils/db');
+const { json } = require('express');
 const createProduit = async (req, res) => {
     try {
         const getImageUri = (fileName) => {
@@ -23,8 +24,10 @@ const createProduit = async (req, res) => {
             DESCRIPTION,
             QUANTITE_STOCKE,
             QUANTIPRIX,
+            DETAIL,
             ID_STATUT
         } = req.body
+        const Detail=JSON.parse(DETAIL)
         const { IMAGE_1, IMAGE_2, IMAGE_3 } = req.files || {}
         const validation = new Validation(
             { ...req.body, ...req.files },
@@ -177,6 +180,16 @@ const createProduit = async (req, res) => {
             1
             //IMAGE
         )
+        
+        await Promise.all(Detail.map(async detail => {
+            const { insertId: id_details } = await partenaireProduitModel.createDetails(
+                    insertProduit,
+                    detail.sizeId,
+                    detail.colorId,
+                    detail.quantite,
+                    
+            );
+    }))
         const produits = (await partenaireProduitModel.findById(insertProduit))[0]
 
         const categorie = (await query("select NOM from ecommerce_produit_categorie WHERE ID_CATEGORIE_PRODUIT=" + produits.ID_CATEGORIE_PRODUIT))[0]
