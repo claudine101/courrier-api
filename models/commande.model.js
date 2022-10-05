@@ -9,21 +9,21 @@ const findAll = async () => {
         }
 };
 
-const createCommandes = async (ID_USER,DATE_LIVRAISON,CODE_UNIQUE) => {
+const createCommandes = async (ID_USER, DATE_LIVRAISON, CODE_UNIQUE) => {
         try {
                 var sqlQuery = "INSERT INTO ecommerce_commandes(ID_USER,DATE_LIVRAISON,CODE_UNIQUE)";
                 sqlQuery += "VALUES(?,?,?)"
-                return query(sqlQuery, [ID_USER,DATE_LIVRAISON,CODE_UNIQUE]);
+                return query(sqlQuery, [ID_USER, DATE_LIVRAISON, CODE_UNIQUE]);
         } catch (error) {
                 throw error
         }
 
 }
-const createDetailLivraison = async (CODE_UNIQUE,N0M,PRENOM,ADRESSE,TELEPHONE,AVENUE,ID_COUNTRY) => {
+const createDetailLivraison = async (CODE_UNIQUE, N0M, PRENOM, ADRESSE, TELEPHONE, AVENUE, ID_COUNTRY) => {
         try {
                 var sqlQuery = "INSERT  INTO driver_details_livraison(CODE_UNIQUE,N0M,PRENOM,ADRESSE,TELEPHONE,AVENUE,ID_COUNTRY)";
                 sqlQuery += "VALUES(?,?,?,?,?,?,?)"
-                return query(sqlQuery, [CODE_UNIQUE,N0M,PRENOM,ADRESSE,TELEPHONE,AVENUE,ID_COUNTRY]);
+                return query(sqlQuery, [CODE_UNIQUE, N0M, PRENOM, ADRESSE, TELEPHONE, AVENUE, ID_COUNTRY]);
         } catch (error) {
                 throw error
         }
@@ -42,7 +42,7 @@ const createCommandeDetails = async (ecommerce_commande_details) => {
 }
 const findCommandesbyId = async (userId) => {
         try {
-                return query("SELECT comm.DATE_COMMANDE,comm.DATE_LIVRAISON,comm.CODE_UNIQUE,comm.STATUT_LIVRAISON,comm.ID_STATUT , us.NOM, us.PRENOM FROM ecommerce_commandes comm LEFT JOIN users us on us.ID_USER=comm.ID_USER WHERE comm.ID_COMMANDE = ?",[userId])
+                return query("SELECT comm.DATE_COMMANDE,comm.DATE_LIVRAISON,comm.CODE_UNIQUE,comm.STATUT_LIVRAISON,comm.ID_STATUT , us.NOM, us.PRENOM FROM ecommerce_commandes comm LEFT JOIN users us on us.ID_USER=comm.ID_USER WHERE comm.ID_COMMANDE = ?", [userId])
         }
         catch (error) {
                 throw error;
@@ -50,22 +50,39 @@ const findCommandesbyId = async (userId) => {
 };
 const findDetail = async (ID_USER) => {
         try {
-                return query("SELECT ecd.SOMME,ecs.DESCRIPTION ,ecd.QUANTITE,ec.DATE_COMMANDE FROM ecommerce_commandes ec LEFT JOIN ecommerce_commande_details ecd  ON ec.ID_COMMANDE=ecd.ID_COMMANDE LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT=ec.ID_STATUT LEFT JOIN users u ON u.ID_USER =ec.ID_USER WHERE 1 AND ec.ID_USER=?",[ID_USER])
+                return query("SELECT ecd.SOMME,ecs.DESCRIPTION ,ecd.QUANTITE,ec.DATE_COMMANDE FROM ecommerce_commandes ec LEFT JOIN ecommerce_commande_details ecd  ON ec.ID_COMMANDE=ecd.ID_COMMANDE LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT=ec.ID_STATUT LEFT JOIN users u ON u.ID_USER =ec.ID_USER WHERE 1 AND ec.ID_USER=?", [ID_USER])
+
+        }
+        catch (error) {
+                throw error;
+        }
+};
+const findcomande = async (ID_USER,limit = 10, offset = 0) => {
+        try {
+              var sqlQuery = "SELECT ecs.DESCRIPTION,ecd.QUANTITE,pp.NOM,ecd.PRIX,ecd.SOMME,"
+                sqlQuery += " ec.DATE_COMMANDE FROM ecommerce_commandes ec LEFT JOIN "
+                sqlQuery += " ecommerce_commande_details ecd  ON ec.ID_COMMANDE=ecd.ID_COMMANDE LEFT JOIN "
+                sqlQuery += " ecommerce_produit_stock st ON st.ID_PRODUIT_STOCK=ecd.ID_PRODUIT_STOCK LEFT JOIN"
+                sqlQuery += " ecommerce_produit_partenaire pp ON pp.ID_PRODUIT_PARTENAIRE=st.ID_PRODUIT_PARTENAIRE LEFT JOIN"
+                sqlQuery += " partenaires par ON par.ID_PARTENAIRE=pp.ID_PARTENAIRE  LEFT JOIN ecommerce_commande_statut ecs"
+                sqlQuery += " ON ecs.ID_STATUT=ec.ID_STATUT WHERE par.ID_USER=?"
+                sqlQuery += ` LIMIT ${offset}, ${limit}`;
+                return query(sqlQuery, [ID_USER])
         }
         catch (error) {
                 throw error;
         }
 };
 
-const findProduit= async (userId) => {
+const findProduit = async (userId) => {
         try {
                 var sqlQuery = "SELECT com.ID_COMMANDE_DETAIL,prx.NOM,com.QUANTITE, "
                 sqlQuery += "com.SOMME,com.PRIX FROM ecommerce_commande_details com  "
-                sqlQuery +="LEFT JOIN  ecommerce_produit_stock st ON  "
-                sqlQuery +="com.ID_PRODUIT_STOCK=st.ID_PRODUIT_STOCK LEFT JOIN " 
-                sqlQuery +="ecommerce_produit_partenaire  pr  ON pr.ID_PRODUIT_PARTENAIRE=st.ID_PRODUIT_PARTENAIRE  "
-                sqlQuery +="LEFT JOIN ecommerce_produits prx ON prx.ID_PRODUIT=pr.ID_PARTENAIRE  "
-                sqlQuery +=" WHERE com.ID_COMMANDE=?",[userId]
+                sqlQuery += "LEFT JOIN  ecommerce_produit_stock st ON  "
+                sqlQuery += "com.ID_PRODUIT_STOCK=st.ID_PRODUIT_STOCK LEFT JOIN "
+                sqlQuery += "ecommerce_produit_partenaire  pr  ON pr.ID_PRODUIT_PARTENAIRE=st.ID_PRODUIT_PARTENAIRE  "
+                sqlQuery += "LEFT JOIN ecommerce_produits prx ON prx.ID_PRODUIT=pr.ID_PARTENAIRE  "
+                sqlQuery += " WHERE com.ID_COMMANDE=?", [userId]
                 return query(sqlQuery, [userId]);
 
         }
@@ -77,7 +94,7 @@ const findProduit= async (userId) => {
 
 const findAllLivraisonById = async (userId) => {
         try {
-                return query("SELECT livr.NOM,livr.PRENOM, livr.ADRESSE, livr.LONGITUDE, livr.LATITUDE FROM ecommerce_clients_livraison livr WHERE livr.ID_LIVRAISON=?",[userId])
+                return query("SELECT livr.NOM,livr.PRENOM, livr.ADRESSE, livr.LONGITUDE, livr.LATITUDE FROM ecommerce_clients_livraison livr WHERE livr.ID_LIVRAISON=?", [userId])
         }
         catch (error) {
                 throw error;
@@ -94,5 +111,6 @@ module.exports = {
         findAllLivraisonById,
         findProduit,
         createDetailLivraison,
-        findDetail
+        findDetail,
+        findcomande
 }
