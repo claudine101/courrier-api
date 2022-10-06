@@ -134,18 +134,16 @@ const findSousCategoriesBy = async (ID_CATEGORIE_PRODUIT) => {
 
     }
 }
-const findSizes = async (ID_CATEGORIE_PRODUIT) => {
+const findSizes = async (ID_CATEGORIE_PRODUIT,ID_PRODUIT_SOUS_CATEGORIE) => {
     try {
 
-        return query("SELECT pc.NOM AS NOM_CATEGORIE,pt.NOM AS TAILLE FROM ecommerce_produit_tailles pt LEFT JOIN ecommerce_produit_categorie pc ON pc.ID_CATEGORIE_PRODUIT= pt.ID_CATEGORIE_PRODUIT  WHERE 1 AND  pt.ID_CATEGORIE_PRODUIT =?", [ID_CATEGORIE_PRODUIT]);
+        return query("SELECT pt.ID_TAILLE,pc.NOM AS NOM_CATEGORIE,pt.NOM AS TAILLE FROM ecommerce_produit_tailles pt LEFT JOIN ecommerce_produit_categorie pc ON pc.ID_CATEGORIE_PRODUIT= pt.ID_CATEGORIE_PRODUIT  WHERE 1 AND  pt.ID_CATEGORIE_PRODUIT =? AND pt.ID_PRODUIT_SOUS_CATEGORIE=?", [ID_CATEGORIE_PRODUIT,ID_PRODUIT_SOUS_CATEGORIE]);
     }
     catch (error) {
         throw error
 
     }
 }
-
-
 module.exports = {
     findproducts,
     findCategories,
