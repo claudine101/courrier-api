@@ -280,12 +280,11 @@ const createPartenaire = async (req, res) => {
 
 
         )
-        const { IdServiceInserted } = await userModel.CreatePartenaireService(
-            insertId,
-            ID_SERVICE,
-            1,
-
-        )
+        // const { IdServiceInserted } = await userModel.CreatePartenaireService(
+        //     insertId,
+        //     ID_SERVICE,
+        //     1,
+        // )
         const partenaire = (await userModel.findByIdPartenai(insertId))[0]
         res.status(RESPONSE_CODES.CREATED).json({
             statusCode: RESPONSE_CODES.CREATED,
