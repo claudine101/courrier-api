@@ -21,13 +21,38 @@ const findAllService = async (req, res) => {
                     res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
                               statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
                               httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-                              message: "echoue",
+                              message: "Erreur interne du serveur, réessayer plus tard",
+
 
                     })
           }
 }
+const findOne = async (req, res) => {
+    try {
+        const { ID_SERVICE } = req.params
+
+              const service = await serviceModel.findById(req.userId,ID_SERVICE)
+              res.status(RESPONSE_CODES.OK).json({
+                        statusCode: RESPONSE_CODES.OK,
+                        httpStatus: RESPONSE_STATUS.OK,
+                        message: "succès",
+                        result: service.length
+              })
+    }
+    catch (error) {
+              console.log(error)
+              res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                        statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                        httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                        message: "Erreur interne du serveur, réessayer plus tard",
+
+
+              })
+    }
+}
 module.exports = {
           findAllService,
+          findOne
 }
 
 
