@@ -163,7 +163,7 @@ const createAllCommandes = async (req, res) => {
 }
 const commandeDetail = async (req, res) => {
         try {
-                  console.log(req.userId)
+                  //console.log(req.userId)
                   const { limit, offset } = req.query
                   const commande = await commandeModel.findDetail(req.userId,limit, offset)
                   res.status(RESPONSE_CODES.OK).json({
