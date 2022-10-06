@@ -29,7 +29,7 @@ const findmenu = async (ID_CATEGORIE_MENU, ID_PARTENAIRE) => {
         sqlQuery += " rmd.QUANTITE,rmd.DESCRIPTION As DESCR_TAILLE, rsmu.UNITES_MESURES, rsprix.MONTANT, rsrepas.DESCRIPTION AS NOM_MENU FROM restaurant_menu rmenu "
         sqlQuery += " LEFT JOIN restaurant_sous_categorie_menu rscm ON rmenu.ID_SOUS_CATEGORIE_MENU=rscm.ID_SOUS_CATEGORIE_MENU"
         sqlQuery += " LEFT JOIN restaurant_categorie_menu rcm ON rcm.ID_CATEGORIE_MENU=rmenu.ID_CATEGORIE_MENU"
-        sqlQuery += " LEFT JOIN restaurant_menu_taille rmd ON rmd.ID_MENU_QUANTITE=rmenu.ID_MENU_QUANTITE "
+        sqlQuery += " LEFT JOIN restaurant_menu_quantite rmd ON rmd.ID_RESTAURANT_MENU=rmenu.ID_RESTAURANT_MENU "
         sqlQuery += " LEFT JOIN restaurant_menu_unite rsmu ON rsmu.ID_UNITE=rmd.ID_UNITE"
         sqlQuery += " LEFT JOIN restaurant_menu_prix rsprix ON rsprix.ID_RESTAURANT_MENU=rmenu.ID_RESTAURANT_MENU"
         sqlQuery += " LEFT JOIN partenaires part ON part.ID_PARTENAIRE=rmenu.ID_PARTENAIRE "
@@ -56,7 +56,7 @@ const findmenu = async (ID_CATEGORIE_MENU, ID_PARTENAIRE) => {
 const findmenubyPartenaire =async (ID_PARTENAIRE) => {
     try {
 
-        return query("SELECT rcm.NOM AS NOM_CATEGORIE,rscm.NOM AS NOM_SOUS_CATEGORIE,rscm.DESCRIPTION AS DESCRIPTION_SOUS_CATEGORIE,rmd.TAILLE,rm.IMAGES_1 AS IMAGE ,rmu.UNITES_MESURES,rpc.MONTANT, rm.ID_PARTENAIRE FROM restaurant_menu rm LEFT JOIN restaurant_sous_categorie_menu rscm ON rm.ID_SOUS_CATEGORIE_MENU=rscm.ID_SOUS_CATEGORIE_MENU LEFT JOIN restaurant_categorie_menu rcm ON rcm.ID_CATEGORIE_MENU=rm.ID_CATEGORIE_MENU LEFT JOIN restaurant_menu_details rmd ON rmd.ID_MENU_DETAIL=rm.ID_MENU_DETAIL LEFT JOIN restaurant_menu_unite rmu ON rmu.ID_UNITE=rmd.ID_UNITE LEFT JOIN restaurant_prix_categorie rpc ON rpc.ID_RESTAURANT_MENU=rm.ID_RESTAURANT_MENU LEFT JOIN partenaires part ON part.ID_PARTENAIRE=rm.ID_PARTENAIRE WHERE 1 AND rm.ID_PARTENAIRE=?",[ID_PARTENAIRE]);
+        return query("SELECT rcm.NOM AS NOM_CATEGORIE,rscm.NOM AS NOM_SOUS_CATEGORIE,rscm.DESCRIPTION AS DESCRIPTION_SOUS_CATEGORIE,rm.IMAGES_1 AS IMAGE ,rpc.MONTANT, rm.ID_PARTENAIRE FROM restaurant_menu rm LEFT JOIN restaurant_sous_categorie_menu rscm ON rm.ID_SOUS_CATEGORIE_MENU=rscm.ID_SOUS_CATEGORIE_MENU LEFT JOIN restaurant_categorie_menu rcm ON rcm.ID_CATEGORIE_MENU=rm.ID_CATEGORIE_MENU LEFT JOIN restaurant_menu_prix rpc ON rpc.ID_RESTAURANT_MENU=rm.ID_RESTAURANT_MENU LEFT JOIN partenaires part ON part.ID_PARTENAIRE=rm.ID_PARTENAIRE WHERE 1 AND rm.ID_PARTENAIRE=?",[ID_PARTENAIRE]);
     }
     catch (error) {
         throw error
