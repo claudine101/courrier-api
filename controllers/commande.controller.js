@@ -129,7 +129,8 @@ const createAllCommandes = async (req, res) => {
                     const { insertId } = await commandeModel.createCommandes(
                               req.userId,
                               DATE_LIVRAISON,
-                              CODE_UNIQUE
+                              CODE_UNIQUE,
+                              1
                     )
                     const ecommerce_commande_details = []
                     var TOTAL = 0
@@ -166,12 +167,6 @@ const createAllCommandes = async (req, res) => {
                               httpStatus: RESPONSE_STATUS.OK,
                               message: "Enregistrement reussi avec succès",
                               result: commande
-                    })
-                    res.status(RESPONSE_CODES.OK).json({
-                              statusCode: RESPONSE_CODES.OK,
-                              httpStatus: RESPONSE_STATUS.OK,
-                              message: "succès",
-                              result: commandesDetails
                     })
           }
           catch (error) {
@@ -248,7 +243,7 @@ const getCommandes = async (req, res) => {
                     const commandes = await commandeModel.getUserCommandes(req.userId)
                     commandes.forEach(commande => commandesIds.push(commande.ID_COMMANDE))
                     var details = 0
-                    if(commandesIds.length > 0) {
+                    if (commandesIds.length > 0) {
                               details = await commandeModel.getManyCommandesDetails(commandesIds)
                     }
                     const commandesDetails = commandes.map(commande => {
@@ -283,11 +278,50 @@ const getCommandes = async (req, res) => {
           }
 }
 
-    
+const findOneCommande = async (req, res) => {
+          try {
+                    const getImageUri = (fileName) => {
+                              if (!fileName) return null
+                              if (fileName.indexOf("http") === 0) return fileName
+                              return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+                    }
+                    const { ID_COMMANDE } = req.params
+                    const pureCommande = (await commandeModel.getOneCommande(ID_COMMANDE))[0]
+                    const details = await commandeModel.getManyCommandesDetails([ID_COMMANDE])
+                    var TOTAL_COMMANDE = 0
+                    details.forEach(detail => TOTAL_COMMANDE += detail.QUANTITE * detail.PRIX)
+                    const commande = {
+                              ...pureCommande,
+                              ITEMS: details.length,
+                              TOTAL: TOTAL_COMMANDE,
+                              details: details.map(detail => ({
+                                        ...detail,
+                                        IMAGE_1: getImageUri(detail.IMAGE_1)
+                              }))
+                    }
+                    res.status(RESPONSE_CODES.OK).json({
+                              statusCode: RESPONSE_CODES.OK,
+                              httpStatus: RESPONSE_STATUS.OK,
+                              message: "Une commande",
+                              result: commande
+                    })
+          } catch (error) {
+                    console.log(error)
+                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                              message: "Erreur interne du serveur, réessayer plus tard",
+
+                    })
+          }
+}
+
+
 module.exports = {
           createAllCommandes,
           getCommandes,
           createAllCommandes,
           getStatus,
-          getCommandeStatus
+          getCommandeStatus,
+          findOneCommande
 }
