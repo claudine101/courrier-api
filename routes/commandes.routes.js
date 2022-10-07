@@ -7,6 +7,6 @@ commandeRouter.post('/clients', commandeController.createAllCommandes)
 commandeRouter.get('/', commandeController.getCommandes)
 commandeRouter.get('/status', commandeController.getStatus)
 commandeRouter.get('/status/:ID_COMMANDE', commandeController.getCommandeStatus)
-commandeRouter.get('/partenaire', commandeController.commandePartenaire)
+commandeRouter.get('/partenaire', commandeController.getCommandePartenaire)
 
 module.exports = commandeRouter
