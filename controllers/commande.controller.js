@@ -296,21 +296,20 @@ const getCommandePartenaire = async (req, res) => {
     const partenaireproduits = await commandeModel.getpartenaireproducts(req.userId)
 
     partenaireproduits.forEach(partenaireproduit => PartenaireIds.push(partenaireproduit.ID_PRODUIT_STOCK))
-    //console.log(PartenaireIds)
+    console.log(partenaireproduits)
     if (PartenaireIds.length > 0) {
       commandes = await commandeModel.getCommandesDetails(PartenaireIds)
-      //console.log(commandes)
+      console.log(commandes)
       res.status(RESPONSE_CODES.OK).json({
         statusCode: RESPONSE_CODES.OK,
         httpStatus: RESPONSE_STATUS.OK,
         message: " succès",
-        result:commandes
+        result: commandes
+
+
+
       })
     }
-
-
-
-
 
   }
   catch (error) {
@@ -334,8 +333,7 @@ module.exports = {
   getStatus,
   getCommandeStatus,
   getCommandePartenaire
-  // commandePartenaire,
-  // commandeDetail
+  
 
 
 }

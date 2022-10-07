@@ -115,11 +115,11 @@ const getManyCommandesDetails = async (commandesIds) => {
 const getCommandesDetails = async (PartenaireIds) => {
         try {
                   var binds = [PartenaireIds]
-                  var sqlQuery = "SELECT cd.ID_COMMANDE,ec.ID_COMMANDE,ec.CODE_UNIQUE, cd.ID_COMMANDE_DETAIL, cd.QUANTITE, cd.PRIX, cd.SOMME, epp.NOM, epp.IMAGE_1 FROM ecommerce_commande_details cd "
+                  var sqlQuery = "SELECT  SUM(cd.SOMME) AS SOMME ,SUM(cd.QUANTITE) AS QUANTITE,cd.ID_COMMANDE,ecs.DESCRIPTION,ec.ID_COMMANDE,ec.CODE_UNIQUE, cd.ID_COMMANDE_DETAIL, cd.PRIX, epp.NOM, epp.IMAGE_1 FROM ecommerce_commande_details cd "
                   sqlQuery += " LEFT JOIN ecommerce_produit_stock eps ON eps.ID_PRODUIT_STOCK = cd.ID_PRODUIT_STOCK "
                   sqlQuery += " LEFT JOIN ecommerce_produit_partenaire epp ON epp.ID_PRODUIT_PARTENAIRE = eps.ID_PRODUIT_PARTENAIRE "
-                  sqlQuery += " LEFT JOIN  ecommerce_commandes ec ON ec.ID_COMMANDE=cd.ID_COMMANDE"
-                  sqlQuery += " WHERE cd.ID_PRODUIT_STOCK IN (?)"
+                  sqlQuery += " LEFT JOIN  ecommerce_commandes ec ON ec.ID_COMMANDE=cd.ID_COMMANDE LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT=ec.ID_STATUT"
+                  sqlQuery += " WHERE cd.ID_PRODUIT_STOCK IN (?) GROUP BY cd.ID_COMMANDE"
                   return query(sqlQuery, binds)
         }catch (error) {
                   throw error
