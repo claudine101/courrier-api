@@ -168,12 +168,6 @@ const createAllCommandes = async (req, res) => {
       message: "Enregistrement reussi avec succès",
       result: commande
     })
-    res.status(RESPONSE_CODES.OK).json({
-      statusCode: RESPONSE_CODES.OK,
-      httpStatus: RESPONSE_STATUS.OK,
-      message: "succès",
-      result: commandesDetails
-    })
   }
   catch (error) {
     console.log(error)
@@ -299,19 +293,26 @@ const getCommandePartenaire = async (req, res) => {
     partenaireproduits.forEach(partenaireproduit => PartenaireIds.push(partenaireproduit.ID_PRODUIT_STOCK))
     console.log(partenaireproduits)
     if (PartenaireIds.length > 0) {
-      commandes = await commandeModel.getCommandesDetails(PartenaireIds)
+      const commandes = await commandeModel.getCommandesDetails(PartenaireIds)
       console.log(commandes)
       res.status(RESPONSE_CODES.OK).json({
         statusCode: RESPONSE_CODES.OK,
         httpStatus: RESPONSE_STATUS.OK,
         message: " succès",
         result: commandes
-
-
-
       })
     }
+  }
+  catch (error) {
+    console.log(error)
+    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+      statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+      httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+      message: "Erreur interne du serveur, réessayer plus tard",
 
+    })
+  }
+}
 const commandeDetail = async (req, res) => {
   try {
     //console.log(req.userId)
@@ -334,6 +335,7 @@ const commandeDetail = async (req, res) => {
     })
   }
 }
+
 //   const commandePartenaire = async (req, res) => {
 //     try {
 //               //console.log(req.userId)
@@ -645,14 +647,15 @@ const getAllRestoCommandes = async (req, res) => {
 }
 
 module.exports = {
+  createAllCommandes,
   getCommandes,
   createAllCommandes,
   getStatus,
   getCommandeStatus,
-  getCommandePartenaire,
   findOneCommande,
   commandeDetail,
   commandePartenaire,
   createRestoCommandes,
-  getAllRestoCommandes
+  getAllRestoCommandes,
+  getCommandePartenaire
 }
