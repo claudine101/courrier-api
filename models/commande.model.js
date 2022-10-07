@@ -123,6 +123,22 @@ const saveStatus = async (ID_COMMANDE, ID_USER, ID_STATUT) => {
           }
 }
 
+const getPartenaireProduit = async (ID_USER) => {
+        try {
+                  return query("SELECT stock.ID_PRODUIT_STOCK, stock.QUANTITE_STOCKE, stock.QUANTITE_RESTANTE, stock.QUANTITE_VENDUE, p_part.ID_PRODUIT_PARTENAIRE, part.ID_PARTENAIRE FROM ecommerce_produit_stock stock LEFT JOIN ecommerce_produit_partenaire p_part ON p_part.ID_PRODUIT_PARTENAIRE=stock.ID_PRODUIT_PARTENAIRE LEFT JOIN partenaires part ON part.ID_PARTENAIRE=p_part.ID_PARTENAIRE WHERE part.ID_USER=?", [ID_USER])
+        } catch (error) {
+                  throw error;
+        }
+}
+
+const getAllCommandesDetails = async (produitdIds) => {
+        try {
+                  return query("SELECT * FROM ecommerce_commandes comm LEFT JOIN  ecommerce_commande_details comm_d ON comm_d.ID_COMMANDE=comm.ID_COMMANDE WHERE  comm_d.ID_PRODUIT_STOCK IN (?)", [produitdIds])
+        } catch (error) {
+                  throw error;
+        }
+}
+
 module.exports = {
           findAll,
           createCommandes,
@@ -134,5 +150,7 @@ module.exports = {
           getUserCommandes,
           getManyCommandesDetails,
           saveStatus,
-          getOneCommande
+          getOneCommande,
+          getPartenaireProduit,
+          getAllCommandesDetails
 }

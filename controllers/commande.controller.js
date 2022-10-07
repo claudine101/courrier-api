@@ -300,27 +300,27 @@ const commandeDetail = async (req, res) => {
                     })
           }
       }
-      const commandePartenaire = async (req, res) => {
-        try {
-                  //console.log(req.userId)
-                  const commande = await commandeModel.findcomande(req.userId)
-                  res.status(RESPONSE_CODES.OK).json({
-                            statusCode: RESPONSE_CODES.OK,
-                            httpStatus: RESPONSE_STATUS.OK,
-                            message: "succès",
-                            result: commande
-                  })
-        }
-        catch (error) {
-                  console.log(error)
-                  res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-                            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-                            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-                            message: "Erreur interne du serveur, réessayer plus tard",
+    //   const commandePartenaire = async (req, res) => {
+    //     try {
+    //               //console.log(req.userId)
+    //               const commande = await commandeModel.findcomande(req.userId)
+    //               res.status(RESPONSE_CODES.OK).json({
+    //                         statusCode: RESPONSE_CODES.OK,
+    //                         httpStatus: RESPONSE_STATUS.OK,
+    //                         message: "succès",
+    //                         result: commande
+    //               })
+    //     }
+    //     catch (error) {
+    //               console.log(error)
+    //               res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+    //                         statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+    //                         httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+    //                         message: "Erreur interne du serveur, réessayer plus tard",
     
-                  })
-        }
-    }
+    //               })
+    //     }
+    // }
   
 const findOneCommande = async (req, res) => {
           try {
@@ -360,6 +360,55 @@ const findOneCommande = async (req, res) => {
           }
 }
 
+const commandePartenaire = async (req, res) => {
+    try {
+              const getImageUri = (fileName) => {
+                        if (!fileName) return null
+                        if (fileName.indexOf("http") === 0) return fileName
+                        return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+              }
+              var produitdIds = []
+              const produits = await commandeModel.getPartenaireProduit(req.userId)
+              console.log(produits)
+              produits.forEach(produit => produitdIds.push(produit.ID_PRODUIT_STOCK))
+              console.log(produitdIds)
+              var commandeDetails = 0
+              if (produitdIds.length > 0) {
+                        commandeDetails = await commandeModel.getAllCommandesDetails(produitdIds)
+              }
+              console.log(commandeDetails)
+            //   const commandesDetails = commandes.map(commande => {
+            //             var TOTAL_COMMANDE = 0
+            //             const myDetails = details.filter(d => d.ID_COMMANDE == commande.ID_COMMANDE)
+            //             myDetails.forEach(detail => TOTAL_COMMANDE += detail.QUANTITE * detail.PRIX)
+            //             return {
+            //                       ...commande,
+            //                       ITEMS: myDetails.length,
+            //                       TOTAL: TOTAL_COMMANDE,
+            //                       details: myDetails.map(detail => ({
+            //                                 ...detail,
+            //                                 IMAGE_1: getImageUri(detail.IMAGE_1)
+            //                       }))
+            //             }
+            //   })
+              res.status(RESPONSE_CODES.OK).json({
+                        statusCode: RESPONSE_CODES.OK,
+                        httpStatus: RESPONSE_STATUS.OK,
+                        message: "succès",
+                        result: produits
+              })
+    }
+    catch (error) {
+              console.log(error)
+              res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                        statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                        httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                        message: "Erreur interne du serveur, réessayer plus tard",
+
+              })
+    }
+}
+
 
 module.exports = {
           createAllCommandes,
@@ -368,5 +417,6 @@ module.exports = {
           getStatus,
           getCommandeStatus,
           findOneCommande,
-          commandeDetail
+          commandeDetail,
+          commandePartenaire
 }
