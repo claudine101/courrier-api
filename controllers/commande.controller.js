@@ -293,7 +293,7 @@ const getCommandePartenaire = async (req, res) => {
     partenaireproduits.forEach(partenaireproduit => PartenaireIds.push(partenaireproduit.ID_PRODUIT_STOCK))
     console.log(partenaireproduits)
     if (PartenaireIds.length > 0) {
-      const commandes = await commandeModel.getCommandesDetails(PartenaireIds)
+       commandes = await commandeModel.getCommandesDetails(PartenaireIds)
       console.log(commandes)
       res.status(RESPONSE_CODES.OK).json({
         statusCode: RESPONSE_CODES.OK,

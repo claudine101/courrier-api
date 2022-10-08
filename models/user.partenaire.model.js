@@ -22,14 +22,14 @@ const createOne = (NOM, PRENOM, EMAIL, USERNAME, PASSWORD, ID_PROFIL, SEXE, DATE
 }
 const findById = async (id) => {
           try {
-                    return query("SELECT * FROM users WHERE ID_USER  = ?", [id]);
+                    return query("SELECT * FROM users u  LEFT JOIN partenaires p ON p.ID_USER=u.ID_USER WHERE p.ID_USER   = ?", [id]);
           } catch (error) {
                     throw error;
           }
 };
 const findByIdPartenai = async (id) => {
   try {
-    return query("SELECT * FROM partenaires WHERE ID_PARTENAIRE  = ?", [id]);
+    return query("SELECT * FROM partenaire_service WHERE ID_PARTENAIRE_SERVICE  = ?", [id]);
   } catch (error) {
     throw error;
   }
@@ -118,12 +118,24 @@ const findcategories = async (ID_PARTENAIRE) => {
                     throw error;
           }
 };
-const createpartenaire = (ID_USER, ID_TYPE_PARTENAIRE, NOM_ORGANISATION, TELEPHONE, NIF, EMAIL,LOGO, BACKGROUND_IMAGE, ADRESSE_COMPLETE, LATITUDE, LONGITUDE) => {
+const createpartenaire = (ID_PARTENAIRE, ID_TYPE_PARTENAIRE, NOM_ORGANISATION, TELEPHONE, NIF, EMAIL,LOGO, BACKGROUND_IMAGE, ADRESSE_COMPLETE, LATITUDE, LONGITUDE) => {
   try {
-            var sqlQuery = "INSERT INTO partenaires (ID_USER, ID_TYPE_PARTENAIRE, NOM_ORGANISATION, TELEPHONE, NIF, EMAIL,LOGO, BACKGROUND_IMAGE, ADRESSE_COMPLETE, LATITUDE, LONGITUDE)";
+            var sqlQuery = "INSERT INTO partenaire_service (ID_PARTENAIRE, ID_TYPE_PARTENAIRE, NOM_ORGANISATION, TELEPHONE, NIF, EMAIL,LOGO, BACKGROUND_IMAGE, ADRESSE_COMPLETE, LATITUDE, LONGITUDE)";
             sqlQuery += "values (?,?,?,?,?,?,?,?,?,?,?)";
             return query(sqlQuery, [
-              ID_USER, ID_TYPE_PARTENAIRE, NOM_ORGANISATION, TELEPHONE, NIF, EMAIL,LOGO, BACKGROUND_IMAGE, ADRESSE_COMPLETE, LATITUDE, LONGITUDE])
+              ID_PARTENAIRE, ID_TYPE_PARTENAIRE, NOM_ORGANISATION, TELEPHONE, NIF, EMAIL,LOGO, BACKGROUND_IMAGE, ADRESSE_COMPLETE, LATITUDE, LONGITUDE])
+  }
+  catch (error) {
+
+            throw error
+  }
+}
+const createOnePartenaire = (ID_USER) => {
+  try {
+            var sqlQuery = "INSERT INTO partenaires (ID_USER)";
+            sqlQuery += "values (?)";
+            return query(sqlQuery, [
+              ID_USER])
   }
   catch (error) {
 
@@ -153,5 +165,6 @@ module.exports = {
           findcategories,
           findByIdPartenai,
           createpartenaire,
-          CreatePartenaireService
+          CreatePartenaireService,
+          createOnePartenaire
 }

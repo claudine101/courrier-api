@@ -195,6 +195,10 @@ const createUser = async (req, res) => {
             TELEPHONE_2,
             filename ? filename : null
         )
+        const { partenaireId} = await userModel.createOnePartenaire(
+            insertId
+    
+        )
         const user = (await userModel.findById(insertId))[0]
         res.status(RESPONSE_CODES.CREATED).json({
             statusCode: RESPONSE_CODES.CREATED,
@@ -217,7 +221,7 @@ const createUser = async (req, res) => {
 const createPartenaire = async (req, res) => {
 
     try {
-        const { ID_USER, ID_TYPE_PARTENAIRE, NOM_ORGANISATION, TELEPHONE, NIF, EMAIL, ADRESSE_COMPLETE, LATITUDE, LONGITUDE, ID_SERVICE } = req.body
+        const { ID_PARTENAIRE, ID_TYPE_PARTENAIRE, NOM_ORGANISATION, TELEPHONE, NIF, EMAIL, ADRESSE_COMPLETE, LATITUDE, LONGITUDE, ID_SERVICE } = req.body
         const { LOGO, BACKGROUND_IMAGE } = req.files || {}
         const validation = new Validation({ ...req.body, ...req.files },
             {
@@ -265,7 +269,7 @@ const createPartenaire = async (req, res) => {
 
 
         const { insertId } = await userModel.createpartenaire(
-            ID_USER,
+            ID_PARTENAIRE,
             ID_TYPE_PARTENAIRE,
             NOM_ORGANISATION,
             TELEPHONE,
@@ -280,11 +284,7 @@ const createPartenaire = async (req, res) => {
 
 
         )
-        // const { IdServiceInserted } = await userModel.CreatePartenaireService(
-        //     insertId,
-        //     ID_SERVICE,
-        //     1,
-        // )
+       
         const partenaire = (await userModel.findByIdPartenai(insertId))[0]
         res.status(RESPONSE_CODES.CREATED).json({
             statusCode: RESPONSE_CODES.CREATED,
