@@ -25,7 +25,7 @@ const findproducts = async (category, subCategory, limit = 10, offset = 0) => {
                               sqlQuery += " AND pp.ID_PRODUIT_SOUS_CATEGORIE = ? "
                               binds.push(subCategory)
                     }
-                    sqlQuery += `LIMIT ${offset}, ${limit}`;
+                    sqlQuery += ` ORDER BY pp.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
                     return query(sqlQuery, [category]);
           }
           catch (error) {
