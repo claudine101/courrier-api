@@ -114,60 +114,68 @@ const createAllCommandes = async (req, res) => {
                     }
                     const CODE_UNIQUE = await getReferenceCode()
                     const DATE_LIVRAISON = null
-                    // const econnetResponse = await axios.post('http://app.mediabox.bi/api_ussd_php/Api_client_ecocash', {
-                    //                     VENDEUR_PHONE: "79839653",
-                    //                     AMOUNT: "100",
-                    //                     CLIENT_PHONE: numero,
-                    //                     INSTANCE_TOKEN: "1"
-                    // })
-                    // const ecoData = econnetResponse.data()
-                    // if (ecoData.statut == "200") {
-                    // } else {
-                    //           setLoading(false)
-                    //           setErrors(ecoData.message || 'Erreur, réessayer plus tard')
-                    // }
-                    const { insertId } = await commandeModel.createCommandes(
-                              req.userId,
-                              DATE_LIVRAISON,
-                              CODE_UNIQUE,
-                              1
-                    )
-                    const ecommerce_commande_details = []
+
                     var TOTAL = 0
                     commandes.forEach(commande => {
                               TOTAL += commande.QUANTITE * commande.PRIX
-                              ecommerce_commande_details.push([
-                                        insertId,
-                                        commande.ID_PRODUIT_STOCK,
-                                        commande.QUANTITE,
-                                        commande.PRIX,
-                                        commande.QUANTITE * commande.PRIX
-                              ])
                     })
-                    await commandeModel.createCommandeDetails(ecommerce_commande_details);
-                    await commandeModel.createDetailLivraison(CODE_UNIQUE, shipping_info.N0M, shipping_info.PRENOM, shipping_info.ADRESSE, shipping_info.TELEPHONE, shipping_info.AVENUE, shipping_info.ID_COUNTRY)
-                    await paymentModel.createOne(insertId, service, 1, numero, null, TOTAL, CODE_UNIQUE, 0)
-
-                    const pureCommande = (await commandeModel.getOneCommande(insertId))[0]
-                    const details = await commandeModel.getManyCommandesDetails([insertId])
-                    var TOTAL_COMMANDE = 0
-                    details.forEach(detail => TOTAL_COMMANDE += detail.QUANTITE * detail.PRIX)
-                    const commande = {
-                              ...pureCommande,
-                              ITEMS: details.length,
-                              TOTAL: TOTAL_COMMANDE,
-                              details: details.map(detail => ({
-                                        ...detail,
-                                        IMAGE_1: getImageUri(detail.IMAGE_1)
-                              }))
+                    const econnetResponse = await axios.post('http://app.mediabox.bi/api_ussd_php/Api_client_ecocash', {
+                              VENDEUR_PHONE: "79839653",
+                              AMOUNT: TOTAL,
+                              CLIENT_PHONE: numero,
+                              INSTANCE_TOKEN: "2522"
+                    })
+                    const ecoData = econnetResponse.data
+                    if (false) {
+                              const { insertId } = await commandeModel.createCommandes(
+                                        req.userId,
+                                        DATE_LIVRAISON,
+                                        CODE_UNIQUE,
+                                        1
+                              )
+                              const ecommerce_commande_details = []
+                              var TOTAL = 0
+                              commandes.forEach(commande => {
+                                        TOTAL += commande.QUANTITE * commande.PRIX
+                                        ecommerce_commande_details.push([
+                                                  insertId,
+                                                  commande.ID_PRODUIT_STOCK,
+                                                  commande.QUANTITE,
+                                                  commande.PRIX,
+                                                  commande.QUANTITE * commande.PRIX
+                                        ])
+                              })
+                              await commandeModel.createCommandeDetails(ecommerce_commande_details);
+                              await commandeModel.createDetailLivraison(CODE_UNIQUE, shipping_info.N0M, shipping_info.PRENOM, shipping_info.ADRESSE, shipping_info.TELEPHONE, shipping_info.AVENUE, shipping_info.ID_COUNTRY)
+                              await paymentModel.createOne(insertId, service, 1, numero, null, TOTAL, CODE_UNIQUE, 0)
+          
+                              const pureCommande = (await commandeModel.getOneCommande(insertId))[0]
+                              const details = await commandeModel.getManyCommandesDetails([insertId])
+                              var TOTAL_COMMANDE = 0
+                              details.forEach(detail => TOTAL_COMMANDE += detail.QUANTITE * detail.PRIX)
+                              const commande = {
+                                        ...pureCommande,
+                                        ITEMS: details.length,
+                                        TOTAL: TOTAL_COMMANDE,
+                                        details: details.map(detail => ({
+                                                  ...detail,
+                                                  IMAGE_1: getImageUri(detail.IMAGE_1)
+                                        }))
+                              }
+          
+                              res.status(RESPONSE_CODES.OK).json({
+                                        statusCode: RESPONSE_CODES.OK,
+                                        httpStatus: RESPONSE_STATUS.OK,
+                                        message: "Enregistrement reussi avec succès",
+                                        result: commande
+                              })
+                    } else {
+                              return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
+                                        statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
+                                        httpStatus: RESPONSE_STATUS.UNPROCESSABLE_ENTITY,
+                                        message: ecoData.message || 'Erreur inconnue, réessayer plus tard',
+                              })
                     }
-
-                    res.status(RESPONSE_CODES.OK).json({
-                              statusCode: RESPONSE_CODES.OK,
-                              httpStatus: RESPONSE_STATUS.OK,
-                              message: "Enregistrement reussi avec succès",
-                              result: commande
-                    })
           }
           catch (error) {
                     console.log(error)

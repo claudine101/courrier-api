@@ -308,10 +308,10 @@ const createPartenaire = async (req, res) => {
 const getAllPartenaire = async (req, res) => {
 
           try {
-                    const getImageUri = (fileName) => {
+                    const getImageUri = (fileName, folder) => {
                               if (!fileName) return null
                               if (fileName.indexOf("http") === 0) return fileName
-                              return `${req.protocol}://${req.get("host")}/uploads/users/${fileName}`
+                              return `${req.protocol}://${req.get("host")}/uploads/${folder}/${fileName}`
                     }
                     const { category, subCategory, limit, offset } = req.query
                     const allPartenaire = await userModel.findpartenaire(category, subCategory, limit, offset)
@@ -320,7 +320,8 @@ const getAllPartenaire = async (req, res) => {
                               const categorie = await userModel.findbycategorie(partenaire.ID_PARTENAIRE)
                               return {
                                         ...partenaire,
-                                        image: getImageUri(partenaire.IMAGE),
+                                        LOGO: getImageUri(partenaire.LOGO, 'partenaire'),
+                                        IMAGE: getImageUri(partenaire.IMAGE, 'users'),
                                         categories: categorie
                               }
                     }))

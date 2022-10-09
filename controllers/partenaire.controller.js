@@ -220,19 +220,18 @@ const createPartenaire = async (req, res) => {
 }
 const findByService = async (req, res) => {
           const { id } = req.params
-          console.log(id)
-
           try {
-                    const getImageUri = (fileName) => {
+                    const getImageUri = (fileName, folder) => {
                               if (!fileName) return null
                               if (fileName.indexOf("http") === 0) return fileName
-                              return `${req.protocol}://${req.get("host")}/uploads/users/${fileName}`
+                              return `${req.protocol}://${req.get("host")}/uploads/${folder}/${fileName}`
                     }
 
                     const Allservice = await partenaireModel.findByService(id)
                     const products = Allservice.map(product => ({
                               ...product,
-                              IMAGE: getImageUri(product.IMAGE)
+                              IMAGE: getImageUri(product.IMAGE, "users"),
+                              LOGO: getImageUri(product.LOGO, "partenaire")
                     }))
                     res.status(RESPONSE_CODES.OK).json({
                               statusCode: RESPONSE_CODES.OK,

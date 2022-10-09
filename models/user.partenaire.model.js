@@ -1,12 +1,12 @@
 const { query } = require("../utils/db");
 const findBy = async (column, value) => {
-  try {
-    var sqlQuery = `SELECT * FROM users JOIN partenaires ON users.ID_USER=partenaires.ID_USER WHERE users.${column} = ? `;
-    return query(sqlQuery, [value]);
-  }
-  catch (error) {
-    throw error;
-  }
+          try {
+                    var sqlQuery = `SELECT * FROM users JOIN partenaires ON users.ID_USER=partenaires.ID_USER WHERE users.${column} = ? `;
+                    return query(sqlQuery, [value]);
+          }
+          catch (error) {
+                    throw error;
+          }
 };
 const createOne = (NOM, PRENOM, EMAIL, USERNAME, PASSWORD, ID_PROFIL, SEXE, DATE_NAISSANCE, COUNTRY_ID, ADRESSE, TELEPHONE_1, TELEPHONE_2, IMAGE) => {
           try {
@@ -28,36 +28,32 @@ const findById = async (id) => {
           }
 };
 const findByIdPartenai = async (id) => {
-  try {
-    return query("SELECT * FROM partenaire_service WHERE ID_PARTENAIRE_SERVICE  = ?", [id]);
-  } catch (error) {
-    throw error;
-  }
+          try {
+                    return query("SELECT * FROM partenaire_service WHERE ID_PARTENAIRE_SERVICE  = ?", [id]);
+          } catch (error) {
+                    throw error;
+          }
 };
 const findpartenaire = async (category, subCategory, limit = 10, offset = 0) => {
-  try {
-    var binds = []
-    var sqlQuery = "SELECT * FROM partenaires p LEFT JOIN  partenaires_types t "
-    sqlQuery += " ON p.ID_TYPE_PARTENAIRE=t.ID_PARTENAIRE_TYPE "
-    sqlQuery += "   LEFT JOIN partenaire_service s ON s.ID_PARTENAIRE=p.ID_PARTENAIRE "
-    sqlQuery += "  LEFT JOIN services ser ON ser.ID_SERVICE=s.ID_SERVICE "
-  //   sqlQuery += "LEFT JOIN ecommerce_produit_partenaire  pr ON pr.ID_PARTENAIRE=p.ID_PARTENAIRE "
-  //  sqlQuery += " LEFT JOIN ecommerce_produit_categorie cat ON cat.ID_CATEGORIE_PRODUIT=pr.ID_CATEGORIE_PRODUIT "
-    sqlQuery += " LEFT JOIN users u  ON u.ID_USER=p.ID_USER WHERE t.ID_PARTENAIRE_TYPE=2 AND s.ID_SERVICE=1 "
-    if (category) {
-      sqlQuery = " SELECT u.IMAGE,p.ID_PARTENAIRE,px.ID_CATEGORIE_PRODUIT,p.NOM_ORGANISATION  "
-      sqlQuery += " FROM partenaires p LEFT JOIN ecommerce_produit_partenaire "
-      sqlQuery += " px ON px.ID_PARTENAIRE = p.ID_PARTENAIRE LEFT JOIN users u  ON u.ID_USER=p.ID_USER WHERE px.ID_CATEGORIE_PRODUIT=?  "
-      binds.push(category)
-      
-    }
-    sqlQuery += `LIMIT ${offset}, ${limit}`;
-    return query(sqlQuery, binds);
-  }
-  catch (error) {
-    throw error
-  }
-         
+          try {
+                    var binds = []
+                    var sqlQuery = " SELECT * FROM partenaire_service ps "
+                    sqlQuery += " LEFT JOIN partenaires p ON p.ID_PARTENAIRE = ps.ID_PARTENAIRE "
+                    sqlQuery += " LEFT JOIN users u  ON u.ID_USER=p.ID_USER  "
+                    if (category) {
+                              sqlQuery = " SELECT u.IMAGE,p.ID_PARTENAIRE,px.ID_CATEGORIE_PRODUIT,p.NOM_ORGANISATION  "
+                              sqlQuery += " FROM partenaires p LEFT JOIN ecommerce_produit_partenaire "
+                              sqlQuery += " px ON px.ID_PARTENAIRE = p.ID_PARTENAIRE LEFT JOIN users u  ON u.ID_USER=p.ID_USER WHERE px.ID_CATEGORIE_PRODUIT=?  "
+                              binds.push(category)
+                    }
+                    sqlQuery += " WHERE ID_TYPE_PARTENAIRE = 2 AND ID_SERVICE = 1 "
+                    sqlQuery += `LIMIT ${offset}, ${limit}`;
+                    return query(sqlQuery, binds);
+          }
+          catch (error) {
+                    throw error
+          }
+
 }
 const findbycategorie = async (id) => {
           try {
@@ -79,19 +75,19 @@ const findByIdPartenaire = async (id, category, subCategory, limit = 10, offset 
                     var binds = [id]
                     var sqlQuery = "SELECT ep.ID_PRODUIT, ep.NOM, ep.IMAGE, "
                     sqlQuery += " pp.ID_PRODUIT_PARTENAIRE, pp.NOM AS NOM_PRODUIT_PARTENAIRE,pp.DESCRIPTION,pp.IMAGE_1,pp.IMAGE_2, pp.IMAGE_3, "
-                    sqlQuery += " p.NOM_ORGANISATION, p.ID_PARTENAIRE, p.ID_TYPE_PARTENAIRE, u.NOM NOM_USER, u.PRENOM, "
-                    sqlQuery += " pc.ID_CATEGORIE_PRODUIT, pc.NOM AS NOM_CATEGORIE, psc.ID_PRODUIT_SOUS_CATEGORIE, psc.NOM AS NOM_SOUS_CATEGORIE, pt.NOM NOM_TAILLE,sp.PRIX, "
-                    sqlQuery += " psr.ID_PRODUIT_STOCK, ps.QUANTITE_STOCKE, ps.QUANTITE_RESTANTE, ps.QUANTITE_VENDUE "
+                    sqlQuery += " pas.NOM_ORGANISATION, p.ID_PARTENAIRE, pas.ID_TYPE_PARTENAIRE, u.NOM NOM_USER, u.PRENOM, "
+                    sqlQuery += " pc.ID_CATEGORIE_PRODUIT, pc.NOM AS NOM_CATEGORIE, psc.ID_PRODUIT_SOUS_CATEGORIE, psc.NOM AS NOM_SOUS_CATEGORIE,sp.PRIX, "
+                    sqlQuery += " ps.ID_PRODUIT_STOCK, ps.QUANTITE_STOCKE, ps.QUANTITE_RESTANTE, ps.QUANTITE_VENDUE "
                     sqlQuery += "FROM ecommerce_produit_partenaire pp "
                     sqlQuery += " LEFT JOIN ecommerce_produits ep ON ep.ID_PRODUIT=pp.ID_PRODUIT "
                     sqlQuery += " LEFT JOIN partenaires p ON pp.ID_PARTENAIRE=p.ID_PARTENAIRE "
+                    sqlQuery += " LEFT JOIN partenaire_service pas ON pas.ID_PARTENAIRE = p.ID_PARTENAIRE AND pas.ID_SERVICE = 1 "
                     sqlQuery += " LEFT JOIN users u ON u.ID_USER=p.ID_USER "
                     sqlQuery += " LEFT JOIN ecommerce_produit_categorie pc ON pc.ID_CATEGORIE_PRODUIT=pp.ID_CATEGORIE_PRODUIT "
                     sqlQuery += " LEFT JOIN ecommerce_produit_sous_categorie psc ON psc.ID_PRODUIT_SOUS_CATEGORIE=pp.ID_PRODUIT_SOUS_CATEGORIE "
-                    sqlQuery += " LEFT JOIN ecommerce_produit_tailles pt ON pt.ID_TAILLE=pp.ID_TAILLE "
                     sqlQuery += " LEFT JOIN ecommerce_produit_stock ps  ON ps.ID_PRODUIT_PARTENAIRE=pp.ID_PRODUIT_PARTENAIRE "
                     sqlQuery += " LEFT JOIN  ecommerce_stock_prix sp ON sp.ID_PRODUIT_STOCK=ps.ID_PRODUIT_STOCK "
-                    sqlQuery += " WHERE p.ID_PARTENAIRE= ?"
+                    sqlQuery += " WHERE p.ID_PARTENAIRE= ? AND sp.ID_STATUT = 1 "
                     if (category) {
                               sqlQuery += " AND pp.ID_CATEGORIE_PRODUIT = ? "
                               binds.push(category)
@@ -118,41 +114,41 @@ const findcategories = async (ID_PARTENAIRE) => {
                     throw error;
           }
 };
-const createpartenaire = (ID_PARTENAIRE, ID_SERVICE, ID_TYPE_PARTENAIRE, NOM_ORGANISATION, TELEPHONE, NIF, EMAIL,LOGO, BACKGROUND_IMAGE, ADRESSE_COMPLETE, LATITUDE, LONGITUDE, PARTENAIRE_SERVICE_STATUT_ID = 2) => {
-  try {
-            var sqlQuery = "INSERT INTO partenaire_service (ID_PARTENAIRE, ID_SERVICE, ID_TYPE_PARTENAIRE, NOM_ORGANISATION, TELEPHONE, NIF, EMAIL,LOGO, BACKGROUND_IMAGE, ADRESSE_COMPLETE, LATITUDE, LONGITUDE, PARTENAIRE_SERVICE_STATUT_ID)";
-            sqlQuery += "values (?,?,?,?,?,?,?,?,?,?,?, ?, ?)";
-            return query(sqlQuery, [
-              ID_PARTENAIRE, ID_SERVICE, ID_TYPE_PARTENAIRE, NOM_ORGANISATION, TELEPHONE, NIF, EMAIL,LOGO, BACKGROUND_IMAGE, ADRESSE_COMPLETE, LATITUDE, LONGITUDE, PARTENAIRE_SERVICE_STATUT_ID])
-  }
-  catch (error) {
+const createpartenaire = (ID_PARTENAIRE, ID_SERVICE, ID_TYPE_PARTENAIRE, NOM_ORGANISATION, TELEPHONE, NIF, EMAIL, LOGO, BACKGROUND_IMAGE, ADRESSE_COMPLETE, LATITUDE, LONGITUDE, PARTENAIRE_SERVICE_STATUT_ID = 2) => {
+          try {
+                    var sqlQuery = "INSERT INTO partenaire_service (ID_PARTENAIRE, ID_SERVICE, ID_TYPE_PARTENAIRE, NOM_ORGANISATION, TELEPHONE, NIF, EMAIL,LOGO, BACKGROUND_IMAGE, ADRESSE_COMPLETE, LATITUDE, LONGITUDE, PARTENAIRE_SERVICE_STATUT_ID)";
+                    sqlQuery += "values (?,?,?,?,?,?,?,?,?,?,?, ?, ?)";
+                    return query(sqlQuery, [
+                              ID_PARTENAIRE, ID_SERVICE, ID_TYPE_PARTENAIRE, NOM_ORGANISATION, TELEPHONE, NIF, EMAIL, LOGO, BACKGROUND_IMAGE, ADRESSE_COMPLETE, LATITUDE, LONGITUDE, PARTENAIRE_SERVICE_STATUT_ID])
+          }
+          catch (error) {
 
-            throw error
-  }
+                    throw error
+          }
 }
 const createOnePartenaire = (ID_USER) => {
-  try {
-            var sqlQuery = "INSERT INTO partenaires (ID_USER)";
-            sqlQuery += "values (?)";
-            return query(sqlQuery, [
-              ID_USER])
-  }
-  catch (error) {
+          try {
+                    var sqlQuery = "INSERT INTO partenaires (ID_USER)";
+                    sqlQuery += "values (?)";
+                    return query(sqlQuery, [
+                              ID_USER])
+          }
+          catch (error) {
 
-            throw error
-  }
+                    throw error
+          }
 }
-const CreatePartenaireService = (ID_PARTENAIRE,ID_SERVICE,PARTENAIRE_SERVICE_STATUT_ID) => {
-  try {
-            var sqlQuery = "INSERT INTO partenaire_service (ID_PARTENAIRE,ID_SERVICE,PARTENAIRE_SERVICE_STATUT_ID)";
-            sqlQuery += "values (?,?,?)";
-            return query(sqlQuery, [ID_PARTENAIRE,ID_SERVICE,PARTENAIRE_SERVICE_STATUT_ID
-              ])
-  }
-  catch (error) {
+const CreatePartenaireService = (ID_PARTENAIRE, ID_SERVICE, PARTENAIRE_SERVICE_STATUT_ID) => {
+          try {
+                    var sqlQuery = "INSERT INTO partenaire_service (ID_PARTENAIRE,ID_SERVICE,PARTENAIRE_SERVICE_STATUT_ID)";
+                    sqlQuery += "values (?,?,?)";
+                    return query(sqlQuery, [ID_PARTENAIRE, ID_SERVICE, PARTENAIRE_SERVICE_STATUT_ID
+                    ])
+          }
+          catch (error) {
 
-            throw error
-  }
+                    throw error
+          }
 }
 
 module.exports = {
