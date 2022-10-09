@@ -61,11 +61,17 @@ const getUserCommandes = async (ID_USER, q, limit = 10, offset = 0) => {
                     throw error;
           }
 };
-const getpartenaireproducts = async (ID_USER, q, limit = 10, offset = 0) => {
+const getPartenaireCommandes = async (idPartenaire, q, limit = 10, offset = 0) => {
         try {
-                  var binds = [ID_USER]
-                  var sqlQuery = "SELECT eps.ID_PRODUIT_STOCK,epp.NOM,epp.IMAGE_1 FROM ecommerce_produit_partenaire epp LEFT JOIN ecommerce_produit_stock eps ON epp.ID_PRODUIT_PARTENAIRE=eps.ID_PRODUIT_PARTENAIRE LEFT JOIN partenaires p ON p.ID_PARTENAIRE=epp.ID_PARTENAIRE  WHERE 1 AND p.ID_USER=?"
-                  sqlQuery += ` LIMIT ${offset}, ${limit}`
+                  var binds = [idPartenaire]
+                  var sqlQuery = " SELECT co.ID_STATUT, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, ecs.DESCRIPTION STATUT_DESCRIPTION, ecs.NEXT_STATUS, "
+                  sqlQuery += "ecd.ID_COMMANDE_DETAIL ID_COMMANDE_DETAIL, ecd.QUANTITE, ecd.PRIX, ecd.SOMME, epp.NOM, epp.IMAGE_1 "
+                  sqlQuery += " FROM ecommerce_commande_details ecd "
+                  sqlQuery += " LEFT JOIN  ecommerce_commandes co ON co.ID_COMMANDE = ecd.ID_COMMANDE"
+                  sqlQuery += " LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT"
+                  sqlQuery += " LEFT JOIN ecommerce_produit_stock eps ON eps.ID_PRODUIT_STOCK = ecd.ID_PRODUIT_STOCK "
+                  sqlQuery += " LEFT JOIN ecommerce_produit_partenaire epp ON epp.ID_PRODUIT_PARTENAIRE = eps.ID_PRODUIT_PARTENAIRE "
+                  sqlQuery += ` WHERE epp.ID_PARTENAIRE = ? AND co.ID_STATUT != 1 ORDER BY co.DATE_COMMANDE DESC LIMIT ${offset}, ${limit}`
                   return query(sqlQuery, binds)
         }
         catch (error) {
@@ -265,7 +271,7 @@ module.exports = {
           getManyCommandesDetails,
           saveStatus,
           getOneCommande,
-          getpartenaireproducts,
+          getPartenaireCommandes,
           getCommandesDetails,
           getPartenaireProduit,
           getAllCommandesDetails,
