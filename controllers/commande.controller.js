@@ -161,6 +161,7 @@ const createAllCommandes = async (req, res) => {
                                         IMAGE_1: getImageUri(detail.IMAGE_1)
                               }))
                     }
+                    console.log(commande)
 
                     res.status(RESPONSE_CODES.OK).json({
                               statusCode: RESPONSE_CODES.OK,
