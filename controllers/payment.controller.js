@@ -1,6 +1,7 @@
 const RESPONSE_CODES = require("../constants/RESPONSE_CODES")
 const RESPONSE_STATUS = require("../constants/RESPONSE_STATUS")
-const { saveStatus } = require("../models/commande.model")
+const { saveStatus,saveStatusResto } = require("../models/commande.model")
+
 const paymentModel = require("../models/payment.model")
 const { query } = require("../utils/db")
 
@@ -29,7 +30,7 @@ const confirmEconet = async (req, res) => {
 
                         const commande = (await query("SELECT ID_COMMANDE, ID_USER FROM restaurant_commandes WHERE ID_COMMANDE = ? ", [payment.ID_COMMANDE]))[0]
                         await query("UPDATE restaurant_commandes SET ID_STATUT = 2 WHERE ID_COMMANDE = ?", [payment.ID_COMMANDE])
-                        await saveStatus(payment.ID_COMMANDE, req.userId, 2)
+                        await saveStatusResto(payment.ID_COMMANDE, req.userId, 2)
                         await paymentModel.changeStatus(txni_d, 1)
                         req.app.io.to(commande.ID_USER).emit("ECOCASH_CONFIRMED", { message: "Hello" })
 

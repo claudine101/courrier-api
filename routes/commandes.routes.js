@@ -9,6 +9,7 @@ commandeRouter.get('/', commandeController.getCommandes)
 commandeRouter.get('/restaurant', commandeController.getAllRestoCommandes)
 commandeRouter.get('/:ID_COMMANDE', commandeController.findOneCommande)
 commandeRouter.get('/status', commandeController.getStatus)
+commandeRouter.get('/status/resto/:ID_COMMANDE', commandeController.getStatusResto)
 commandeRouter.get('/status/:ID_COMMANDE', commandeController.getCommandeStatus)
 commandeRouter.get('/get/partenaire', commandeController.getPartenaireCommandes)
 

@@ -674,6 +674,38 @@ const getAllRestoCommandes = async (req, res) => {
           }
 }
 
+const getStatusResto = async (req, res) => {
+    try {
+              const { ID_COMMANDE } = req.params
+              const status = await query("SELECT * FROM restaurant_commande_statut ORDER BY ID_STATUT")
+              const commandesStatus = await query("SELECT * FROM restaurant_commande_statut_historiques WHERE ID_COMMANDE = ? ORDER BY DATE_INSERTION ASC", [ID_COMMANDE])
+
+              const details = commandesStatus.map(history => {
+                        const stt = status.find(hist => hist.ID_STATUT == history.ID_STATUT)
+                        return {
+                                  ...history,
+                                  ...stt
+                        }
+              })
+              const uncompletedStatus = status.filter(stt => details.filter(stt2 => stt.ID_STATUT == stt2.ID_STATUT).length == 0)
+              res.status(RESPONSE_CODES.OK).json({
+                        statusCode: RESPONSE_CODES.OK,
+                        httpStatus: RESPONSE_STATUS.OK,
+                        message: "Historiques des status d'une commande",
+                        result: [
+                                  ...details.map(t => ({ ...t, completed: true })),
+                                  ...uncompletedStatus.map(t => ({ ...t, completed: false }))
+                        ]
+              })
+    } catch (error) {
+              console.log(error)
+              res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                        statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                        httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                        message: "Erreur interne du serveur, réessayer plus tard",
+              })
+    }
+}
 module.exports = {
           createAllCommandes,
           getCommandes,
@@ -685,5 +717,6 @@ module.exports = {
           commandePartenaire,
           createRestoCommandes,
           getAllRestoCommandes,
-          getPartenaireCommandes
+          getPartenaireCommandes,
+          getStatusResto
 }

@@ -257,6 +257,14 @@ const getManyCommandesRestoDetails = async (commandesIds) => {
                   throw error
         }
 }
+const saveStatusResto = async (ID_COMMANDE, ID_USER, ID_STATUT) => {
+        try {
+                  return query("INSERT INTO restaurant_commande_statut_historiques(ID_COMMANDE, ID_USER, ID_STATUT) VALUES(?, ?, ?)", [ID_COMMANDE, ID_USER, ID_STATUT])
+        } catch (error) {
+                  throw error;
+        }
+}
+
 
 
 module.exports = {
@@ -279,5 +287,6 @@ module.exports = {
           createCommandeRestoDetails,
           getOneRestoCommande,
           getUserRestoCommandes,
-          getManyCommandesRestoDetails
+          getManyCommandesRestoDetails,
+          saveStatusResto
 }
