@@ -19,7 +19,7 @@ const createAllCommandes = async (req, res) => {
                               if (fileName.indexOf("http") === 0) return fileName
                               return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
                     }
-                    const { shipping_info, commandes, numero } = req.body
+                    const { shipping_info, commandes, numero, service } = req.body
                     const validation = new Validation(
                               shipping_info,
                               {
@@ -114,61 +114,68 @@ const createAllCommandes = async (req, res) => {
                     }
                     const CODE_UNIQUE = await getReferenceCode()
                     const DATE_LIVRAISON = null
-                    // const econnetResponse = await axios.post('http://app.mediabox.bi/api_ussd_php/Api_client_ecocash', {
-                    //                     VENDEUR_PHONE: "79839653",
-                    //                     AMOUNT: "100",
-                    //                     CLIENT_PHONE: numero,
-                    //                     INSTANCE_TOKEN: "1"
-                    // })
-                    // const ecoData = econnetResponse.data()
-                    // if (ecoData.statut == "200") {
-                    // } else {
-                    //           setLoading(false)
-                    //           setErrors(ecoData.message || 'Erreur, réessayer plus tard')
-                    // }
-                    const { insertId } = await commandeModel.createCommandes(
-                              req.userId,
-                              DATE_LIVRAISON,
-                              CODE_UNIQUE,
-                              1
-                    )
-                    const ecommerce_commande_details = []
+
                     var TOTAL = 0
                     commandes.forEach(commande => {
                               TOTAL += commande.QUANTITE * commande.PRIX
-                              ecommerce_commande_details.push([
-                                        insertId,
-                                        commande.ID_PRODUIT_STOCK,
-                                        commande.QUANTITE,
-                                        commande.PRIX,
-                                        commande.QUANTITE * commande.PRIX
-                              ])
                     })
-                    await commandeModel.createCommandeDetails(ecommerce_commande_details);
-                    await commandeModel.createDetailLivraison(CODE_UNIQUE, shipping_info.N0M, shipping_info.PRENOM, shipping_info.ADRESSE, shipping_info.TELEPHONE, shipping_info.AVENUE, shipping_info.ID_COUNTRY)
-                    await paymentModel.createOne(insertId, 1, numero, null, TOTAL, CODE_UNIQUE, 0)
-
-                    const pureCommande = (await commandeModel.getOneCommande(insertId))[0]
-                    const details = await commandeModel.getManyCommandesDetails([insertId])
-                    var TOTAL_COMMANDE = 0
-                    details.forEach(detail => TOTAL_COMMANDE += detail.QUANTITE * detail.PRIX)
-                    const commande = {
-                              ...pureCommande,
-                              ITEMS: details.length,
-                              TOTAL: TOTAL_COMMANDE,
-                              details: details.map(detail => ({
-                                        ...detail,
-                                        IMAGE_1: getImageUri(detail.IMAGE_1)
-                              }))
+                    const econnetResponse = await axios.post('http://app.mediabox.bi/api_ussd_php/Api_client_ecocash', {
+                              VENDEUR_PHONE: "79839653",
+                              AMOUNT: TOTAL,
+                              CLIENT_PHONE: numero,
+                              INSTANCE_TOKEN: "2522"
+                    })
+                    const ecoData = econnetResponse.data
+                    if (false) {
+                              const { insertId } = await commandeModel.createCommandes(
+                                        req.userId,
+                                        DATE_LIVRAISON,
+                                        CODE_UNIQUE,
+                                        1
+                              )
+                              const ecommerce_commande_details = []
+                              var TOTAL = 0
+                              commandes.forEach(commande => {
+                                        TOTAL += commande.QUANTITE * commande.PRIX
+                                        ecommerce_commande_details.push([
+                                                  insertId,
+                                                  commande.ID_PRODUIT_STOCK,
+                                                  commande.QUANTITE,
+                                                  commande.PRIX,
+                                                  commande.QUANTITE * commande.PRIX
+                                        ])
+                              })
+                              await commandeModel.createCommandeDetails(ecommerce_commande_details);
+                              await commandeModel.createDetailLivraison(CODE_UNIQUE, shipping_info.N0M, shipping_info.PRENOM, shipping_info.ADRESSE, shipping_info.TELEPHONE, shipping_info.AVENUE, shipping_info.ID_COUNTRY)
+                              await paymentModel.createOne(insertId, service, 1, numero, null, TOTAL, CODE_UNIQUE, 0)
+          
+                              const pureCommande = (await commandeModel.getOneCommande(insertId))[0]
+                              const details = await commandeModel.getManyCommandesDetails([insertId])
+                              var TOTAL_COMMANDE = 0
+                              details.forEach(detail => TOTAL_COMMANDE += detail.QUANTITE * detail.PRIX)
+                              const commande = {
+                                        ...pureCommande,
+                                        ITEMS: details.length,
+                                        TOTAL: TOTAL_COMMANDE,
+                                        details: details.map(detail => ({
+                                                  ...detail,
+                                                  IMAGE_1: getImageUri(detail.IMAGE_1)
+                                        }))
+                              }
+          
+                              res.status(RESPONSE_CODES.OK).json({
+                                        statusCode: RESPONSE_CODES.OK,
+                                        httpStatus: RESPONSE_STATUS.OK,
+                                        message: "Enregistrement reussi avec succès",
+                                        result: commande
+                              })
+                    } else {
+                              return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
+                                        statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
+                                        httpStatus: RESPONSE_STATUS.UNPROCESSABLE_ENTITY,
+                                        message: ecoData.message || 'Erreur inconnue, réessayer plus tard',
+                              })
                     }
-                    console.log(commande)
-
-                    res.status(RESPONSE_CODES.OK).json({
-                              statusCode: RESPONSE_CODES.OK,
-                              httpStatus: RESPONSE_STATUS.OK,
-                              message: "Enregistrement reussi avec succès",
-                              result: commande
-                    })
           }
           catch (error) {
                     console.log(error)
@@ -233,6 +240,8 @@ const getCommandeStatus = async (req, res) => {
           }
 }
 
+
+
 const getCommandes = async (req, res) => {
           try {
                     const getImageUri = (fileName) => {
@@ -279,11 +288,64 @@ const getCommandes = async (req, res) => {
           }
 }
 
+const getPartenaireCommandes = async (req, res) => {
+          try {
+                    const getImageUri = (fileName) => {
+                              if (!fileName) return null
+                              if (fileName.indexOf("http") === 0) return fileName
+                              return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+                    }
+                    const partenaire = (await query('SELECT ID_PARTENAIRE FROM partenaires WHERE ID_USER = ?', [req.userId]))[0]
+                    const commandesDetails = await commandeModel.getPartenaireCommandes(partenaire.ID_PARTENAIRE)
+
+                    const commandes = commandesDetails.map(cd => {
+                              var TOTAL_COMMANDE = 0
+                              const myDetails = commandesDetails.filter(d => d.ID_COMMANDE == cd.ID_COMMANDE)
+                              myDetails.forEach(detail => TOTAL_COMMANDE += detail.QUANTITE * detail.PRIX)
+                              const commande ={
+                                        ID_STATUT: cd.ID_STATUT,
+                                        ID_COMMANDE: cd.ID_COMMANDE,
+                                        CODE_UNIQUE: cd.CODE_UNIQUE,
+                                        DATE_COMMANDE: cd.DATE_COMMANDE,
+                                        STATUT_DESCRIPTION: cd.STATUT_DESCRIPTION,
+                                        NEXT_STATUS: cd.NEXT_STATUS
+                              }
+                              return {
+                                        ...commande,
+                                        ITEMS: myDetails.length,
+                                        TOTAL: TOTAL_COMMANDE,
+                                        details: myDetails.map(detail => ({
+                                                  ...detail,
+                                                  IMAGE_1: getImageUri(detail.IMAGE_1)
+                                        }))
+                              }
+                    })
+
+                    // partenaireproduits.forEach(partenaireproduit => PartenaireIds.push(partenaireproduit.ID_PRODUIT_STOCK))
+                    if (true) {
+                              res.status(RESPONSE_CODES.OK).json({
+                                        statusCode: RESPONSE_CODES.OK,
+                                        httpStatus: RESPONSE_STATUS.OK,
+                                        message: "Liste des commandes du partenaire",
+                                        result: commandes
+                              })
+                    }
+          }
+          catch (error) {
+                    console.log(error)
+                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                              message: "Erreur interne du serveur, réessayer plus tard",
+
+                    })
+          }
+}
 const commandeDetail = async (req, res) => {
           try {
                     //console.log(req.userId)
                     const { limit, offset } = req.query
-                    const commande = await commandeModel.findDetail(req.userId,limit, offset)
+                    const commande = await commandeModel.findDetail(req.userId, limit, offset)
                     res.status(RESPONSE_CODES.OK).json({
                               statusCode: RESPONSE_CODES.OK,
                               httpStatus: RESPONSE_STATUS.OK,
@@ -297,32 +359,33 @@ const commandeDetail = async (req, res) => {
                               statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
                               httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
                               message: "Erreur interne du serveur, réessayer plus tard",
-      
+
                     })
           }
-      }
-    //   const commandePartenaire = async (req, res) => {
-    //     try {
-    //               //console.log(req.userId)
-    //               const commande = await commandeModel.findcomande(req.userId)
-    //               res.status(RESPONSE_CODES.OK).json({
-    //                         statusCode: RESPONSE_CODES.OK,
-    //                         httpStatus: RESPONSE_STATUS.OK,
-    //                         message: "succès",
-    //                         result: commande
-    //               })
-    //     }
-    //     catch (error) {
-    //               console.log(error)
-    //               res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-    //                         statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-    //                         httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-    //                         message: "Erreur interne du serveur, réessayer plus tard",
-    
-    //               })
-    //     }
-    // }
-  
+}
+
+//   const commandePartenaire = async (req, res) => {
+//     try {
+//               //console.log(req.userId)
+//               const commande = await commandeModel.findcomande(req.userId)
+//               res.status(RESPONSE_CODES.OK).json({
+//                         statusCode: RESPONSE_CODES.OK,
+//                         httpStatus: RESPONSE_STATUS.OK,
+//                         message: "succès",
+//                         result: commande
+//               })
+//     }
+//     catch (error) {
+//               console.log(error)
+//               res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+//                         statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+//                         httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+//                         message: "Erreur interne du serveur, réessayer plus tard",
+
+//               })
+//     }
+// }
+
 const findOneCommande = async (req, res) => {
           try {
                     const getImageUri = (fileName) => {
@@ -362,54 +425,254 @@ const findOneCommande = async (req, res) => {
 }
 
 const commandePartenaire = async (req, res) => {
-    try {
-              const getImageUri = (fileName) => {
-                        if (!fileName) return null
-                        if (fileName.indexOf("http") === 0) return fileName
-                        return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
-              }
-              var produitdIds = []
-              const produits = await commandeModel.getPartenaireProduit(req.userId)
-              console.log(produits)
-              produits.forEach(produit => produitdIds.push(produit.ID_PRODUIT_STOCK))
-              console.log(produitdIds)
-              var commandeDetails = 0
-              if (produitdIds.length > 0) {
-                        commandeDetails = await commandeModel.getAllCommandesDetails(produitdIds)
-              }
-              console.log(commandeDetails)
-            //   const commandesDetails = commandes.map(commande => {
-            //             var TOTAL_COMMANDE = 0
-            //             const myDetails = details.filter(d => d.ID_COMMANDE == commande.ID_COMMANDE)
-            //             myDetails.forEach(detail => TOTAL_COMMANDE += detail.QUANTITE * detail.PRIX)
-            //             return {
-            //                       ...commande,
-            //                       ITEMS: myDetails.length,
-            //                       TOTAL: TOTAL_COMMANDE,
-            //                       details: myDetails.map(detail => ({
-            //                                 ...detail,
-            //                                 IMAGE_1: getImageUri(detail.IMAGE_1)
-            //                       }))
-            //             }
-            //   })
-              res.status(RESPONSE_CODES.OK).json({
-                        statusCode: RESPONSE_CODES.OK,
-                        httpStatus: RESPONSE_STATUS.OK,
-                        message: "succès",
-                        result: produits
-              })
-    }
-    catch (error) {
-              console.log(error)
-              res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-                        statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-                        httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-                        message: "Erreur interne du serveur, réessayer plus tard",
+          try {
+                    const getImageUri = (fileName) => {
+                              if (!fileName) return null
+                              if (fileName.indexOf("http") === 0) return fileName
+                              return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+                    }
+                    var produitdIds = []
+                    const produits = await commandeModel.getPartenaireProduit(req.userId)
+                    console.log(produits)
+                    produits.forEach(produit => produitdIds.push(produit.ID_PRODUIT_STOCK))
+                    console.log(produitdIds)
+                    var commandeDetails = 0
+                    if (produitdIds.length > 0) {
+                              commandeDetails = await commandeModel.getAllCommandesDetails(produitdIds)
+                    }
+                    console.log(commandeDetails)
+                    //   const commandesDetails = commandes.map(commande => {
+                    //             var TOTAL_COMMANDE = 0
+                    //             const myDetails = details.filter(d => d.ID_COMMANDE == commande.ID_COMMANDE)
+                    //             myDetails.forEach(detail => TOTAL_COMMANDE += detail.QUANTITE * detail.PRIX)
+                    //             return {
+                    //                       ...commande,
+                    //                       ITEMS: myDetails.length,
+                    //                       TOTAL: TOTAL_COMMANDE,
+                    //                       details: myDetails.map(detail => ({
+                    //                                 ...detail,
+                    //                                 IMAGE_1: getImageUri(detail.IMAGE_1)
+                    //                       }))
+                    //             }
+                    //   })
+                    res.status(RESPONSE_CODES.OK).json({
+                              statusCode: RESPONSE_CODES.OK,
+                              httpStatus: RESPONSE_STATUS.OK,
+                              message: "succès",
+                              result: produits
+                    })
+          }
+          catch (error) {
+                    console.log(error)
+                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                              message: "Erreur interne du serveur, réessayer plus tard",
 
-              })
-    }
+                    })
+          }
 }
 
+const createRestoCommandes = async (req, res) => {
+          try {
+                    const getImageUri = (fileName) => {
+                              if (!fileName) return null
+                              if (fileName.indexOf("http") === 0) return fileName
+                              return `${req.protocol}://${req.get("host")}/uploads/menu/${fileName}`
+                    }
+                    const { shipping_info, resto, numero, service } = req.body
+                    const validation = new Validation(
+                              shipping_info,
+                              {
+                                        N0M: {
+                                                  required: true,
+                                                  length: [0, 255]
+                                        },
+                                        PRENOM: {
+                                                  required: true,
+                                                  length: [0, 255]
+                                        },
+                                        ADRESSE: {
+                                                  required: true,
+                                                  length: [0, 255]
+                                        },
+                                        TELEPHONE: {
+                                                  required: true,
+                                                  length: [8, 8]
+                                        },
+                                        AVENUE: {
+                                                  length: [0, 255]
+                                        },
+                                        ID_COUNTRY: {
+                                                  length: [0, 255]
+                                        },
+                              }, {
+                              N0M: {
+                                        required: "Nom est obligatoire",
+                                        length: "Nom invalide"
+                              },
+                              PRENOM: {
+                                        required: "Prénom est obligatoire",
+                                        length: "Prénom est invalide"
+                              },
+                              ADRESSE: {
+                                        required: "L'adresse est obligatoire",
+                                        length: "Adresse est invalide"
+                              },
+                              TELEPHONE: {
+                                        required: "Le numéro de téléphone est obligatoire",
+                                        length: "Numéro de téléphone invalide"
+                              },
+                              AVENUE: {
+                                        required: "Avenue est obligatoiree",
+                                        length: "taille de l'avenue est invalide"
+                              },
+                              ID_COUNTRY: {
+                                        required: "Le pays est obligatoiree",
+                                        length: "taille de country est invalide"
+                              },
+                    }
+                    )
+                    if (!resto || resto.length == 0 || !Array.isArray(resto)) {
+                              validation.setError('commandes', "Veuillez préciser les commandes")
+                    }
+                    if (!numero) {
+                              validation.setError('numero', "Le numéro ecocash est obligatoire")
+                    }
+                    let isnum = /^\d+$/.test(numero);
+                    let isTel = /^\d+$/.test(shipping_info?.TELEPHONE);
+                    if (!isnum || numero.length != 8) {
+                              validation.setError('numero', "Numéro ecocash invalide")
+                    }
+                    if (!isTel) {
+                              validation.setError('TELEPHONE', "Numéro de téléphone invalide")
+                    }
+                    if (resto && Array.isArray(resto)) {
+                              resto.forEach((resto, index) => {
+                                        if (!resto.ID_RESTAURANT_MENU || !resto.QUANTITE || !resto.MONTANT) {
+                                                  validation.setError(`commandes_${index + 1}`, "Quelques informations de la commandes sont manquantes")
+                                        }
+                              })
+                    }
+
+                    await validation.run()
+                    const isValid = await validation.isValidate()
+                    if (!isValid) {
+                              const erros = await validation.getErrors()
+                              return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
+                                        statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
+                                        httpStatus: RESPONSE_STATUS.UNPROCESSABLE_ENTITY,
+                                        message: "Probleme de validation de donnees",
+                                        result: erros
+                              })
+                    }
+                    const CODE_UNIQUE = await getReferenceCode()
+                    const DATE_LIVRAISON = null
+
+                    const { insertId } = await commandeModel.createNewCommandes(
+                              req.userId,
+                              DATE_LIVRAISON,
+                              CODE_UNIQUE,
+                              1
+                    )
+                    const restaurant_commande_details = []
+                    var TOTAL = 0
+                    resto.forEach(restaurant => {
+                              TOTAL += restaurant.QUANTITE * restaurant.MONTANT
+                              restaurant_commande_details.push([
+                                        insertId,
+                                        restaurant.ID_RESTAURANT_MENU,
+                                        restaurant.QUANTITE,
+                                        restaurant.MONTANT,
+                                        restaurant.QUANTITE * restaurant.MONTANT
+                              ])
+                    })
+                    await commandeModel.createCommandeRestoDetails(restaurant_commande_details);
+                    await commandeModel.createDetailLivraison(CODE_UNIQUE, shipping_info.N0M, shipping_info.PRENOM, shipping_info.ADRESSE, shipping_info.TELEPHONE, shipping_info.AVENUE, shipping_info.ID_COUNTRY)
+                    await paymentModel.createOne(insertId, service, 1, numero, null, TOTAL, CODE_UNIQUE, 0)
+
+                    const pureCommande = (await commandeModel.getOneRestoCommande(insertId))[0]
+                    const details = await commandeModel.getManyCommandesRestoDetails([insertId])
+                    var TOTAL_COMMANDE = 0
+                    details.forEach(detail => TOTAL_COMMANDE += detail.QUANTITE * detail.MONTANT)
+                    const commande = {
+                              ...pureCommande,
+                              ITEMS: details.length,
+                              TOTAL: TOTAL_COMMANDE,
+                              details: details.map(detail => ({
+                                        ...detail,
+                                        IMAGE_1: getImageUri(detail.IMAGE_1)
+                              }))
+                    }
+
+                    console.log(commande)
+
+                    res.status(RESPONSE_CODES.OK).json({
+                              statusCode: RESPONSE_CODES.OK,
+                              httpStatus: RESPONSE_STATUS.OK,
+                              message: "Enregistrement reussi avec succès",
+                              result: commande
+                    })
+          }
+          catch (error) {
+                    console.log(error)
+                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                              message: "Erreur interne du serveur, réessayer plus tard",
+
+                    })
+          }
+}
+
+const getAllRestoCommandes = async (req, res) => {
+          try {
+                    const getImageUri = (fileName) => {
+                              if (!fileName) return null
+                              if (fileName.indexOf("http") === 0) return fileName
+                              return `${req.protocol}://${req.get("host")}/uploads/menu/${fileName}`
+                    }
+                    var commandesIds = []
+                    const commandes = await commandeModel.getUserRestoCommandes(req.userId)
+                    console.log(commandes)
+                    commandes.forEach(commande => commandesIds.push(commande.ID_COMMANDE))
+                    console.log(commandesIds)
+                    var details = 0
+                    if (commandesIds.length > 0) {
+                              details = await commandeModel.getManyCommandesRestoDetails(commandesIds)
+                    }
+                    console.log(details)
+                    const commandesDetails = commandes.map(commande => {
+                              var TOTAL_COMMANDE = 0
+                              const myDetails = details.filter(d => d.ID_COMMANDE == commande.ID_COMMANDE)
+                              myDetails.forEach(detail => TOTAL_COMMANDE += detail.QUANTITE * detail.MONTANT)
+                              return {
+                                        ...commande,
+                                        ITEMS: myDetails.length,
+                                        TOTAL: TOTAL_COMMANDE,
+                                        details: myDetails.map(detail => ({
+                                                  ...detail,
+                                                  IMAGE_1: getImageUri(detail.IMAGE_1)
+                                        }))
+                              }
+                    })
+                    res.status(RESPONSE_CODES.OK).json({
+                              statusCode: RESPONSE_CODES.OK,
+                              httpStatus: RESPONSE_STATUS.OK,
+                              message: "succès",
+                              result: commandesDetails
+                    })
+          }
+          catch (error) {
+                    console.log(error)
+                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                              message: "Erreur interne du serveur, réessayer plus tard",
+
+                    })
+          }
+}
 
 module.exports = {
           createAllCommandes,
@@ -419,5 +682,8 @@ module.exports = {
           getCommandeStatus,
           findOneCommande,
           commandeDetail,
-          commandePartenaire
+          commandePartenaire,
+          createRestoCommandes,
+          getAllRestoCommandes,
+          getPartenaireCommandes
 }

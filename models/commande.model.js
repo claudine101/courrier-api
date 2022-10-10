@@ -61,6 +61,24 @@ const getUserCommandes = async (ID_USER, q, limit = 10, offset = 0) => {
                     throw error;
           }
 };
+const getPartenaireCommandes = async (idPartenaire, q, limit = 10, offset = 0) => {
+        try {
+                  var binds = [idPartenaire]
+                  var sqlQuery = " SELECT co.ID_STATUT, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, ecs.DESCRIPTION STATUT_DESCRIPTION, ecs.NEXT_STATUS, "
+                  sqlQuery += "ecd.ID_COMMANDE_DETAIL ID_COMMANDE_DETAIL, ecd.QUANTITE, ecd.PRIX, ecd.SOMME, epp.NOM, epp.IMAGE_1 "
+                  sqlQuery += " FROM ecommerce_commande_details ecd "
+                  sqlQuery += " LEFT JOIN  ecommerce_commandes co ON co.ID_COMMANDE = ecd.ID_COMMANDE"
+                  sqlQuery += " LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT"
+                  sqlQuery += " LEFT JOIN ecommerce_produit_stock eps ON eps.ID_PRODUIT_STOCK = ecd.ID_PRODUIT_STOCK "
+                  sqlQuery += " LEFT JOIN ecommerce_produit_partenaire epp ON epp.ID_PRODUIT_PARTENAIRE = eps.ID_PRODUIT_PARTENAIRE "
+                  sqlQuery += ` WHERE epp.ID_PARTENAIRE = ? AND co.ID_STATUT != 1 ORDER BY co.DATE_COMMANDE DESC LIMIT ${offset}, ${limit}`
+                  return query(sqlQuery, binds)
+        }
+        catch (error) {
+                  throw error;
+        }
+};
+
 
 const getOneCommande = async (ID_COMMANDE) => {
           try {
@@ -74,6 +92,19 @@ const getOneCommande = async (ID_COMMANDE) => {
                     throw error;
           }
 }
+// const getPartenaireCommandes = async (ID_USER, q, limit = 10, offset = 0) => {
+//         try {
+//                   var binds = [ID_USER]
+//                   var sqlQuery = "SELECT co.ID_STATUT, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, ecs.DESCRIPTION STATUT_DESCRIPTION FROM ecommerce_commandes co "
+//                   sqlQuery += " LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT "
+//                   sqlQuery += " WHERE co.ID_USER = ? AND co.ID_STATUT != 1 ORDER BY co.DATE_COMMANDE DESC "
+//                   sqlQuery += `LIMIT ${offset}, ${limit}`
+//                   return query(sqlQuery, binds)
+//         }
+//         catch (error) {
+//                   throw error;
+//         }
+// };
 
 const getManyCommandesDetails = async (commandesIds) => {
           try {
@@ -86,6 +117,19 @@ const getManyCommandesDetails = async (commandesIds) => {
           }catch (error) {
                     throw error
           }
+}
+const getCommandesDetails = async (PartenaireIds) => {
+        try {
+                  var binds = [PartenaireIds]
+                  var sqlQuery = "SELECT  SUM(cd.SOMME) AS SOMME ,SUM(cd.QUANTITE) AS QUANTITE,cd.ID_COMMANDE,ecs.DESCRIPTION,ec.ID_COMMANDE,ec.CODE_UNIQUE, cd.ID_COMMANDE_DETAIL, cd.PRIX, epp.NOM, epp.IMAGE_1 FROM ecommerce_commande_details cd "
+                  sqlQuery += " LEFT JOIN ecommerce_produit_stock eps ON eps.ID_PRODUIT_STOCK = cd.ID_PRODUIT_STOCK "
+                  sqlQuery += " LEFT JOIN ecommerce_produit_partenaire epp ON epp.ID_PRODUIT_PARTENAIRE = eps.ID_PRODUIT_PARTENAIRE "
+                  sqlQuery += " LEFT JOIN  ecommerce_commandes ec ON ec.ID_COMMANDE=cd.ID_COMMANDE LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT=ec.ID_STATUT"
+                  sqlQuery += " WHERE cd.ID_PRODUIT_STOCK IN (?) GROUP BY cd.ID_COMMANDE"
+                  return query(sqlQuery, binds)
+        }catch (error) {
+                  throw error
+        }
 }
 
 const findProduit = async (userId) => {
@@ -139,6 +183,82 @@ const getAllCommandesDetails = async (produitdIds) => {
         }
 }
 
+const createNewCommandes = async (ID_USER, DATE_LIVRAISON, CODE_UNIQUE, ID_STATUT = 1) => {
+        try {
+                var sqlQuery = "INSERT INTO restaurant_commandes(ID_USER,DATE_LIVRAISON,CODE_UNIQUE, ID_STATUT)";
+                sqlQuery += "VALUES(?,?,?, ?)"
+                return query(sqlQuery, [ID_USER, DATE_LIVRAISON, CODE_UNIQUE, ID_STATUT]);
+        } catch (error) {
+                throw error
+        }
+
+}
+
+const createCommandeRestoDetails = async (restaurant_commande_details) => {
+        try {
+                  var sqlQuery = "INSERT INTO restaurant_commandes_details(ID_COMMANDE, ID_RESTAURANT_MENU, QUANTITE, MONTANT, SOMME)";
+                  sqlQuery += "VALUES ?"
+                  return query(sqlQuery, [restaurant_commande_details]);
+        } catch (error) {
+                  throw error
+        }
+
+}
+
+const getOneRestoCommande = async (ID_COMMANDE) => {
+        try {
+                  var binds = [ID_COMMANDE]
+                  var sqlQuery = "SELECT co.ID_STATUT, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, ecs.DESCRIPTION STATUT_DESCRIPTION FROM restaurant_commandes co "
+                  sqlQuery += " LEFT JOIN restaurant_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT "
+                  sqlQuery += " WHERE ID_COMMANDE = ? LIMIT 1"
+                  return query(sqlQuery, binds)
+        }
+        catch (error) {
+                  throw error;
+        }
+}
+
+// const getManyCommandesRestoDetails = async (commandesIds) => {
+//         try {
+//                   var binds = [commandesIds]
+//                   var sqlQuery = "SELECT * FROM restaurant_commandes_details cd "
+//                   sqlQuery += " LEFT JOIN restaurant_menu eps ON eps.ID_RESTAURANT_MENU = cd.ID_RESTAURANT_MENU "
+//                   sqlQuery += " LEFT JOIN restaurant_repas epp ON epp.ID_REPAS = eps.ID_REPAS "
+//                   sqlQuery += " WHERE ID_COMMANDE IN (?)"
+//                   return query(sqlQuery, binds)
+//         }catch (error) {
+//                   throw error
+//         }
+// }
+
+const getUserRestoCommandes = async (ID_USER, q, limit = 10, offset = 0) => {
+        try {
+                  var binds = [ID_USER]
+                  var sqlQuery = "SELECT * FROM restaurant_commandes co "
+                  sqlQuery += " LEFT JOIN restaurant_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT "
+                  sqlQuery += " WHERE co.ID_USER = ? AND co.ID_STATUT != 1 ORDER BY co.DATE_COMMANDE DESC "
+                  sqlQuery += `LIMIT ${offset}, ${limit}`
+                  return query(sqlQuery, binds)
+        }
+        catch (error) {
+                  throw error;
+        }
+}
+
+const getManyCommandesRestoDetails = async (commandesIds) => {
+        try {
+                  var binds = [commandesIds]
+                  var sqlQuery = "SELECT * FROM restaurant_commandes_details cd "
+                  sqlQuery += " LEFT JOIN restaurant_menu eps ON eps.ID_RESTAURANT_MENU = cd.ID_RESTAURANT_MENU "
+                  sqlQuery += " LEFT JOIN restaurant_repas epp ON epp.ID_REPAS = eps.ID_REPAS "
+                  sqlQuery += " WHERE ID_COMMANDE IN (?)"
+                  return query(sqlQuery, binds)
+        }catch (error) {
+                  throw error
+        }
+}
+
+
 module.exports = {
           findAll,
           createCommandes,
@@ -151,6 +271,13 @@ module.exports = {
           getManyCommandesDetails,
           saveStatus,
           getOneCommande,
+          getPartenaireCommandes,
+          getCommandesDetails,
           getPartenaireProduit,
-          getAllCommandesDetails
+          getAllCommandesDetails,
+          createNewCommandes,
+          createCommandeRestoDetails,
+          getOneRestoCommande,
+          getUserRestoCommandes,
+          getManyCommandesRestoDetails
 }
