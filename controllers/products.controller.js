@@ -10,8 +10,10 @@ const getAllProducts = async (req, res) => {
                               if (fileName.indexOf("http") === 0) return fileName
                               return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
                     }
-                    const { category, subCategory, limit, offset } = req.query
-                    const allProducts = await productsModel.findproducts(category, subCategory, limit, offset)
+                    const { wishlist,category, subCategory, limit, offset } = req.query
+                    const id=req.userId
+                    // console.log("id"+id)
+                    const allProducts = await productsModel.findproducts(wishlist,id,category, subCategory, limit, offset)
                     const products = allProducts.map(product => ({
                               produit: {
                                         ID_PRODUIT: product.ID_PRODUIT,
