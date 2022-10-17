@@ -30,9 +30,28 @@ const findById = async (ID_USER, ID_SERVICE) => {
     }
 
 }
+
+const findByIdPart = async (ID_USER) => {
+    try {
+      
+        var sqlQuery=" SELECT s.ID_SERVICE,s.NOM AS NOM_SERVICE, s.DESCRIPTION FROM services s " 
+        sqlQuery+=" LEFT JOIN partenaire_service pr_s ON s.ID_SERVICE=pr_s.ID_SERVICE  "
+        sqlQuery+=" LEFT JOIN partenaires part ON part.ID_PARTENAIRE=pr_s.ID_PARTENAIRE "
+        sqlQuery+=" LEFT JOIN users us ON us.ID_USER=part.ID_USER "
+        sqlQuery+=" WHERE us.ID_USER=? "
+        return query(sqlQuery, [ID_USER]);
+    }
+    catch (error) 
+    {
+        console.log(error)
+        throw error
+    }
+
+}
 module.exports = {
     findAll,
-    findById
+    findById,
+    findByIdPart
 }
 
 
