@@ -2,6 +2,9 @@ const express = require('express')
 const productsController = require("../controllers/products.controller.js")
 const productsRouter = express.Router()
 productsRouter.get('/', productsController.getAllProducts)
+productsRouter.get('/wishlist', productsController.getAllProduct)
+
+
 productsRouter.get('/product/:ID_PRODUIT_PARTENAIRE', productsController.getOne)
 productsRouter.get('/products/:ID_PARTENAIRE', productsController.getbyID)
 productsRouter.get('/categories/:ID_PRODUIT_PARTENAIRE', productsController.getCategorieByPartenaire)
