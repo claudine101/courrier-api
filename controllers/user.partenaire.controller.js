@@ -318,6 +318,7 @@ const getAllPartenaire = async (req, res) => {
 
         const partenaires = await Promise.all(allPartenaire.map(async partenaire => {
             const categorie = await userModel.findbycategorie(partenaire.ID_PARTENAIRE_SERVICE)
+            console.log(categorie)
             return {
                 ...partenaire,
                 LOGO: getImageUri(partenaire.LOGO, 'partenaire'),
@@ -343,43 +344,43 @@ const getAllPartenaire = async (req, res) => {
 
     }
 }
-const getAllPartenaires = async (req, res) => {
+// const getAllPartenaires = async (req, res) => {
 
-    try {
-        const getImageUri = (fileName, folder) => {
-            if (!fileName) return null
-            if (fileName.indexOf("http") === 0) return fileName
-            return `${req.protocol}://${req.get("host")}/uploads/${folder}/${fileName}`
-        }
-        const { limit, offset } = req.query
-        const allPartenaire = await userModel.findpartenaires(limit, offset)
-        const partenaires = await Promise.all(allPartenaire.map(async partenaire => {
+//     try {
+//         const getImageUri = (fileName, folder) => {
+//             if (!fileName) return null
+//             if (fileName.indexOf("http") === 0) return fileName
+//             return `${req.protocol}://${req.get("host")}/uploads/${folder}/${fileName}`
+//         }
+//         const { limit, offset } = req.query
+//         const allPartenaire = await userModel.findpartenaires(limit, offset)
+//         const partenaires = await Promise.all(allPartenaire.map(async partenaire => {
 
-            return {
-                ...partenaire,
-                LOGO: getImageUri(partenaire.LOGO, 'partenaire'),
-                IMAGE: getImageUri(partenaire.IMAGE, 'users'),
+//             return {
+//                 ...partenaire,
+//                 LOGO: getImageUri(partenaire.LOGO, 'partenaire'),
+//                 IMAGE: getImageUri(partenaire.IMAGE, 'users'),
 
-            }
-        }))
-        console.log(partenaires)
-        res.status(RESPONSE_CODES.OK).json({
-            statusCode: RESPONSE_CODES.OK,
-            httpStatus: RESPONSE_STATUS.OK,
-            message: "Liste des boutiques",
-            result: partenaires
-        })
-    }
-    catch (error) {
-        console.log(error)
-        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-            message: "Erreur interne du serveur, réessayer plus tard",
-        })
+//             }
+//         }))
+//         console.log(partenaires)
+//         res.status(RESPONSE_CODES.OK).json({
+//             statusCode: RESPONSE_CODES.OK,
+//             httpStatus: RESPONSE_STATUS.OK,
+//             message: "Liste des boutiques",
+//             result: partenaires
+//         })
+//     }
+//     catch (error) {
+//         console.log(error)
+//         res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+//             statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+//             httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+//             message: "Erreur interne du serveur, réessayer plus tard",
+//         })
 
-    }
-}
+//     }
+// }
 
 const getcategories = async (req, res) => {
     try {
@@ -500,5 +501,5 @@ module.exports = {
     getcategories,
     createPartenaire,
     getProduits,
-    getAllPartenaires
+    //getAllPartenaires
 }
