@@ -196,13 +196,8 @@ module.exports = {
     findSizes,
     findSousCategories,
     findone,
-    findById,
-<<<<<<< HEAD
-    findBYidPartenaire,
-    findproduct
-    
-=======
+    findById, findBYidPartenaire,
+    findproduct,
     findBYidPartenaire
 
->>>>>>> b6257e31b7d7909b383b1410619240fe632c6d90
 }
