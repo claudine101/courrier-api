@@ -26,44 +26,19 @@ const createProduit = (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, NOM, IMA
         }
 }
 
-const createProduitTaille = (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, TAILLE, IS_AUTRE, ID_PARTENAIRE_SERVICE
-) => {
-        try {
-                var sqlQuery = "INSERT INTO  ecommerce_produit_tailles(ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, TAILLE, IS_AUTRE, ID_PARTENAIRE_SERVICE)";
-                sqlQuery += "values (?,?,?,?,?)";
-                return query(sqlQuery, [ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, TAILLE, IS_AUTRE, ID_PARTENAIRE_SERVICE])
-        }
-        catch (error) {
 
-                throw error
+const createProduitTaille = async (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, TAILLE, IS_AUTRE, ID_PARTENAIRE_SERVICE) => {
+        try {
+                  var sqlQuery = "INSERT INTO ecommerce_produit_tailles(ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, TAILLE, IS_AUTRE, ID_PARTENAIRE_SERVICE)";
+                  sqlQuery += "VALUES (?,?,?,?,?)"
+                  return query(sqlQuery, [ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, TAILLE, IS_AUTRE, ID_PARTENAIRE_SERVICE]);
+        } catch (error) {
+                  throw error
         }
+
 }
 
-const createProduitCategorie = (NOM, IMAGE, IS_AUTRE, ID_PARTENAIRE_SERVICE
-) => {
-        try {
-                var sqlQuery = "INSERT INTO  ecommerce_produit_categorie(NOM, IMAGE, IS_AUTRE, ID_PARTENAIRE_SERVICE)";
-                sqlQuery += "values (?,?,?,?)";
-                return query(sqlQuery, [NOM, IMAGE, IS_AUTRE, ID_PARTENAIRE_SERVICE])
-        }
-        catch (error) {
 
-                throw error
-        }
-}
-
-const createProduitSousCategorie = (ID_CATEGORIE_PRODUIT, NOM, IMAGE, IS_AUTRE, ID_PARTENAIRE_SERVICE
-) => {
-        try {
-                var sqlQuery = "INSERT INTO   ecommerce_produit_sous_categorie(ID_CATEGORIE_PRODUIT, NOM, IMAGE, IS_AUTRE,ID_PARTENAIRE_SERVICE)";
-                sqlQuery += "values (?,?,?,?,?)";
-                return query(sqlQuery, [ID_CATEGORIE_PRODUIT, NOM, IMAGE, IS_AUTRE, ID_PARTENAIRE_SERVICE])
-        }
-        catch (error) {
-
-                throw error
-        }
-}
 
 const findproduits = async (limit = 10, offset = 0) => {
         try {
@@ -106,21 +81,15 @@ const findSousCategories = async (id_categorie) => {
 const findCouleurs = async (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE) => {
         try {
         
-            var binds = []
-            var sqlQuery = " SELECT * FROM ecommerce_produit_couleur cou"
-            sqlQuery += " LEFT JOIN ecommerce_produit_categorie p_c ON cou.ID_CATEGORIE_PRODUIT=p_c.ID_CATEGORIE_PRODUIT "
-            sqlQuery += " LEFT JOIN ecommerce_produit_sous_categorie sou ON cou.ID_PRODUIT_SOUS_CATEGORIE=sou.ID_PRODUIT_SOUS_CATEGORIE WHERE 1 "
-    
-            if(ID_CATEGORIE_PRODUIT){
-                sqlQuery += " AND p_c.ID_CATEGORIE_PRODUIT=? "
-                binds.push(ID_CATEGORIE_PRODUIT)
-            }
+            var binds = [ID_CATEGORIE_PRODUIT]
+            var sqlQuery = "SELECT * FROM ecommerce_produit_couleur WHERE ID_CATEGORIE_PRODUIT = ?"
+        
             if(ID_PRODUIT_SOUS_CATEGORIE){
-                sqlQuery += " AND sou.ID_PRODUIT_SOUS_CATEGORIE=? "
+                sqlQuery += " AND ID_PRODUIT_SOUS_CATEGORIE=? "
                 binds.push(ID_PRODUIT_SOUS_CATEGORIE)
             }
             // sqlQuery += `LIMIT ${offset}, ${limit}`;
-                  return query(sqlQuery, [binds]);
+                  return query(sqlQuery, binds);
         }
         catch (error) {
             throw error
@@ -128,24 +97,18 @@ const findCouleurs = async (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE) => 
         }
     }
 
-    const findTailles = async (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE) => {
+    const findTailles = async (ID_CATEGORIE_PRODUIT,ID_PRODUIT_SOUS_CATEGORIE) => {
         try {
         
-            var binds = []
-            var sqlQuery = " SELECT * FROM ecommerce_produit_tailles cou"
-            sqlQuery += " LEFT JOIN ecommerce_produit_categorie p_c ON cou.ID_CATEGORIE_PRODUIT=p_c.ID_CATEGORIE_PRODUIT "
-            sqlQuery += " LEFT JOIN ecommerce_produit_sous_categorie sou ON cou.ID_PRODUIT_SOUS_CATEGORIE=sou.ID_PRODUIT_SOUS_CATEGORIE WHERE 1 "
-    
-            if(ID_CATEGORIE_PRODUIT){
-                sqlQuery += " AND p_c.ID_CATEGORIE_PRODUIT=? "
-                binds.push(ID_CATEGORIE_PRODUIT)
-            }
+            var binds = [ID_CATEGORIE_PRODUIT]
+            var sqlQuery = "SELECT * FROM ecommerce_produit_tailles WHERE ID_CATEGORIE_PRODUIT=?"
+            
             if(ID_PRODUIT_SOUS_CATEGORIE){
-                sqlQuery += " AND sou.ID_PRODUIT_SOUS_CATEGORIE=? "
+                sqlQuery += " AND ID_PRODUIT_SOUS_CATEGORIE=? "
                 binds.push(ID_PRODUIT_SOUS_CATEGORIE)
             }
             // sqlQuery += `LIMIT ${offset}, ${limit}`;
-                  return query(sqlQuery, [binds]);
+                  return query(sqlQuery, binds);
         }
         catch (error) {
             throw error
@@ -158,8 +121,6 @@ module.exports = {
         createProduitStock,
         createProduit,
         createProduitTaille,
-        createProduitCategorie,
-        createProduitSousCategorie,
         findproduits,
         findCategories,
         findSousCategories,

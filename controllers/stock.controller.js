@@ -17,19 +17,14 @@ const createProduitStock = async (req, res) => {
                         return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
                 }
                 const {
-                        ID_PARTENAIRE_SERVICE,
-                        ID_PRODUIT,
-                        ID_TAILLE,
-                        QUANTITE_TOTAL,
                         ID_CATEGORIE_PRODUIT,
                         ID_PRODUIT_SOUS_CATEGORIE,
-                        IS_AUTRE,
                         NOM,
-                        TAILLE,
-                        NOM_CATEGORIE,
-                        NOM_SOUS_CATEGORIE
+                        DETAILS,
+                        
                 } = req.body
-                console.log(IS_AUTRE)
+                console.log(req.body)
+                console.log(req.files)
                 const { IMAGE_1, IMAGE_2, IMAGE_3 } = req.files || {}
                 const validation = new Validation(
                         { ...req.body, ...req.files },
@@ -37,60 +32,12 @@ const createProduitStock = async (req, res) => {
                                 IMAGE_1: {
                                         image: 21000000
                                 },
-                                ID_PARTENAIRE_SERVICE:
-                                {
-                                        exists: "partenaire_service,ID_PARTENAIRE_SERVICE",
-                                },
-                                ID_PRODUIT:
-                                {
-                                        exists: "ecommerce_produits,ID_PRODUIT",
-                                },
-                                ID_TAILLE:
-                                {
-                                        exists: "ecommerce_produit_tailles,ID_TAILLE",
-                                },
-                                ID_CATEGORIE_PRODUIT:
-                                {
-                                        exists: "ecommerce_produit_categorie,ID_CATEGORIE_PRODUIT",
-                                },
-                                ID_PRODUIT_SOUS_CATEGORIE:
-                                {
-                                        exists: "ecommerce_produit_sous_categorie,ID_PRODUIT_SOUS_CATEGORIE",
-                                },
-                                QUANTITE_TOTAL:
-                                {
-                                        required: true,
-                                },
 
                         },
                         {
                                 IMAGE_1: {
                                         image: "Veuillez choisir une image valide",
                                         size: "L'image est trop volumineux"
-                                },
-                                ID_PARTENAIRE_SERVICE:
-                                {
-                                        exists: "Partenaire  invalide",
-                                },
-                                ID_PRODUIT:
-                                {
-                                        exists: "produit  invalide",
-                                },
-                                ID_TAILLE:
-                                {
-                                        exists: "Taille  invalide",
-                                },
-                                ID_CATEGORIE_PRODUIT:
-                                {
-                                        exists: "Categorie  invalide",
-                                },
-                                ID_PRODUIT_SOUS_CATEGORIE:
-                                {
-                                        exists: "Sous categorie  invalide",
-                                },
-                                QUANTITE_QUANTITE_TOTALSTOCKE:
-                                {
-                                        required: "quantite  est obligatoire",
                                 },
 
                         }
@@ -107,87 +54,42 @@ const createProduitStock = async (req, res) => {
                         })
                 }
                 const productUpload = new ProductUpload()
-                if (IS_AUTRE == 1) {
-                        var filename_1
-                        var filename_2
-                        var filename_3
 
-                        if (IMAGE_1) {
-                                const { fileInfo: fileInfo_1, thumbInfo: thumbInfo_1 } = await productUpload.upload(IMAGE_1, false)
-                                filename_1 = fileInfo_1.fileName
-                        }
-                        const { fileInfo: fileInfo_1, thumbInfo: thumbInfo_1 } = await productUpload.upload(IMAGE_1, false)
-                        if (IMAGE_2) {
-                                const { fileInfo: fileInfo_2, thumbInfo: thumbInfo_2 } = await productUpload.upload(IMAGE_2, false)
-                                filename_2 = fileInfo_2.fileName
-                        }
-                        if (IMAGE_3) {
-                                const { fileInfo: fileInfo_3, thumbInfo: thumbInfo_3 } = await productUpload.upload(IMAGE_3, false)
-                                filename_3 = fileInfo_3.fileName
-                        }
+                var filename_2
+                var filename_3
+                const { fileInfo: fileInfo_1, thumbInfo: thumbInfo_1 } = await productUpload.upload(IMAGE_1, false)
+                if (IMAGE_2) {
+                        const { fileInfo: fileInfo_2, thumbInfo: thumbInfo_2 } = await productUpload.upload(IMAGE_2, false)
+                        filename_2 = fileInfo_2.fileName
+                }
+                if (IMAGE_3) {
+                        const { fileInfo: fileInfo_3, thumbInfo: thumbInfo_3 } = await productUpload.upload(IMAGE_3, false)
+                        filename_3 = fileInfo_3.fileName
                 }
 
-                const { insertId: insertProduit } = await stockmodel.createProduitStock(
-                        ID_PARTENAIRE_SERVICE,
-                        ID_PRODUIT,
-                        ID_TAILLE,
-                        QUANTITE_TOTAL,
-                        0,
-                        QUANTITE_TOTAL
+
+                // var quantiteTotal = 0
+                // DETAILS.forEach(detail=>{
+                //         quantiteTotal += detail.quantite
+                // })
+                console.log(quantiteTotal)
+                const { insertId: insertProduit } = await stockmodel.createProduit(
+                        ID_CATEGORIE_PRODUIT,
+                        ID_PRODUIT_SOUS_CATEGORIE,
+                        NOM,
+                        fileInfo_1.fileName,
+                        filename_2 ? filename_2 : null,
+                        filename_3 ? filename_3 : null,
+                        1,
+                        2
                 )
-                console.log(IS_AUTRE == 1)
-                if (IS_AUTRE == 1) {
-                        console.log("bonjour")
-                        const { insertId: insertStock } = await stockmodel.createProduit(
-                                ID_CATEGORIE_PRODUIT,
-                                ID_PRODUIT_SOUS_CATEGORIE,
-                                NOM,
-                                // fileInfo_1.fileName,
-                                filename_1 ? filename_1 : null,
-                                filename_2 ? filename_2 : null,
-                                filename_3 ? filename_3 : null,
-                                1,
-                                ID_PARTENAIRE_SERVICE
-                                //IMAGE
-                        )
-                }
-                if (IS_AUTRE == 1) {
-                        console.log("bonjour")
-                        const { insertId: insertTaille } = await stockmodel.createProduitTaille(
-                                ID_CATEGORIE_PRODUIT,
-                                ID_PRODUIT_SOUS_CATEGORIE,
-                                TAILLE,
-                                1,
-                                ID_PARTENAIRE_SERVICE
-                                //IMAGE
-                        )
-                }
 
-                if (IS_AUTRE == 1) {
-                        console.log("bonjour")
-                        const { insertId: insertCatego } = await stockmodel.createProduitCategorie(
-                                NOM_CATEGORIE,
-                                filename_1,
-                                1,
-                                ID_PARTENAIRE_SERVICE
-                                //IMAGE
-                        )
-                }
-
-                if (IS_AUTRE == 1) {
-                        const { insertId: insertSousCatego } = await stockmodel.createProduitSousCategorie(
-                                ID_CATEGORIE_PRODUIT,
-                                NOM_SOUS_CATEGORIE,
-                                filename_1,
-                                1,
-                                ID_PARTENAIRE_SERVICE
-                                //IMAGE
-                        )
-                }
+                // await Promise.All(DETAILS.map(async detail => {
+                       
+                // }))
 
 
 
-                // const produits = (await partenaireProduitModel.findById(insertProduit))[0]
 
                 res.status(RESPONSE_CODES.CREATED).json({
                         statusCode: RESPONSE_CODES.CREATED,
@@ -315,8 +217,8 @@ const getAllSousCategorie = async (req, res) => {
 
 const getAllCouleur = async (req, res) => {
         try {
-                const { ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE} = req.query
-                const AllCouleur = await stockmodel.findCouleurs(ID_CATEGORIE_PRODUIT,ID_PRODUIT_SOUS_CATEGORIE)
+                const { ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE } = req.query
+                const AllCouleur = await stockmodel.findCouleurs(ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE)
                 res.status(RESPONSE_CODES.OK).json({
                         statusCode: RESPONSE_CODES.OK,
                         httpStatus: RESPONSE_STATUS.OK,
@@ -340,8 +242,8 @@ const getAllCouleur = async (req, res) => {
 
 const getAllTaille = async (req, res) => {
         try {
-                const { ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE} = req.query
-                const AllTaille = await stockmodel.findTailles(ID_CATEGORIE_PRODUIT,ID_PRODUIT_SOUS_CATEGORIE)
+                const { ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE } = req.query
+                const AllTaille = await stockmodel.findTailles(ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE)
                 res.status(RESPONSE_CODES.OK).json({
                         statusCode: RESPONSE_CODES.OK,
                         httpStatus: RESPONSE_STATUS.OK,
