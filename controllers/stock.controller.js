@@ -29,6 +29,7 @@ const createProduitStock = async (req, res) => {
                 if(PRODUIT){
                         var AllProduits = JSON.parse(PRODUIT)
                 }
+                console.log(AllDetail)
                 const { IMAGE_1, IMAGE_2, IMAGE_3 } = req.files || {}
                 const validation = new Validation(
                         { ...req.body, ...req.files },
@@ -62,7 +63,7 @@ const createProduitStock = async (req, res) => {
                         var filename_1
                         var filename_2
                         var filename_3
-                        if (IMAGE_2) {
+                        if (IMAGE_1) {
                                 const { fileInfo: fileInfo_1, thumbInfo: thumbInfo_1 } = await productUpload.upload(IMAGE_1, false)
                                 filename_1 = fileInfo_1.fileName
                         }
@@ -85,7 +86,7 @@ const createProduitStock = async (req, res) => {
                 })
 
                 var StockId
-                if (PRODUIT == "") {
+                if (!PRODUIT) {
                         const { insertId: insertProduit } = await stockmodel.createProduit(
                                 ID_CATEGORIE_PRODUIT,
                                 ID_PRODUIT_SOUS_CATEGORIE,
