@@ -313,11 +313,11 @@ const getAllPartenaire = async (req, res) => {
             if (fileName.indexOf("http") === 0) return fileName
             return `${req.protocol}://${req.get("host")}/uploads/${folder}/${fileName}`
         }
-        const { limit, offset } = req.query
+        const {category,subCategory, limit, offset } = req.query
         const allPartenaire = await userModel.findpartenaire(limit, offset)
 
         const partenaires = await Promise.all(allPartenaire.map(async partenaire => {
-            const categorie = await userModel.findbycategorie(partenaire.ID_PARTENAIRE)
+            const categorie = await userModel.findbycategorie(partenaire.ID_PARTENAIRE_SERVICE)
             return {
                 ...partenaire,
                 LOGO: getImageUri(partenaire.LOGO, 'partenaire'),
