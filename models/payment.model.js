@@ -19,6 +19,7 @@ const changeStatus = async (txni_d, status) => {
           }
 }
 
+
 const findBy = async (column, value) => {
           try {
                     return query(`SELECT * FROM commandes_payement WHERE ${column} = ?`, [value])

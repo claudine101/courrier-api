@@ -26,6 +26,8 @@ const app = express();
 const bindUser = require("./middleware/bindUser");
 const commandeRouter = require("./routes/commandes.routes");
 const productsRouter = require("./routes/products.routes");
+const wishlistRouter = require("./routes/wishlist.routes");
+const stockRouter = require("./routes/stock.router");
 dotenv.config({ path: path.join(__dirname, "./.env") });
 
 const { Server } = require("socket.io");
@@ -53,6 +55,8 @@ app.use("/resto/menu", restoMenuRouter)
 app.use("/resto/repas", repasRouter)
 app.use("/driver/course", driverCourseRouter)
 app.use("/payments", paymentRouter)
+app.use("/wishlist", wishlistRouter)
+app.use("/produit", stockRouter)
 
 app.all("*", (req, res) => {
           res.status(RESPONSE_CODES.NOT_FOUND).json({
