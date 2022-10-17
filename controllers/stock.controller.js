@@ -20,11 +20,15 @@ const createProduitStock = async (req, res) => {
                         ID_CATEGORIE_PRODUIT,
                         ID_PRODUIT_SOUS_CATEGORIE,
                         NOM,
-                        DETAILS,
-                        
+                        DETAIL,
+                        PRODUIT
+
                 } = req.body
-                console.log(req.body)
-                console.log(req.files)
+
+                const AllDetail = JSON.parse(DETAIL)
+                if(PRODUIT){
+                        var AllProduits = JSON.parse(PRODUIT)
+                }
                 const { IMAGE_1, IMAGE_2, IMAGE_3 } = req.files || {}
                 const validation = new Validation(
                         { ...req.body, ...req.files },
@@ -54,39 +58,81 @@ const createProduitStock = async (req, res) => {
                         })
                 }
                 const productUpload = new ProductUpload()
+                if (!PRODUIT) {
+                        var filename_1
+                        var filename_2
+                        var filename_3
+                        if (IMAGE_2) {
+                                const { fileInfo: fileInfo_1, thumbInfo: thumbInfo_1 } = await productUpload.upload(IMAGE_1, false)
+                                filename_1 = fileInfo_1.fileName
+                        }
+                        if (IMAGE_2) {
+                                const { fileInfo: fileInfo_2, thumbInfo: thumbInfo_2 } = await productUpload.upload(IMAGE_2, false)
+                                filename_2 = fileInfo_2.fileName
+                        }
+                        if (IMAGE_3) {
+                                const { fileInfo: fileInfo_3, thumbInfo: thumbInfo_3 } = await productUpload.upload(IMAGE_3, false)
+                                filename_3 = fileInfo_3.fileName
+                        }
 
-                var filename_2
-                var filename_3
-                const { fileInfo: fileInfo_1, thumbInfo: thumbInfo_1 } = await productUpload.upload(IMAGE_1, false)
-                if (IMAGE_2) {
-                        const { fileInfo: fileInfo_2, thumbInfo: thumbInfo_2 } = await productUpload.upload(IMAGE_2, false)
-                        filename_2 = fileInfo_2.fileName
                 }
-                if (IMAGE_3) {
-                        const { fileInfo: fileInfo_3, thumbInfo: thumbInfo_3 } = await productUpload.upload(IMAGE_3, false)
-                        filename_3 = fileInfo_3.fileName
+
+
+                var quantiteTotal = 0
+                AllDetail.forEach(detail => {
+                        quantiteTotal += parseInt(detail.quantite)
+
+                })
+
+                var StockId
+                if (PRODUIT == "") {
+                        const { insertId: insertProduit } = await stockmodel.createProduit(
+                                ID_CATEGORIE_PRODUIT,
+                                ID_PRODUIT_SOUS_CATEGORIE,
+                                NOM,
+                                filename_1 ? filename_1 : null,
+                                filename_2 ? filename_2 : null,
+                                filename_3 ? filename_3 : null,
+                                1,
+                                2
+                        )
+                        StockId = insertProduit
                 }
 
 
-                // var quantiteTotal = 0
-                // DETAILS.forEach(detail=>{
-                //         quantiteTotal += detail.quantite
-                // })
-                console.log(quantiteTotal)
-                const { insertId: insertProduit } = await stockmodel.createProduit(
-                        ID_CATEGORIE_PRODUIT,
-                        ID_PRODUIT_SOUS_CATEGORIE,
-                        NOM,
-                        fileInfo_1.fileName,
-                        filename_2 ? filename_2 : null,
-                        filename_3 ? filename_3 : null,
-                        1,
-                        2
-                )
+                await Promise.all(AllDetail.map(async detail => {
+                        var ID_TAILLE
+                        if (detail.TailleSelect.ID_TAILLE == "autre") {
+                                const { insertId: insertTaille } = await stockmodel.createProduitTaille(
+                                        PRODUIT ? AllProduits.produit.ID_CATEGORIE_PRODUIT : ID_CATEGORIE_PRODUIT,
+                                        PRODUIT ? AllProduits.produit.ID_PRODUIT_SOUS_CATEGORIE : ID_PRODUIT_SOUS_CATEGORIE,
+                                        detail.TailleSelect.TAILLE,
+                                        1,
+                                        2
+                                )
+                                ID_TAILLE = insertTaille
+                        } else {
+                                ID_TAILLE = detail.TailleSelect.ID_TAILLE
+                        }
 
-                // await Promise.All(DETAILS.map(async detail => {
-                       
-                // }))
+                        if (detail.selectedCouleur.ID_COULEUR == "autre") {
+                                const { insertId: insertTaille } = await stockmodel.createProduitCouleur(
+                                        detail.selectedCouleur.COULEUR,
+                                        PRODUIT ? AllProduits.produit.ID_CATEGORIE_PRODUIT : ID_CATEGORIE_PRODUIT,
+                                        PRODUIT ? AllProduits.produit.ID_PRODUIT_SOUS_CATEGORIE : ID_PRODUIT_SOUS_CATEGORIE,
+                                        1,
+                                        2
+                                )
+                        }
+
+                        const { insertId: insertStock } = await stockmodel.createProduitStock(
+                                2,
+                                ID_TAILLE,
+                                quantiteTotal,
+                                0,
+                                quantiteTotal
+                        )
+                }))
 
 
 

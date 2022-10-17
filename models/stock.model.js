@@ -1,11 +1,11 @@
 const { query } = require("../utils/db")
 
-const createProduitStock = (ID_PARTENAIRE_SERVICE, ID_PRODUIT, ID_TAILLE, QUANTITE_TOTAL, QUANTITE_VENDUS, QUANTITE_RESTANTE
+const createProduitStock = (ID_PRODUIT_PARTENAIRE, ID_TAILLE, QUANTITE_TOTAL, QUANTITE_VENDUS, QUANTITE_RESTANTE
 ) => {
         try {
-                var sqlQuery = "INSERT INTO  ecommerce_produit_stock (ID_PARTENAIRE_SERVICE, ID_PRODUIT, ID_TAILLE, QUANTITE_TOTAL,QUANTITE_VENDUS,QUANTITE_RESTANTE)";
-                sqlQuery += "values (?,?,?,?,?,?)";
-                return query(sqlQuery, [ID_PARTENAIRE_SERVICE, ID_PRODUIT, ID_TAILLE, QUANTITE_TOTAL, QUANTITE_VENDUS, QUANTITE_RESTANTE])
+                var sqlQuery = "INSERT INTO  ecommerce_produit_stock (	ID_PRODUIT_PARTENAIRE, ID_TAILLE, QUANTITE_TOTAL,QUANTITE_VENDUS,QUANTITE_RESTANTE)";
+                sqlQuery += "values (?,?,?,?,?)";
+                return query(sqlQuery, [ID_PRODUIT_PARTENAIRE, ID_TAILLE, QUANTITE_TOTAL, QUANTITE_VENDUS, QUANTITE_RESTANTE])
         }
         catch (error) {
 
@@ -39,11 +39,23 @@ const createProduitTaille = async (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGOR
 }
 
 
+const createProduitCouleur = async (COULEUR, ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, IS_AUTRE, ID_PARTENAIRE_SERVICE) => {
+        try {
+                  var sqlQuery = "INSERT INTO ecommerce_produit_couleur(COULEUR, ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, IS_AUTRE, ID_PARTENAIRE_SERVICE)";
+                  sqlQuery += "VALUES (?,?,?,?,?)"
+                  return query(sqlQuery, [COULEUR, ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, IS_AUTRE, ID_PARTENAIRE_SERVICE]);
+        } catch (error) {
+                  throw error
+        }
+
+}
+
+
 
 const findproduits = async (limit = 10, offset = 0) => {
         try {
                 var binds = []
-                var sqlQuery = "SELECT  ep.NOM,ep.ID_CATEGORIE_PRODUIT,ep.ID_PRODUIT_SOUS_CATEGORIE,ep.IMAGE_1,ep.IMAGE_2,ep.IMAGE_3,ep.IS_AUTRE,ep.ID_PARTENAIRE_SERVICE, ep_c.NOM AS NOM_CATEGORIE, ec_s_c.NOM AS NOM_SOUS_CATEGORIE"
+                var sqlQuery = "SELECT ep.ID_PRODUIT, ep.NOM,ep.ID_CATEGORIE_PRODUIT,ep.ID_PRODUIT_SOUS_CATEGORIE,ep.IMAGE_1,ep.IMAGE_2,ep.IMAGE_3,ep.IS_AUTRE,ep.ID_PARTENAIRE_SERVICE, ep_c.NOM AS NOM_CATEGORIE, ec_s_c.NOM AS NOM_SOUS_CATEGORIE"
                 sqlQuery += " FROM ecommerce_produits ep "
                 sqlQuery += " LEFT JOIN ecommerce_produit_categorie ep_c ON ep_c.ID_CATEGORIE_PRODUIT=ep.ID_CATEGORIE_PRODUIT "
                 sqlQuery += "  LEFT JOIN  ecommerce_produit_sous_categorie ec_s_c ON ec_s_c.ID_PRODUIT_SOUS_CATEGORIE=ep.ID_PRODUIT_SOUS_CATEGORIE WHERE 1 "
@@ -125,5 +137,6 @@ module.exports = {
         findCategories,
         findSousCategories,
         findCouleurs,
-        findTailles
+        findTailles,
+        createProduitCouleur
 }
