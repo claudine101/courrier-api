@@ -242,9 +242,9 @@ const getAllColors = async (req, res) => {
 }
 const getCategorieByPartenaire = async (req, res) => {
     try {
-        const { ID_PRODUIT_PARTENAIRE } = req.params
+        const { ID_PARTENAIRE_SERVICE } = req.params
 
-        const categories = await productsModel.findById(ID_PRODUIT_PARTENAIRE)
+        const categories = await productsModel.findById(ID_PARTENAIRE_SERVICE)
 
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,

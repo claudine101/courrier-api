@@ -101,7 +101,7 @@ const findCategories = async () => {
 }
 const findById = async (id) => {
     try {
-        var sqlQuery = "SELECT * FROM ecommerce_produit_categorie  cat LEFT JOIN  ecommerce_produit_partenaire px ON px.ID_CATEGORIE_PRODUIT=cat.ID_CATEGORIE_PRODUIT  WHERE px.ID_PARTENAIRE=?";
+        var sqlQuery = "SELECT * FROM ecommerce_produit_categorie  cat LEFT JOIN  ecommerce_produit px ON px.ID_CATEGORIE_PRODUIT=cat.ID_CATEGORIE_PRODUIT  WHERE px.ID_PARTENAIRE_SERVICE=?";
         return query(sqlQuery, [id]);
 
     }
