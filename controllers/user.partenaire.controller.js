@@ -327,7 +327,7 @@ const getAllPartenaire = async (req, res) => {
                 categories: categorie
             }
         }))
-        console.log(partenaires)
+      
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_STATUS.OK,
@@ -363,6 +363,23 @@ const getAllPartenaire = async (req, res) => {
 //                 IMAGE: getImageUri(partenaire.IMAGE, 'users'),
 
 //             }
+//         }))
+       
+//         res.status(RESPONSE_CODES.OK).json({
+//             statusCode: RESPONSE_CODES.OK,
+//             httpStatus: RESPONSE_STATUS.OK,
+//             message: "Liste des boutiques",
+//             result: partenaires
+//         })
+//     }
+//     catch (error) {
+//         console.log(error)
+//         res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+//             statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+//             httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+//             message: "Erreur interne du serveur, réessayer plus tard",
+//         })
+// //             }
 //         }))
 //         console.log(partenaires)
 //         res.status(RESPONSE_CODES.OK).json({
@@ -476,7 +493,6 @@ const findByIdPartenaire = async (req, res) => {
 
 const getProduits = async (req, res) => {
     const { id } = req.params
-    console.log(id)
     try {
         const produits = await query("SELECT cat.NOM,pt.ID_PRODUIT,pt.NOM as NOM_PRODUIT  FROM ecommerce_produits  pt LEFT JOIN ecommerce_produit_categorie cat ON pt.ID_CATEGORIE_PRODUIT=cat.ID_CATEGORIE_PRODUIT WHERE cat.ID_CATEGORIE_PRODUIT=" + id);
         res.status(RESPONSE_CODES.OK).json({
@@ -484,6 +500,25 @@ const getProduits = async (req, res) => {
             httpStatus: RESPONSE_STATUS.OK,
             message: "Liste de tous les produits",
             result: produits
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard"
+        })
+    }
+}
+const findAll = async (req, res) => {
+    
+    try {
+        const partenaires = await query("SELECT ps.NOM_ORGANISATION  AS  NOM_ORGANISATION ,ps.ID_PARTENAIRE_SERVICE,par.ID_PARTENAIRE FROM partenaires par LEFT JOIN partenaire_service ps ON par.ID_PARTENAIRE=ps.ID_PARTENAIRE WHERE 1 and ps.NOM_ORGANISATION!=''");
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Liste de tous les partenaires",
+            result: partenaires
         })
     } catch (error) {
         console.log(error)
@@ -502,5 +537,5 @@ module.exports = {
     getcategories,
     createPartenaire,
     getProduits,
-    //getAllPartenaires
+    findAll
 }

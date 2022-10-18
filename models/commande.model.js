@@ -43,17 +43,18 @@ const createCommandeDetails = async (ecommerce_commande_details) => {
 const findCommandesbyId = async (userId) => {
           try {
                     return query("SELECT comm.DATE_COMMANDE,comm.DATE_LIVRAISON,comm.CODE_UNIQUE,comm.STATUT_LIVRAISON,comm.ID_STATUT , us.NOM, us.PRENOM FROM ecommerce_commandes comm LEFT JOIN users us on us.ID_USER=comm.ID_USER WHERE comm.ID_COMMANDE = ?", [userId])
-          }
+          } 
           catch (error) {
                     throw error;
           }
 };
-const getUserCommandes = async (ID_USER, q, limit = 10, offset = 0) => {
+const getUserCommandes = async (ID_USER,ID_PARTENAIRE_SERVICE, q, limit = 10, offset = 0) => {
           try {
-                    var binds = [ID_USER]
+                    var binds = [ID_USER,ID_PARTENAIRE_SERVICE]
                     var sqlQuery = "SELECT co.ID_STATUT, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, ecs.DESCRIPTION STATUT_DESCRIPTION, ecs.NEXT_STATUS FROM ecommerce_commandes co "
                     sqlQuery += " LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT "
-                    sqlQuery += " WHERE co.ID_USER = ? AND co.ID_STATUT != 1 ORDER BY co.DATE_COMMANDE DESC "
+                    sqlQuery += " LEFT JOIN ecommerce_produit_partenaire ecp ON ecp.ID_PRODUIT_PARTENAIRE=co.ID_PRODUIT_PARTENAIRE   "
+                    sqlQuery += " WHERE co.ID_USER = ? AND ecp.ID_PARTENAIRE_SERVICE=? AND co.ID_STATUT != 1 ORDER BY co.DATE_COMMANDE DESC "
                     sqlQuery += `LIMIT ${offset}, ${limit}`
                     return query(sqlQuery, binds)
           }
@@ -109,10 +110,10 @@ const getOneCommande = async (ID_COMMANDE) => {
 const getManyCommandesDetails = async (commandesIds) => {
           try {
                     var binds = [commandesIds]
-                    var sqlQuery = "SELECT cd.ID_COMMANDE, cd.ID_COMMANDE_DETAIL, cd.QUANTITE, cd.PRIX, cd.SOMME, epp.NOM, epp.IMAGE_1 FROM ecommerce_commande_details cd "
+                    var sqlQuery = "SELECT cd.ID_COMMANDE, cd.ID_COMMANDE_DETAIL, cd.QUANTITE, cd.PRIX, cd.SOMME, ep.NOM, ep.IMAGE_1 FROM ecommerce_commande_details cd "
                     sqlQuery += " LEFT JOIN ecommerce_produit_stock eps ON eps.ID_PRODUIT_STOCK = cd.ID_PRODUIT_STOCK "
                     sqlQuery += " LEFT JOIN ecommerce_produit_partenaire epp ON epp.ID_PRODUIT_PARTENAIRE = eps.ID_PRODUIT_PARTENAIRE "
-                    sqlQuery += " WHERE ID_COMMANDE IN (?)"
+                    sqlQuery += "  LEFT JOIN ecommerce_produits ep ON ep.ID_PRODUIT=epp.ID_PRODUIT WHERE ID_COMMANDE IN (?)"
                     return query(sqlQuery, binds)
           }catch (error) {
                     throw error
@@ -121,7 +122,7 @@ const getManyCommandesDetails = async (commandesIds) => {
 const getCommandesDetails = async (PartenaireIds) => {
         try {
                   var binds = [PartenaireIds]
-                  var sqlQuery = "SELECT  SUM(cd.SOMME) AS SOMME ,SUM(cd.QUANTITE) AS QUANTITE,cd.ID_COMMANDE,ecs.DESCRIPTION,ec.ID_COMMANDE,ec.CODE_UNIQUE, cd.ID_COMMANDE_DETAIL, cd.PRIX, epp.NOM, epp.IMAGE_1 FROM ecommerce_commande_details cd "
+                //   var sqlQuery = "SELECT  SUM(cd.SOMME) AS SOMME ,SUM(cd.QUANTITE) AS QUANTITE,cd.ID_COMMANDE,ecs.DESCRIPTION,ec.ID_COMMANDE,ec.CODE_UNIQUE, cd.ID_COMMANDE_DETAIL, cd.PRIX, epp.NOM, epp.IMAGE_1 FROM ecommerce_commande_details cd "
                   sqlQuery += " LEFT JOIN ecommerce_produit_stock eps ON eps.ID_PRODUIT_STOCK = cd.ID_PRODUIT_STOCK "
                   sqlQuery += " LEFT JOIN ecommerce_produit_partenaire epp ON epp.ID_PRODUIT_PARTENAIRE = eps.ID_PRODUIT_PARTENAIRE "
                   sqlQuery += " LEFT JOIN  ecommerce_commandes ec ON ec.ID_COMMANDE=cd.ID_COMMANDE LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT=ec.ID_STATUT"

@@ -243,14 +243,15 @@ const getCommandeStatus = async (req, res) => {
 
 
 const getCommandes = async (req, res) => {
-          try {
+    const { ID_PARTENAIRE_SERVICE } = req.params
+    try {
                     const getImageUri = (fileName) => {
                               if (!fileName) return null
                               if (fileName.indexOf("http") === 0) return fileName
                               return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
                     }
                     var commandesIds = []
-                    const commandes = await commandeModel.getUserCommandes(req.userId)
+                    const commandes = await commandeModel.getUserCommandes(req.userId,ID_PARTENAIRE_SERVICE)
                     commandes.forEach(commande => commandesIds.push(commande.ID_COMMANDE))
                     var details = 0
                     if (commandesIds.length > 0) {
