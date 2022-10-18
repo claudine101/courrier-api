@@ -383,14 +383,9 @@ const getSousCategoriesBy = async (req, res) => {
 }
 const getSizes = async (req, res) => {
     try {
-<<<<<<< HEAD
-        const { ID_CATEGORIE_PRODUIT,ID_PRODUIT_SOUS_CATEGORIE } = req.params
-        const sizes = await productsModel.findSizes(ID_CATEGORIE_PRODUIT,ID_PRODUIT_SOUS_CATEGORIE)
-=======
         const { ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE } = req.params
         console.log(ID_PRODUIT_SOUS_CATEGORIE)
         const sizes = await productsModel.findSizes(ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE)
->>>>>>> b6257e31b7d7909b383b1410619240fe632c6d90
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_STATUS.OK,

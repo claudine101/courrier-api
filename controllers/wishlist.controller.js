@@ -6,39 +6,11 @@ const { query } = require('../utils/db');
 const create = async (req, res) => {
     try {
         const {
-            ID_PRODUIT_PARTENAIRE
+            ID_PRODUIT
         } = req.body
-        const validation = new Validation(
-            req.body,
-            {
-                
-                ID_PRODUIT_PARTENAIRE:
-                {
-                    required: true,
-                },
-                
-            },
-            {
-                ID_PRODUIT_PARTENAIRE:
-                {
-                    required: "partenaire  invalide",
-                },
-                
-            }
-        );
-        await validation.run();
-        const isValide = await validation.isValidate()
-        const errors = await validation.getErrors()
-        if (!isValide) {
-            return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
-                statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
-                httpStatus: RESPONSE_STATUS.UNPROCESSABLE_ENTITY,
-                message: "Probleme de validation des donnees",
-                result: errors
-            })
-        }
+        
         const { insertId} = await wishlistModel.createOne(
-            ID_PRODUIT_PARTENAIRE,
+            ID_PRODUIT,
             req.userId
         )
         const wishlist = (await wishlistModel.findById(insertId))[0]
@@ -60,8 +32,8 @@ const create = async (req, res) => {
 }
 const suppression = async (req, res) => {
     try {
-        const { ID_PRODUIT_PARTENAIRE } = req.params
-        const wishlistDelete = await  query("DELETE FROM ecommerce_wishlist_produit  WHERE ID_PRODUIT_PARTENAIRE= ?",[ID_PRODUIT_PARTENAIRE])
+        const { ID_PRODUIT } = req.params
+        const wishlistDelete = await  query("DELETE FROM ecommerce_wishlist_produit  WHERE ID_PRODUIT= ?",[ID_PRODUIT])
 
               res.status(RESPONSE_CODES.OK).json({
                         statusCode: RESPONSE_CODES.OK,
@@ -83,10 +55,11 @@ const suppression = async (req, res) => {
 }
 const verfication = async (req, res) => {
     try {
-        const { ID_PRODUIT_PARTENAIRE} = req.params
+        const { ID_PRODUIT} = req.params
 
-        const wishlist= (await  query("SELECT ID_WISHLIST FROM ecommerce_wishlist_produit  WHERE ID_PRODUIT_PARTENAIRE= ? AND ID_USERS",[ID_PRODUIT_PARTENAIRE,req.userId]))[0]
-              res.status(RESPONSE_CODES.OK).json({
+        const wishlist= (await  query("SELECT ID_WISHLIST FROM ecommerce_wishlist_produit  WHERE ID_PRODUIT= ? AND ID_USERS=?",[ID_PRODUIT,req.userId]))[0]
+              console.log(wishlist)
+        res.status(RESPONSE_CODES.OK).json({
                         statusCode: RESPONSE_CODES.OK,
                         httpStatus: RESPONSE_STATUS.OK,
                         message: "existe",
