@@ -54,20 +54,20 @@ const findpartenaire = async (category, subCategory, limit = 10, offset = 0) => 
     }
 
 }
-const findpartenaires = async (limit = 10, offset = 0) => {
-    try {
-        //var binds = []
-        var sqlQuery = " SELECT ps.NOM_ORGANISATION,ps.ID_PARTENAIRE_SERVICE,u.IMAGE,ps.LOGO,ps.BACKGROUND_IMAGE FROM partenaire_service ps "
-        sqlQuery += " LEFT JOIN partenaires p ON ps.ID_PARTENAIRE=p.ID_PARTENAIRE LEFT JOIN users u ON u.ID_USER=p.ID_USER "
-        sqlQuery += " WHERE ID_TYPE_PARTENAIRE = 2 AND ID_SERVICE = 1 "
-        sqlQuery += `LIMIT ${offset}, ${limit}`;
-        return query(sqlQuery);
-    }
-    catch (error) {
-        throw error
-    }
+// const findpartenaires = async (limit = 10, offset = 0) => {
+//     try {
+//         //var binds = []
+//         var sqlQuery = " SELECT ps.NOM_ORGANISATION,ps.ID_PARTENAIRE_SERVICE,u.IMAGE,ps.LOGO,ps.BACKGROUND_IMAGE FROM partenaire_service ps "
+//         sqlQuery += " LEFT JOIN partenaires p ON ps.ID_PARTENAIRE=p.ID_PARTENAIRE LEFT JOIN users u ON u.ID_USER=p.ID_USER "
+//         sqlQuery += " WHERE ID_TYPE_PARTENAIRE = 2 AND ID_SERVICE = 1 "
+//         sqlQuery += `LIMIT ${offset}, ${limit}`;
+//         return query(sqlQuery);
+//     }
+//     catch (error) {
+//         throw error
+//     }
 
-}
+// }
 const findbycategorie = async (id) => {
     try {
 
@@ -172,5 +172,5 @@ module.exports = {
     createpartenaire,
     CreatePartenaireService,
     createOnePartenaire,
-    findpartenaires
+    // findpartenaires
 }

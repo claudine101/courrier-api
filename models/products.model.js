@@ -207,5 +207,7 @@ module.exports = {
     findproduct,
     findBYidPartenaire,
     getPrix
-
+   
+   
+    
 }
