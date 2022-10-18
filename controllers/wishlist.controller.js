@@ -6,11 +6,11 @@ const { query } = require('../utils/db');
 const create = async (req, res) => {
     try {
         const {
-            ID_PRODUIT
+            ID_PRODUIT_PARTENAIRE
         } = req.body
         
         const { insertId} = await wishlistModel.createOne(
-            ID_PRODUIT,
+            ID_PRODUIT_PARTENAIRE,
             req.userId
         )
         const wishlist = (await wishlistModel.findById(insertId))[0]
@@ -32,8 +32,8 @@ const create = async (req, res) => {
 }
 const suppression = async (req, res) => {
     try {
-        const { ID_PRODUIT } = req.params
-        const wishlistDelete = await  query("DELETE FROM ecommerce_wishlist_produit  WHERE ID_PRODUIT= ?",[ID_PRODUIT])
+        const { ID_PRODUIT_PARTENAIRE } = req.params
+        const wishlistDelete = await  query("DELETE FROM ecommerce_wishlist_produit  WHERE ID_PRODUIT_PARTENAIRE= ?",[ID_PRODUIT_PARTENAIRE])
 
               res.status(RESPONSE_CODES.OK).json({
                         statusCode: RESPONSE_CODES.OK,
@@ -55,10 +55,10 @@ const suppression = async (req, res) => {
 }
 const verfication = async (req, res) => {
     try {
-        const { ID_PRODUIT} = req.params
+        const { ID_PRODUIT_PARTENAIRE} = req.params
 
-        const wishlist= (await  query("SELECT ID_WISHLIST FROM ecommerce_wishlist_produit  WHERE ID_PRODUIT= ? AND ID_USERS=?",[ID_PRODUIT,req.userId]))[0]
-              console.log(wishlist)
+        const wishlist= (await  query("SELECT ID_WISHLIST FROM ecommerce_wishlist_produit  WHERE ID_PRODUIT_PARTENAIRE= ? AND ID_USERS=?",[ID_PRODUIT_PARTENAIRE,req.userId]))[0]
+              
         res.status(RESPONSE_CODES.OK).json({
                         statusCode: RESPONSE_CODES.OK,
                         httpStatus: RESPONSE_STATUS.OK,
