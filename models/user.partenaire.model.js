@@ -82,7 +82,7 @@ const findbycategorie = async (id) => {
 const findByIdPartenaire = async (id, category, subCategory, limit = 10, offset = 0) => {
     try {
         var binds = [id]
-        var sqlQuery = "SELECT ep.ID_PRODUIT, ep.NOM, ep.IMAGE, "
+        var sqlQuery = "SELECT ep.ID_PRODUIT, ep.NOM, ep.IMAGE_1 , "
         sqlQuery += " pp.ID_PRODUIT_PARTENAIRE, pp.NOM AS NOM_PRODUIT_PARTENAIRE,pp.DESCRIPTION,pp.IMAGE_1,pp.IMAGE_2, pp.IMAGE_3, "
         sqlQuery += " pas.NOM_ORGANISATION, p.ID_PARTENAIRE, pas.ID_TYPE_PARTENAIRE, u.NOM NOM_USER, u.PRENOM, "
         sqlQuery += " pc.ID_CATEGORIE_PRODUIT, pc.NOM AS NOM_CATEGORIE, psc.ID_PRODUIT_SOUS_CATEGORIE, psc.NOM AS NOM_SOUS_CATEGORIE,sp.PRIX, "

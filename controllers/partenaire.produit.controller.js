@@ -263,9 +263,9 @@ const findByIdPartenaire = async (req, res) => {
                               },
                               stock: {
                                         ID_PRODUIT_STOCK: product.ID_PRODUIT_STOCK,
-                                        QUANTITE_STOCKE: product.QUANTITE_STOCKE,
+                                        QUANTITE_STOCKE: product.QUANTITE_TOTAL,
                                         QUANTITE_RESTANTE: product.QUANTITE_RESTANTE,
-                                        QUANTITE_VENDUE: product.QUANTITE_VENDUE
+                                        QUANTITE_VENDUE: product.QUANTITE_VENDUS
                               }
                     }))
                     res.status(RESPONSE_CODES.OK).json({

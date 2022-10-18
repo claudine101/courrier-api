@@ -31,15 +31,14 @@ const findById = async (ID_USER, ID_SERVICE) => {
 
 }
 
-const findByIdPart = async (ID_USER) => {
+const findByIdPart = async (idPartenaire) => {
     try {
-      
-        var sqlQuery=" SELECT s.ID_SERVICE,s.NOM AS NOM_SERVICE, s.DESCRIPTION FROM services s " 
+        var binds = [idPartenaire]
+        var sqlQuery=" SELECT s.ID_SERVICE,s.NOM AS NOM_SERVICE, s.DESCRIPTION,pr_s.NOM_ORGANISATION,pr_s.TELEPHONE, pr_s.NIF,pr_s.EMAIL,pr_s.LOGO,pr_s.BACKGROUND_IMAGE FROM services s  " 
         sqlQuery+=" LEFT JOIN partenaire_service pr_s ON s.ID_SERVICE=pr_s.ID_SERVICE  "
         sqlQuery+=" LEFT JOIN partenaires part ON part.ID_PARTENAIRE=pr_s.ID_PARTENAIRE "
-        sqlQuery+=" LEFT JOIN users us ON us.ID_USER=part.ID_USER "
-        sqlQuery+=" WHERE us.ID_USER=? "
-        return query(sqlQuery, [ID_USER]);
+        sqlQuery+=" WHERE part.ID_PARTENAIRE=? "
+        return query(sqlQuery, [binds]);
     }
     catch (error) 
     {

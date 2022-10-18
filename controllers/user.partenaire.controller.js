@@ -224,6 +224,7 @@ const createUser = async (req, res) => {
 const createPartenaire = async (req, res) => {
     try {
         const { ID_TYPE_PARTENAIRE, NOM_ORGANISATION, TELEPHONE, NIF, EMAIL, ADRESSE_COMPLETE, LATITUDE, LONGITUDE, ID_SERVICE } = req.body
+        console.log(req.body)
         const { LOGO, BACKGROUND_IMAGE } = req.files || {}
         const partenaire = (await query('SELECT * FROM partenaires WHERE ID_USER = ?', [req.userId]))[0]
         if (!partenaire) throw new Error("Partenaire not found")

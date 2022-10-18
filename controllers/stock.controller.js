@@ -26,10 +26,13 @@ const createProduitStock = async (req, res) => {
                 } = req.body
 
                 const AllDetail = JSON.parse(DETAIL)
-                if(PRODUIT){
+                if (PRODUIT) {
                         var AllProduits = JSON.parse(PRODUIT)
                 }
-                console.log(AllDetail)
+                // console.log(req.body)
+                // console.log(AllDetail)
+                console.log(AllProduits)
+                console.log(req.files)
                 const { IMAGE_1, IMAGE_2, IMAGE_3 } = req.files || {}
                 const validation = new Validation(
                         { ...req.body, ...req.files },
@@ -99,6 +102,19 @@ const createProduitStock = async (req, res) => {
                         )
                         StockId = insertProduit
                 }
+                if (PRODUIT) {
+                        const { insertId: produitPartenaite } = await stockmodel.createProduitPartenaire(
+                                2,
+                                AllProduits.produit.ID_PRODUIT,
+                        )
+                } else {
+                        const { insertId: produitPartenaite } = await stockmodel.createProduitPartenaire(
+                                2,
+                                StockId,
+                        )
+                }
+
+
 
 
                 await Promise.all(AllDetail.map(async detail => {
@@ -133,6 +149,15 @@ const createProduitStock = async (req, res) => {
                                 0,
                                 quantiteTotal
                         )
+
+                        // const { insertId: insertDetailStock } = await stockmodel.createProduitDetailStock(
+                        //         insertStock,
+                        //         ID_TAILLE,
+                        //         ID_TAILLE,
+                        //         quantiteTotal,
+                        //         0,
+                        //         quantiteTotal
+                        // )
                 }))
 
 

@@ -26,6 +26,19 @@ const createProduit = (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, NOM, IMA
         }
 }
 
+const createProduitPartenaire = (ID_PARTENAIRE_SERVICE, ID_PRODUIT, DESCRIPTION
+        ) => {
+                try {
+                        var sqlQuery = "INSERT INTO  ecommerce_produit_partenaire(ID_PARTENAIRE_SERVICE, ID_PRODUIT, DESCRIPTION)";
+                        sqlQuery += "values (?,?,?)";
+                        return query(sqlQuery, [ID_PARTENAIRE_SERVICE, ID_PRODUIT, DESCRIPTION])
+                }
+                catch (error) {
+        
+                        throw error
+                }
+        }
+
 
 const createProduitTaille = async (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, TAILLE, IS_AUTRE, ID_PARTENAIRE_SERVICE) => {
         try {
@@ -49,6 +62,19 @@ const createProduitCouleur = async (COULEUR, ID_CATEGORIE_PRODUIT, ID_PRODUIT_SO
         }
 
 }
+
+// const createProduitDetailStock = (ID_PRODUIT_STOCK, ID_COULEUR, ID_MARQUE, QUANTITE_TOTAL, QUANTITE_VENDUS, QUANTITE_RESTANTE
+//         ) => {
+//                 try {
+//                         var sqlQuery = "INSERT INTO ecommerce_produit_details (ID_PRODUIT_STOCK, ID_COULEUR, ID_MARQUE, QUANTITE_TOTAL, QUANTITE_VENDUS, QUANTITE_RESTANTE)";
+//                         sqlQuery += "values (?,?,?,?,?,?)";
+//                         return query(sqlQuery, [ID_PRODUIT_STOCK, ID_COULEUR, ID_MARQUE, QUANTITE_TOTAL, QUANTITE_VENDUS, QUANTITE_RESTANTE])
+//                 }
+//                 catch (error) {
+        
+//                         throw error
+//                 }
+//         }
 
 
 
@@ -138,5 +164,7 @@ module.exports = {
         findSousCategories,
         findCouleurs,
         findTailles,
-        createProduitCouleur
+        createProduitCouleur,
+        createProduitPartenaire,
+        // createProduitDetailStock
 }
