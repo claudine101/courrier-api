@@ -93,6 +93,23 @@ const getOneCommande = async (ID_COMMANDE) => {
                     throw error;
           }
 }
+const getCommandeDetails = async (ID_COMMANDE ,ID_USERS) => {
+        try {
+                  var binds = [ID_COMMANDE ,ID_USERS]
+                  var sqlQuery = " SELECT ec.CODE_UNIQUE,ep.ID_PRODUIT,ec.ID_COMMANDE, ecd.ID_COMMANDE_DETAIL,eps.ID_PRODUIT_STOCK,"
+                  sqlQuery += "epp.ID_PRODUIT_PARTENAIRE,ep.IMAGE_1,ep.NOM, "
+                  sqlQuery += " ecd.PRIX,ecd.QUANTITE,ecd.SOMME FROM  ecommerce_commandes ec "
+                  sqlQuery += "LEFT JOIN  ecommerce_commande_details ecd ON ecd.ID_COMMANDE=ec.ID_COMMANDE "
+                  sqlQuery += "LEFT JOIN ecommerce_produit_stock eps ON eps.ID_PRODUIT_STOCK=ecd.ID_PRODUIT_STOCK "
+                  sqlQuery += "LEFT JOIN ecommerce_produit_partenaire epp ON epp.ID_PRODUIT_PARTENAIRE=eps.ID_PRODUIT_PARTENAIRE "
+                  sqlQuery += " LEFT JOIN ecommerce_produits ep ON ep.ID_PRODUIT=epp.ID_PRODUIT WHERE  ec.ID_COMMANDE=? AND ec.ID_USER=? "
+                  return query(sqlQuery, binds)
+        }
+        catch (error) {
+                  throw error;
+        }
+}
+
 // const getPartenaireCommandes = async (ID_USER, q, limit = 10, offset = 0) => {
 //         try {
 //                   var binds = [ID_USER]
@@ -289,5 +306,6 @@ module.exports = {
           getOneRestoCommande,
           getUserRestoCommandes,
           getManyCommandesRestoDetails,
-          saveStatusResto
+          saveStatusResto,
+          getCommandeDetails
 }
