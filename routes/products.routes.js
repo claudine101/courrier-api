@@ -16,6 +16,7 @@ productsRouter.get('/categories/:ID_PARTENAIRE_SERVICE', productsController.getC
 productsRouter.get('/categories', productsController.getAllCategorie)
 productsRouter.get('/sub_categories/:ID_CATEGORIE_PRODUIT', productsController.getSousCategoriesBy)
 productsRouter.get('/sizes/:ID_CATEGORIE_PRODUIT/:ID_PRODUIT_SOUS_CATEGORIE', productsController.getSizes)
+productsRouter.get('/size/:ID_PRODUIT_PARTENAIRE', productsController.getSize)
 productsRouter.get('/all_sub_categories/', productsController.getAllSubCategories)
 productsRouter.get('/colors', productsController.getAllColors)
 
