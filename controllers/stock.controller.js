@@ -21,12 +21,14 @@ const createProduitStock = async (req, res) => {
                         ID_PRODUIT_SOUS_CATEGORIE,
                         NOM,
                         ID_PARTENAIRE_SERVICE,
+                        PRIX,
                         DETAIL,
                         PRODUIT
 
                 } = req.body
 
                 const AllDetail = JSON.parse(DETAIL)
+                // console.log(AllDetail)
                 if (PRODUIT) {
                         var AllProduits = JSON.parse(PRODUIT)
                 }
@@ -134,7 +136,7 @@ const createProduitStock = async (req, res) => {
                         }
 
                         if (detail.selectedCouleur.ID_COULEUR == "autre") {
-                                const { insertId: insertTaille } = await stockmodel.createProduitCouleur(
+                                const { insertId: insertCouleur } = await stockmodel.createProduitCouleur(
                                         detail.selectedCouleur.COULEUR,
                                         PRODUIT ? AllProduits.produit.ID_CATEGORIE_PRODUIT : ID_CATEGORIE_PRODUIT,
                                         PRODUIT ? AllProduits.produit.ID_PRODUIT_SOUS_CATEGORIE : ID_PRODUIT_SOUS_CATEGORIE,
@@ -151,14 +153,20 @@ const createProduitStock = async (req, res) => {
                                 quantiteTotal
                         )
 
-                        // const { insertId: insertDetailStock } = await stockmodel.createProduitDetailStock(
-                        //         insertStock,
-                        //         ID_TAILLE,
-                        //         ID_TAILLE,
-                        //         quantiteTotal,
-                        //         0,
-                        //         quantiteTotal
-                        // )
+                        const { insertId: insertPrixStock } = await stockmodel.createProduitPrix(
+                                insertStock,
+                                PRIX ? PRIX : null,
+                                1,
+                        )
+
+                        const { insertId: insertDetailStock } = await stockmodel.createProduitDetailStock(
+                                insertStock,
+                                ID_TAILLE ? ID_TAILLE : null,
+                                1,
+                                quantiteTotal,
+                                0,
+                                quantiteTotal
+                        )
                 }))
 
 
