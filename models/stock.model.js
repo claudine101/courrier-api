@@ -13,6 +13,19 @@ const createProduitStock = (ID_PRODUIT_PARTENAIRE, ID_TAILLE, QUANTITE_TOTAL, QU
         }
 }
 
+const createProduitPrix = (ID_PRODUIT_STOCK, PRIX, ID_STATUT
+        ) => {
+                try {
+                        var sqlQuery = "INSERT INTO  ecommerce_stock_prix(ID_PRODUIT_STOCK, PRIX, ID_STATUT)";
+                        sqlQuery += "values (?,?,?)";
+                        return query(sqlQuery, [ID_PRODUIT_STOCK, PRIX, ID_STATUT])
+                }
+                catch (error) {
+        
+                        throw error
+                }
+        }
+
 const createProduit = (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, NOM, IMAGE_1, IMAGE_2, IMAGE_3, IS_AUTRE, ID_PARTENAIRE_SERVICE
 ) => {
         try {
@@ -63,18 +76,18 @@ const createProduitCouleur = async (COULEUR, ID_CATEGORIE_PRODUIT, ID_PRODUIT_SO
 
 }
 
-// const createProduitDetailStock = (ID_PRODUIT_STOCK, ID_COULEUR, ID_MARQUE, QUANTITE_TOTAL, QUANTITE_VENDUS, QUANTITE_RESTANTE
-//         ) => {
-//                 try {
-//                         var sqlQuery = "INSERT INTO ecommerce_produit_details (ID_PRODUIT_STOCK, ID_COULEUR, ID_MARQUE, QUANTITE_TOTAL, QUANTITE_VENDUS, QUANTITE_RESTANTE)";
-//                         sqlQuery += "values (?,?,?,?,?,?)";
-//                         return query(sqlQuery, [ID_PRODUIT_STOCK, ID_COULEUR, ID_MARQUE, QUANTITE_TOTAL, QUANTITE_VENDUS, QUANTITE_RESTANTE])
-//                 }
-//                 catch (error) {
+const createProduitDetailStock = (ID_PRODUIT_STOCK, ID_COULEUR, ID_MARQUE, QUANTITE_TOTAL, QUANTITE_VENDUS, QUANTITE_RESTANTE
+        ) => {
+                try {
+                        var sqlQuery = "INSERT INTO ecommerce_produit_details (ID_PRODUIT_STOCK, ID_COULEUR, ID_MARQUE, QUANTITE_TOTAL, QUANTITE_VENDUS, QUANTITE_RESTANTE)";
+                        sqlQuery += "values (?,?,?,?,?,?)";
+                        return query(sqlQuery, [ID_PRODUIT_STOCK, ID_COULEUR, ID_MARQUE, QUANTITE_TOTAL, QUANTITE_VENDUS, QUANTITE_RESTANTE])
+                }
+                catch (error) {
         
-//                         throw error
-//                 }
-//         }
+                        throw error
+                }
+        }
 
 
 
@@ -166,5 +179,6 @@ module.exports = {
         findTailles,
         createProduitCouleur,
         createProduitPartenaire,
-        // createProduitDetailStock
+        createProduitPrix,
+        createProduitDetailStock
 }

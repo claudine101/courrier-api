@@ -56,13 +56,13 @@ const findById = async (id) => {
           }
 };
 
-const findByIdPartenaire = async (idPartenaire, category, subCategory, limit = 10, offset = 0) => {
+const findByIdPartenaire = async (idPartenaire,id_partenaire_service, category, subCategory, limit = 10, offset = 0) => {
           try {
-                    var binds = [idPartenaire]
+                    var binds = [idPartenaire,id_partenaire_service]
                     var sqlQuery = "SELECT eco_p_p.ID_PRODUIT_PARTENAIRE,eco_p_p.ID_PARTENAIRE_SERVICE,eco_p_p.ID_PRODUIT,eco_p_p.DESCRIPTION, "
                     sqlQuery += " eco_pro.NOM, eco_pro.IMAGE_1, eco_pro.IMAGE_2,eco_pro.IMAGE_3, "
                     sqlQuery += " part_s.NOM_ORGANISATION, eco_pro_cat.NOM AS NOM_CATEGORIE, eco_pro_cat.ID_CATEGORIE_PRODUIT, "
-                    sqlQuery += " eco_pro_s.NOM AS NOM_S_CATEGORIE, eco_pro_s.ID_PRODUIT_SOUS_CATEGORIE,eco_stock.QUANTITE_TOTAL, eco_stock.QUANTITE_VENDUS,eco_stock.QUANTITE_RESTANTE,eco_stock.ID_PRODUIT_STOCK FROM ecommerce_produit_partenaire eco_p_p "
+                    sqlQuery += " eco_pro_s.NOM AS NOM_S_CATEGORIE, eco_pro_s.ID_PRODUIT_SOUS_CATEGORIE,eco_stock.QUANTITE_TOTAL, eco_stock.QUANTITE_VENDUS,eco_stock.QUANTITE_RESTANTE,eco_stock.ID_PRODUIT_STOCK,eco_prix.PRIX,part_s.NOM_ORGANISATION FROM ecommerce_produit_partenaire eco_p_p "
                     sqlQuery += " LEFT JOIN ecommerce_produits eco_pro ON eco_pro.ID_PRODUIT=eco_p_p.ID_PRODUIT "
                     sqlQuery += " LEFT JOIN partenaire_service part_s ON part_s.ID_PARTENAIRE_SERVICE=eco_pro.ID_PARTENAIRE_SERVICE "
                     sqlQuery += " LEFT JOIN partenaires part ON part.ID_PARTENAIRE=part_s.ID_PARTENAIRE "
@@ -70,7 +70,8 @@ const findByIdPartenaire = async (idPartenaire, category, subCategory, limit = 1
                     sqlQuery += " LEFT JOIN ecommerce_produit_categorie eco_pro_cat ON eco_pro_cat.ID_CATEGORIE_PRODUIT=eco_pro.ID_CATEGORIE_PRODUIT "
                     sqlQuery += " LEFT JOIN  ecommerce_produit_sous_categorie eco_pro_s ON eco_pro_s.ID_PRODUIT_SOUS_CATEGORIE=eco_pro.ID_PRODUIT_SOUS_CATEGORIE "
                     sqlQuery += " LEFT JOIN ecommerce_produit_stock eco_stock ON eco_stock.ID_PRODUIT_PARTENAIRE=eco_p_p.ID_PRODUIT_PARTENAIRE "
-                    sqlQuery += " WHERE part.ID_PARTENAIRE= ? "
+                    sqlQuery += " LEFT JOIN ecommerce_stock_prix eco_prix ON eco_prix.ID_PRODUIT_STOCK=eco_stock.ID_PRODUIT_STOCK "
+                    sqlQuery += " WHERE part.ID_PARTENAIRE= ? AND part_s.ID_PARTENAIRE_SERVICE=? "
                     if(category) {
                               sqlQuery += " AND eco_pro_cat.ID_CATEGORIE_PRODUIT = ? "
                               binds.push(category)
