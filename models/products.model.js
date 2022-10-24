@@ -199,9 +199,26 @@ const findSizes = async (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE) => {
 const findSize = async (ID_PRODUIT_PARTENAIRE) => {
     try {
         var binds = [ID_PRODUIT_PARTENAIRE]
-        var sqlQuery = " SELECT ept.TAILLE ,epd.QUANTITE_RESTANTE  FROM   ecommerce_produit_stock eps "
+        var sqlQuery = " SELECT DISTINCT(ept.ID_TAILLE) as id,ept.TAILLE as name  FROM   ecommerce_produit_stock eps "
         sqlQuery +=" LEFT JOIN ecommerce_produit_details epd ON epd.ID_PRODUIT_STOCK=eps.ID_PRODUIT_STOCK "
         sqlQuery +=" LEFT JOIN ecommerce_produit_tailles ept ON ept.ID_TAILLE=epd.ID_TAILLE WHERE eps.ID_PRODUIT_PARTENAIRE=?"
+        return query(sqlQuery,binds);
+        
+    }
+    catch (error) {
+        throw error
+
+    }
+}
+const findColor = async (ID_PRODUIT_PARTENAIRE,ID_TAILLE) => {
+    try {
+            var binds = [ID_PRODUIT_PARTENAIRE,ID_TAILLE]
+            var sqlQuery = " SELECT epc.ID_COULEUR,epc.COULEUR  ,epd.QUANTITE_RESTANTE FROM   ecommerce_produit_stock eps  "
+            sqlQuery +=" LEFT JOIN ecommerce_produit_details epd ON epd.ID_PRODUIT_STOCK=eps.ID_PRODUIT_STOCK " 
+            sqlQuery +=" LEFT JOIN ecommerce_produit_tailles ept ON ept.ID_TAILLE=epd.ID_TAILLE "
+            sqlQuery +=" LEFT JOIN ecommerce_produit_couleur  epc ON epc.ID_COULEUR=epd.ID_COULEUR "
+            sqlQuery +=" WHERE eps.ID_PRODUIT_PARTENAIRE=? AND epd.ID_TAILLE=? "
+  
         return query(sqlQuery,binds);
         
     }
@@ -221,7 +238,8 @@ module.exports = {
     findById, findBYidPartenaire,
     findproduct,
     findBYidPartenaire,
-    getPrix
+    getPrix,
+    findColor
    
    
     

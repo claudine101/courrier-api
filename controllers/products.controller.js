@@ -421,7 +421,6 @@ const getSizes = async (req, res) => {
 const getSize = async (req, res) => {
     try {
         const { ID_PRODUIT_PARTENAIRE } = req.params
-
         const sizes = await productsModel.findSize(ID_PRODUIT_PARTENAIRE)
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
@@ -440,8 +439,30 @@ const getSize = async (req, res) => {
         })
     }
 }
+const getColor = async (req, res) => {
+    try {
+        const { ID_TAILLE,ID_PRODUIT_PARTENAIRE} = req.params
+        const colors = await productsModel.findColor(ID_PRODUIT_PARTENAIRE,ID_TAILLE)
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Liste des couleur des produits",
+            result: colors
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
 
 module.exports = {
+    getColor,
     getAllProducts,
     getAllProduct,
     getAllCategorie,
