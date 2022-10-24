@@ -20,6 +20,7 @@ const createProduitStock = async (req, res) => {
                         ID_CATEGORIE_PRODUIT,
                         ID_PRODUIT_SOUS_CATEGORIE,
                         NOM,
+                        ID_PARTENAIRE_SERVICE,
                         DETAIL,
                         PRODUIT
 
@@ -98,18 +99,18 @@ const createProduitStock = async (req, res) => {
                                 filename_2 ? filename_2 : null,
                                 filename_3 ? filename_3 : null,
                                 1,
-                                2
+                                ID_PARTENAIRE_SERVICE
                         )
                         StockId = insertProduit
                 }
                 if (PRODUIT) {
                         const { insertId: produitPartenaite } = await stockmodel.createProduitPartenaire(
-                                2,
+                                ID_PARTENAIRE_SERVICE,
                                 AllProduits.produit.ID_PRODUIT,
                         )
                 } else {
                         const { insertId: produitPartenaite } = await stockmodel.createProduitPartenaire(
-                                2,
+                                ID_PARTENAIRE_SERVICE,
                                 StockId,
                         )
                 }
@@ -125,7 +126,7 @@ const createProduitStock = async (req, res) => {
                                         PRODUIT ? AllProduits.produit.ID_PRODUIT_SOUS_CATEGORIE : ID_PRODUIT_SOUS_CATEGORIE,
                                         detail.TailleSelect.TAILLE,
                                         1,
-                                        2
+                                        ID_PARTENAIRE_SERVICE
                                 )
                                 ID_TAILLE = insertTaille
                         } else {
@@ -138,7 +139,7 @@ const createProduitStock = async (req, res) => {
                                         PRODUIT ? AllProduits.produit.ID_CATEGORIE_PRODUIT : ID_CATEGORIE_PRODUIT,
                                         PRODUIT ? AllProduits.produit.ID_PRODUIT_SOUS_CATEGORIE : ID_PRODUIT_SOUS_CATEGORIE,
                                         1,
-                                        2
+                                        ID_PARTENAIRE_SERVICE
                                 )
                         }
 

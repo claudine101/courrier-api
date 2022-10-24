@@ -66,6 +66,7 @@ const findService = async (req, res) => {
         const services = servicess.map(service=>({
             produit:{
                 ID_SERVICE:service.ID_SERVICE,
+                ID_PARTENAIRE_SERVICE:service.ID_PARTENAIRE_SERVICE,
                 NOM_SERVICE:service.NOM_SERVICE,
                 DESCRIPTION:service.DESCRIPTION,
                 NOM_ORGANISATION:service.NOM_ORGANISATION,

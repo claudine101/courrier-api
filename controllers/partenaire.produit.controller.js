@@ -223,13 +223,14 @@ const createProduit = async (req, res) => {
 }
 const findByIdPartenaire = async (req, res) => {
           try {
+                    const {id_partenaire_service} = req.params
                     const getImageUri = (fileName) => {
                               if (!fileName) return null
                               if (fileName.indexOf("http") === 0) return fileName
                               return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
                     }
                     const partenaire = (await query('SELECT * FROM partenaires WHERE ID_USER = ?', [req.userId]))[0]
-                    const produits = await partenaireProduitModel.findByIdPartenaire(partenaire.ID_PARTENAIRE)
+                    const produits = await partenaireProduitModel.findByIdPartenaire(partenaire.ID_PARTENAIRE, id_partenaire_service)
                     const products = produits.map(product => ({
                               produit: {
                                         ID_PRODUIT: product.ID_PRODUIT,
@@ -251,7 +252,8 @@ const findByIdPartenaire = async (req, res) => {
                                         IMAGE_2: getImageUri(product.IMAGE_2),
                                         IMAGE_3: getImageUri(product.IMAGE_3),
                                         TAILLE: product.NOM_TAILLE,
-                                        PRIX: product.PRIX
+                                        PRIX: product.PRIX,
+                                        NOM:product.NOM_ORGANISATION
                               },
                               categorie: {
                                         ID_CATEGORIE_PRODUIT: product.ID_CATEGORIE_PRODUIT,
