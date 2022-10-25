@@ -227,6 +227,11 @@ const getbyID = async (req, res) => {
                 NOM: product.NOM,
                 IMAGE: product.IMAGE
             },
+            partenaire: {
+                NOM_ORGANISATION: product.NOM_ORGANISATION,
+                ID_PARTENAIRE: product.ID_PARTENAIRE,
+               
+            },
             produit_partenaire: {
                 ID_PARTENAIRE_SERVICE: product.ID_PARTENAIRE_SERVICE,
                 NOM_ORGANISATION: product.NOM_ORGANISATION,
