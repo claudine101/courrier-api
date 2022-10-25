@@ -59,25 +59,23 @@ const findById = async (id) => {
 const findByIdPartenaire = async (idPartenaire,id_partenaire_service, category, subCategory, limit = 10, offset = 0) => {
           try {
                     var binds = [idPartenaire,id_partenaire_service]
-                    var sqlQuery = "SELECT eco_p_p.ID_PRODUIT_PARTENAIRE,eco_p_p.ID_PARTENAIRE_SERVICE,eco_p_p.ID_PRODUIT,eco_p_p.DESCRIPTION, "
-                    sqlQuery += " eco_pro.NOM, eco_pro.IMAGE_1, eco_pro.IMAGE_2,eco_pro.IMAGE_3, "
-                    sqlQuery += " part_s.NOM_ORGANISATION, eco_pro_cat.NOM AS NOM_CATEGORIE, eco_pro_cat.ID_CATEGORIE_PRODUIT, "
-                    sqlQuery += " eco_pro_s.NOM AS NOM_S_CATEGORIE, eco_pro_s.ID_PRODUIT_SOUS_CATEGORIE,eco_stock.QUANTITE_TOTAL, eco_stock.QUANTITE_VENDUS,eco_stock.QUANTITE_RESTANTE,eco_stock.ID_PRODUIT_STOCK,eco_prix.PRIX,part_s.NOM_ORGANISATION FROM ecommerce_produit_partenaire eco_p_p "
-                    sqlQuery += " LEFT JOIN ecommerce_produits eco_pro ON eco_pro.ID_PRODUIT=eco_p_p.ID_PRODUIT "
-                    sqlQuery += " LEFT JOIN partenaire_service part_s ON part_s.ID_PARTENAIRE_SERVICE=eco_pro.ID_PARTENAIRE_SERVICE "
+                    var sqlQuery = "SELECT eco_p_part.ID_PRODUIT_PARTENAIRE,eco_p_part.ID_PARTENAIRE_SERVICE,eco_p_part.ID_PRODUIT,eco_p_part.DESCRIPTION,"
+                    sqlQuery += " eco_p.NOM, eco_p.IMAGE_1, eco_p.IMAGE_2, eco_p.IMAGE_3,part_s.NOM_ORGANISATION, part_s.TELEPHONE,part_s.EMAIL,part_s.LOGO, "
+                    sqlQuery += " eco_p_c.ID_CATEGORIE_PRODUIT,eco_p_c.NOM AS NOM_CATEGORIE, eco_p_s_c.ID_PRODUIT_SOUS_CATEGORIE, eco_p_s_c.NOM AS SOUS_CATEGORIE  FROM ecommerce_produit_partenaire eco_p_part"
+ 
+                    sqlQuery += " LEFT JOIN ecommerce_produits eco_p ON eco_p.ID_PRODUIT=eco_p_part.ID_PRODUIT "
+                    sqlQuery += " LEFT JOIN partenaire_service part_s ON part_s.ID_PARTENAIRE_SERVICE=eco_p_part.ID_PARTENAIRE_SERVICE"
                     sqlQuery += " LEFT JOIN partenaires part ON part.ID_PARTENAIRE=part_s.ID_PARTENAIRE "
-                    sqlQuery += " LEFT JOIN users us ON us.ID_USER=part.ID_USER "
-                    sqlQuery += " LEFT JOIN ecommerce_produit_categorie eco_pro_cat ON eco_pro_cat.ID_CATEGORIE_PRODUIT=eco_pro.ID_CATEGORIE_PRODUIT "
-                    sqlQuery += " LEFT JOIN  ecommerce_produit_sous_categorie eco_pro_s ON eco_pro_s.ID_PRODUIT_SOUS_CATEGORIE=eco_pro.ID_PRODUIT_SOUS_CATEGORIE "
-                    sqlQuery += " LEFT JOIN ecommerce_produit_stock eco_stock ON eco_stock.ID_PRODUIT_PARTENAIRE=eco_p_p.ID_PRODUIT_PARTENAIRE "
-                    sqlQuery += " LEFT JOIN ecommerce_stock_prix eco_prix ON eco_prix.ID_PRODUIT_STOCK=eco_stock.ID_PRODUIT_STOCK "
-                    sqlQuery += " WHERE part.ID_PARTENAIRE= ? AND part_s.ID_PARTENAIRE_SERVICE=? "
+                    sqlQuery += " LEFT JOIN  users us ON us.ID_USER=part.ID_USER "
+                    sqlQuery += " LEFT JOIN ecommerce_produit_categorie eco_p_c ON eco_p_c.ID_CATEGORIE_PRODUIT=eco_p.ID_CATEGORIE_PRODUIT "
+                    sqlQuery += " LEFT JOIN ecommerce_produit_sous_categorie eco_p_s_c ON eco_p_s_c.ID_PRODUIT_SOUS_CATEGORIE=eco_p.ID_PRODUIT_SOUS_CATEGORIE "
+                    sqlQuery += " WHERE part.ID_PARTENAIRE=? AND part_s.ID_PARTENAIRE_SERVICE=? "
                     if(category) {
-                              sqlQuery += " AND eco_pro_cat.ID_CATEGORIE_PRODUIT = ? "
+                              sqlQuery += " AND eco_p_c.ID_CATEGORIE_PRODUIT = ? "
                               binds.push(category)
                     }
                     if(subCategory) {
-                              sqlQuery += " AND eco_pro_s.ID_PRODUIT_SOUS_CATEGORIE = ? "
+                              sqlQuery += " AND eco_p_s_c.ID_PRODUIT_SOUS_CATEGORIE = ? "
                               binds.push(subCategory)
                     }
                     // sqlQuery += " ORDER BY pp.DATE_INSERTION DESC "
@@ -88,6 +86,30 @@ const findByIdPartenaire = async (idPartenaire,id_partenaire_service, category, 
                     throw error
           }
 
+    }
+
+    const findAllPrix = async (id) => {
+        try {
+            var sqlQuery = " SELECT eco_s_pr.PRIX,eco_p_st.QUANTITE_TOTAL,eco_p_st.QUANTITE_VENDUS,eco_p_st.QUANTITE_RESTANTE, "
+            sqlQuery += " eco_p_cou.COULEUR,eco_p_cou.ID_COULEUR, eco_p_tai.TAILLE,eco_p_tai.ID_TAILLE FROM ecommerce_stock_prix eco_s_pr "
+            sqlQuery += " LEFT JOIN ecommerce_statut_prix eco_s_p ON eco_s_p.ID_STATUT=eco_s_pr.ID_STATUT "
+            sqlQuery += " LEFT JOIN ecommerce_produit_stock eco_p_st ON eco_p_st.ID_PRODUIT_STOCK=eco_s_pr.ID_PRODUIT_STOCK "
+            sqlQuery += " LEFT JOIN ecommerce_produit_details eco_p_de ON eco_p_de.ID_PRODUIT_STOCK=eco_p_st.ID_PRODUIT_STOCK "
+            sqlQuery += " LEFT JOIN ecommerce_produit_couleur eco_p_cou ON eco_p_cou.ID_COULEUR=eco_p_de.ID_COULEUR "
+            sqlQuery += " LEFT JOIN ecommerce_produit_tailles eco_p_tai ON eco_p_tai.ID_TAILLE=eco_p_de.ID_TAILLE "
+            sqlQuery += " WHERE eco_s_p.ID_STATUT=1 AND eco_p_st.ID_PRODUIT_PARTENAIRE=? "
+            return query(sqlQuery, [id]);
+
+            // var sqlQuery = " SELECT eco_s_pr.PRIX,eco_p_st.QUANTITE_TOTAL,eco_p_st.QUANTITE_VENDUS,eco_p_st.QUANTITE_RESTANTE FROM ecommerce_stock_prix eco_s_pr "
+            // sqlQuery += " LEFT JOIN ecommerce_statut_prix eco_s_p ON eco_s_p.ID_STATUT=eco_s_pr.ID_STATUT "
+            // sqlQuery += " LEFT JOIN ecommerce_produit_stock eco_p_st ON eco_p_st.ID_PRODUIT_STOCK=eco_s_pr.ID_PRODUIT_STOCK "
+            // sqlQuery += " WHERE eco_s_p.ID_STATUT=1 AND eco_p_st.ID_PRODUIT_PARTENAIRE=? "
+            // return query(sqlQuery, [id]);
+    
+        }
+        catch (error) {
+            throw error
+        }
     }
 
 //     const findByIdPartenaire = async (idPartenaire, category, subCategory, limit = 10, offset = 0) => {
@@ -140,5 +162,6 @@ module.exports = {
           findById,
           findByIdPartenaire,
           findByIdPoduit,
-          createDetails
+          createDetails,
+          findAllPrix
 }

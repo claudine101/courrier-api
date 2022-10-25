@@ -76,12 +76,12 @@ const createProduitCouleur = async (COULEUR, ID_CATEGORIE_PRODUIT, ID_PRODUIT_SO
 
 }
 
-const createProduitDetailStock = (ID_PRODUIT_STOCK, ID_COULEUR, ID_MARQUE, QUANTITE_TOTAL, QUANTITE_VENDUS, QUANTITE_RESTANTE
+const createProduitDetailStock = (ID_PRODUIT_STOCK, ID_COULEUR,	ID_TAILLE, ID_MARQUE, QUANTITE_TOTAL, QUANTITE_VENDUS, QUANTITE_RESTANTE
         ) => {
                 try {
-                        var sqlQuery = "INSERT INTO ecommerce_produit_details (ID_PRODUIT_STOCK, ID_COULEUR, ID_MARQUE, QUANTITE_TOTAL, QUANTITE_VENDUS, QUANTITE_RESTANTE)";
-                        sqlQuery += "values (?,?,?,?,?,?)";
-                        return query(sqlQuery, [ID_PRODUIT_STOCK, ID_COULEUR, ID_MARQUE, QUANTITE_TOTAL, QUANTITE_VENDUS, QUANTITE_RESTANTE])
+                        var sqlQuery = "INSERT INTO ecommerce_produit_details (ID_PRODUIT_STOCK, ID_COULEUR,ID_TAILLE, ID_MARQUE, QUANTITE_TOTAL, QUANTITE_VENDUS, QUANTITE_RESTANTE)";
+                        sqlQuery += "values (?,?,?,?,?,?,?)";
+                        return query(sqlQuery, [ID_PRODUIT_STOCK, ID_COULEUR,ID_TAILLE, ID_MARQUE, QUANTITE_TOTAL, QUANTITE_VENDUS, QUANTITE_RESTANTE])
                 }
                 catch (error) {
         
@@ -94,12 +94,17 @@ const createProduitDetailStock = (ID_PRODUIT_STOCK, ID_COULEUR, ID_MARQUE, QUANT
 const findproduits = async (limit = 10, offset = 0) => {
         try {
                 var binds = []
-                var sqlQuery = "SELECT ep.ID_PRODUIT, ep.NOM,ep.ID_CATEGORIE_PRODUIT,ep.ID_PRODUIT_SOUS_CATEGORIE,ep.IMAGE_1,ep.IMAGE_2,ep.IMAGE_3,ep.IS_AUTRE,ep.ID_PARTENAIRE_SERVICE, ep_c.NOM AS NOM_CATEGORIE, ec_s_c.NOM AS NOM_SOUS_CATEGORIE"
-                sqlQuery += " FROM ecommerce_produits ep "
-                sqlQuery += " LEFT JOIN ecommerce_produit_categorie ep_c ON ep_c.ID_CATEGORIE_PRODUIT=ep.ID_CATEGORIE_PRODUIT "
-                sqlQuery += "  LEFT JOIN  ecommerce_produit_sous_categorie ec_s_c ON ec_s_c.ID_PRODUIT_SOUS_CATEGORIE=ep.ID_PRODUIT_SOUS_CATEGORIE WHERE 1 "
+                var sqlQuery = "SELECT eco_p_part.ID_PRODUIT_PARTENAIRE,eco_p_part.ID_PARTENAIRE_SERVICE,eco_p_part.ID_PRODUIT,eco_p_part.DESCRIPTION,"
+                sqlQuery += " eco_pro.NOM,eco_pro.IMAGE_1,eco_pro.IMAGE_2,eco_pro.IMAGE_3, eco_p_cat.NOM AS NOM_CATEGORIE, eco_p_cat.ID_CATEGORIE_PRODUIT,eco_p_s_cat.NOM AS NOM_SOUS_CATEGORIE, eco_p_s_cat.ID_PRODUIT_SOUS_CATEGORIE, "
+                sqlQuery += " eco_st_pr.PRIX FROM ecommerce_produit_partenaire eco_p_part "
+                sqlQuery += " LEFT JOIN ecommerce_produits eco_pro ON eco_pro.ID_PRODUIT=eco_p_part.ID_PRODUIT "
+                sqlQuery += " LEFT JOIN ecommerce_produit_categorie eco_p_cat ON eco_p_cat.ID_CATEGORIE_PRODUIT=eco_pro.ID_CATEGORIE_PRODUIT "
+                sqlQuery += "  LEFT JOIN ecommerce_produit_stock eco_pro_st ON eco_pro_st.ID_PRODUIT_PARTENAIRE=eco_p_part.ID_PRODUIT_PARTENAIRE "
+                sqlQuery += " LEFT JOIN  ecommerce_stock_prix eco_st_pr ON eco_st_pr.ID_STOCK_PRIX=eco_pro_st.ID_PRODUIT_STOCK "
+                sqlQuery += "  LEFT JOIN ecommerce_produit_sous_categorie eco_p_s_cat ON eco_p_s_cat.ID_PRODUIT_SOUS_CATEGORIE=eco_pro.ID_PRODUIT_SOUS_CATEGORIE "
 
-                sqlQuery += ` ORDER BY ep.NOM DESC LIMIT ${offset}, ${limit}`;
+
+                sqlQuery += ` ORDER BY eco_pro.NOM DESC LIMIT ${offset}, ${limit}`;
                 return query(sqlQuery, [binds]);
         }
         catch (error) {
