@@ -8,6 +8,8 @@ commandeRouter.post('/clients/restaurant', commandeController.createRestoCommand
 commandeRouter.get('/:ID_PARTENAIRE_SERVICE', commandeController.getCommandes)
 commandeRouter.get('/restaurant', commandeController.getAllRestoCommandes)
 commandeRouter.get('/:ID_COMMANDE', commandeController.findOneCommande)
+commandeRouter.get('/detail/:ID_COMMANDE', commandeController.findDetail)
+
 commandeRouter.get('/status', commandeController.getStatus)
 commandeRouter.get('/status/resto/:ID_COMMANDE', commandeController.getStatusResto)
 commandeRouter.get('/status/:ID_COMMANDE', commandeController.getCommandeStatus)

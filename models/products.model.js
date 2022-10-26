@@ -78,7 +78,7 @@ const findone = async (ID_PRODUIT, limit = 10, offset = 0) => {
 
     try {
         var binds = []
-        var sqlQuery = "SELECT ep.ID_PRODUIT,ep.NOM ,ep.IMAGE_1,ep.IMAGE_2,ep.IMAGE_3,ep.ID_PARTENAIRE_SERVICE,ps.NOM_ORGANISATION,u.NOM AS NOM_USER ,u.PRENOM,epc.NOM AS NOM_CATEGORIE,epc.IMAGE,"
+        var sqlQuery = "SELECT ep.ID_PRODUIT,ep.NOM ,epc.NOM AS NOM_CATEGORIE,ep.IMAGE_1,ep.IMAGE_2,ep.IMAGE_3,ep.ID_PARTENAIRE_SERVICE,ps.NOM_ORGANISATION,u.NOM AS NOM_USER ,u.PRENOM,epc.NOM AS NOM_CATEGORIE,epc.IMAGE,"
         sqlQuery += " NOM_SOUS_CATEGORIE,eps.QUANTITE_TOTAL,sp.PRIX,ept.TAILLE,eps.QUANTITE_VENDUS,eps.QUANTITE_RESTANTE,ps.ID_TYPE_PARTENAIRE"
         sqlQuery += " FROM  ecommerce_produits ep LEFT JOIN ecommerce_produit_stock eps ON eps.ID_PRODUIT=ep.ID_PRODUIT"
         sqlQuery += " LEFT JOIN ecommerce_produit_details epd ON epd.ID_PRODUIT_STOCK =eps.ID_PRODUIT_STOCK LEFT JOIN"
@@ -102,7 +102,7 @@ const findone = async (ID_PRODUIT, limit = 10, offset = 0) => {
 const findBYidPartenaire = async (ID_PARTENAIRE_SERVICE, limit = 10, offset = 0) => {
     try {
         var binds = []
-        var sqlQuery = "SELECT ep.ID_PRODUIT,ps.ID_PARTENAIRE_SERVICE,epc.NOM,ep.NOM,ep.IMAGE_1,ep.IMAGE_2,ep.IMAGE_3,ps.NOM_ORGANISATION,"
+        var sqlQuery = "SELECT ep.ID_PRODUIT,ps.ID_PARTENAIRE_SERVICE,epc.NOM AS NOM_CATEGORIE,ep.NOM,ep.IMAGE_1,ep.IMAGE_2,ep.IMAGE_3,ps.NOM_ORGANISATION,"
          sqlQuery+=  " ps.ID_TYPE_PARTENAIRE,epp.DESCRIPTION , eps.ID_PRODUIT_STOCK,eps.QUANTITE_TOTAL,"       
         sqlQuery+=" eps.QUANTITE_VENDUS,eps.QUANTITE_RESTANTE ,ept.TAILLE,ep.ID_CATEGORIE_PRODUIT,"   
         sqlQuery+=" ep.ID_PRODUIT_SOUS_CATEGORIE  FROM ecommerce_produits ep  LEFT JOIN partenaire_service ps"    
@@ -112,7 +112,7 @@ const findBYidPartenaire = async (ID_PARTENAIRE_SERVICE, limit = 10, offset = 0)
         sqlQuery+=" LEFT JOIN ecommerce_produit_stock eps ON eps.ID_PRODUIT_PARTENAIRE=epp.ID_PRODUIT_PARTENAIRE"  
         sqlQuery+=" LEFT JOIN ecommerce_produit_tailles ept  ON ept.ID_TAILLE=eps.ID_PRODUIT_PARTENAIRE LEFT JOIN "      
         sqlQuery+=" ecommerce_produit_categorie epc ON epc.ID_CATEGORIE_PRODUIT=ep.ID_CATEGORIE_PRODUIT "    
-        sqlQuery+=" WHERE  par.IS_VALIDE=1 AND eps.QUANTITE_RESTANTE>0 AND ps.ID_SERVICE=1  AND ep.ID_CATEGORIE_PRODUIT='1' AND ps.ID_PARTENAIRE_SERVICE=?" 
+        sqlQuery+=" WHERE  par.IS_VALIDE=1 AND eps.QUANTITE_RESTANTE>0 AND ps.ID_SERVICE=1   AND ps.ID_PARTENAIRE_SERVICE=?" 
         
         sqlQuery += ` ORDER BY eps.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
         return query(sqlQuery, [ID_PARTENAIRE_SERVICE]);
@@ -196,17 +196,50 @@ const findSizes = async (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE) => {
 
     }
 }
+const findSize = async (ID_PRODUIT_PARTENAIRE) => {
+    try {
+        var binds = [ID_PRODUIT_PARTENAIRE]
+        var sqlQuery = " SELECT DISTINCT(ept.ID_TAILLE) as id,ept.TAILLE as name  FROM   ecommerce_produit_stock eps "
+        sqlQuery +=" LEFT JOIN ecommerce_produit_details epd ON epd.ID_PRODUIT_STOCK=eps.ID_PRODUIT_STOCK "
+        sqlQuery +=" LEFT JOIN ecommerce_produit_tailles ept ON ept.ID_TAILLE=epd.ID_TAILLE WHERE eps.ID_PRODUIT_PARTENAIRE=?"
+        return query(sqlQuery,binds);
+        
+    }
+    catch (error) {
+        throw error
+
+    }
+}
+const findColor = async (ID_PRODUIT_PARTENAIRE,ID_TAILLE) => {
+    try {
+            var binds = [ID_PRODUIT_PARTENAIRE,ID_TAILLE]
+            var sqlQuery = " SELECT epc.ID_COULEUR,epc.COULEUR  ,epd.QUANTITE_RESTANTE FROM   ecommerce_produit_stock eps  "
+            sqlQuery +=" LEFT JOIN ecommerce_produit_details epd ON epd.ID_PRODUIT_STOCK=eps.ID_PRODUIT_STOCK " 
+            sqlQuery +=" LEFT JOIN ecommerce_produit_tailles ept ON ept.ID_TAILLE=epd.ID_TAILLE "
+            sqlQuery +=" LEFT JOIN ecommerce_produit_couleur  epc ON epc.ID_COULEUR=epd.ID_COULEUR "
+            sqlQuery +=" WHERE eps.ID_PRODUIT_PARTENAIRE=? AND epd.ID_TAILLE=? "
+  
+        return query(sqlQuery,binds);
+        
+    }
+    catch (error) {
+        throw error
+
+    }
+}
 module.exports = {
     findproducts,
     findCategories,
     findSousCategoriesBy,
     findSizes,
+    findSize,
     findSousCategories,
     findone,
     findById, findBYidPartenaire,
     findproduct,
     findBYidPartenaire,
-    getPrix
+    getPrix,
+    findColor
    
    
     
