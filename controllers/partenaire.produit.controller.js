@@ -293,6 +293,113 @@ const findByIdPartenaire = async (req, res) => {
                 })
         }
 }
+
+const findDetailsProduit = async (req, res) => {
+        try {
+                const { id_produit_partenaire } = req.params
+                const getImageUri = (fileName) => {
+                        if (!fileName) return null
+                        if (fileName.indexOf("http") === 0) return fileName
+                        return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+                }
+                const Detailsproduits = await partenaireProduitModel.findProduitAllDetail(id_produit_partenaire)
+                // const products = await Promise.all(Allproduits.map(async product => {
+                //         const prix = (await partenaireProduitModel.findAllPrix(product.ID_PRODUIT_PARTENAIRE))[0]
+                //         if (prix) {
+                //                 return {
+                //                         produit: {
+                //                                 ID_PRODUIT: product.ID_PRODUIT,
+                //                                 NOM: product.NOM,
+                //                                 IMAGE: product.IMAGE_1
+                //                         },
+                //                         partenaire: {
+                //                                 NOM_ORGANISATION: product.NOM_ORGANISATION,
+                //                                 EMAIL: product.EMAIL,
+                //                         },
+                //                         produit_partenaire: {
+                //                                 ID_PRODUIT_PARTENAIRE: product.ID_PRODUIT_PARTENAIRE,
+                //                                 IMAGE_1: getImageUri(product.IMAGE_1),
+                //                                 IMAGE_2: getImageUri(product.IMAGE_2),
+                //                                 IMAGE_3: getImageUri(product.IMAGE_3),
+                //                                 PRIX: prix.PRIX,
+                //                                 NOM: product.NOM_ORGANISATION,
+                //                         },
+                //                         stock: {
+                //                                 QUANTITE_STOCKE: prix.QUANTITE_TOTAL,
+                //                                 QUANTITE_VENDUE: prix.QUANTITE_VENDUS,
+                //                                 QUANTITE_RESTANTE: prix.QUANTITE_RESTANTE
+                //                         },
+                //                         taille: {
+                //                                 ID_TAILLE: prix.ID_TAILLE,
+                //                                 TAILLE: prix.TAILLE
+                //                         },
+                //                         couleur: {
+                //                                 ID_COULEUR: prix.ID_COULEUR,
+                //                                 COULEUR: prix.COULEUR
+                //                         },
+                //                         categorie: {
+                //                                 ID_CATEGORIE_PRODUIT: product.ID_CATEGORIE_PRODUIT,
+                //                                 NOM_CATEGORIE: product.NOM_CATEGORIE
+                //                         },
+                //                         sous_categorie: {
+                //                                 ID_PRODUIT_SOUS_CATEGORIE: product.ID_PRODUIT_SOUS_CATEGORIE,
+                //                                 SOUS_CATEGORIE: product.SOUS_CATEGORIE
+                //                         },
+                //                 }
+                //         }
+                // }))
+                const produits = Detailsproduits.map(produit => ({
+                        detail: {
+                                ID_DETAIL: produit.ID_DETAIL,
+                                ID_PRODUIT_PARTENAIRE:produit.ID_PRODUIT_PARTENAIRE,
+                                ID_PARTENAIRE_SERVICE:produit.ID_PARTENAIRE_SERVICE,
+                        },
+                        produit: {
+                                ID_PRODUIT: produit.ID_PRODUIT,
+                                NOM:produit.NOM,
+                                IMAGE_1: getImageUri(produit.IMAGE_1),
+                                IMAGE_2: getImageUri(produit.IMAGE_2),
+                                IMAGE_3: getImageUri(produit.IMAGE_3),
+                        },
+                        stock: {
+                                QUANTITE_TOTAL: produit.QUANTITE_TOTAL,
+                                QUANTITE_VENDUS:produit.QUANTITE_VENDUS,
+                                QUANTITE_RESTANTE:produit.QUANTITE_RESTANTE,
+                        },
+                        categorie: {
+                                ID_CATEGORIE_PRODUIT: produit.ID_CATEGORIE_PRODUIT,
+                                NOM_CATEGORIE:produit.NOM_CATEGORIE,
+                        },
+                        sous_categorie: {
+                                ID_PRODUIT_SOUS_CATEGORIE: produit.ID_PRODUIT_SOUS_CATEGORIE,
+                                SOUS_CATEGORIE:produit.SOUS_CATEGORIE,
+                        },
+                        taille: {
+                                ID_TAILLE: produit.ID_TAILLE,
+                                TAILLE:produit.TAILLE,
+                        },
+                        couleur: {
+                                ID_COULEUR: produit.ID_COULEUR,
+                                COULEUR:produit.COULEUR,
+                        },
+                }))
+                res.status(RESPONSE_CODES.OK).json({
+                        statusCode: RESPONSE_CODES.OK,
+                        httpStatus: RESPONSE_STATUS.OK,
+                        message: "succès",
+                        result: produits
+                })
+        }
+        catch (error) {
+                console.log(error)
+                res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                        statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                        httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                        message: "echoue",
+
+                })
+        }
+}
 const findByIdProduit = async (req, res) => {
         const { id } = req.params
         try {
@@ -318,5 +425,6 @@ const findByIdProduit = async (req, res) => {
 module.exports = {
         createProduit,
         findByIdPartenaire,
-        findByIdProduit
+        findByIdProduit,
+        findDetailsProduit
 }
