@@ -157,7 +157,7 @@ const findById = async (id) => {
 }
 const getPrix = async (id) => {
     try {
-        var sqlQuery = "SELECT esp.PRIX   FROM ecommerce_produit_stock eps LEFT JOIN ecommerce_stock_prix esp ON eps.ID_PRODUIT_STOCK=esp.ID_PRODUIT_STOCK LEFT join ecommerce_statut_prix espr ON espr.ID_STATUT=esp.ID_STATUT WHERE espr.ID_STATUT=2  AND eps.ID_PRODUIT_PARTENAIRE=?";
+        var sqlQuery = "SELECT esp.PRIX   FROM ecommerce_produit_stock eps LEFT JOIN ecommerce_stock_prix esp ON eps.ID_PRODUIT_STOCK=esp.ID_PRODUIT_STOCK LEFT join ecommerce_statut_prix espr ON espr.ID_STATUT=esp.ID_STATUT WHERE espr.ID_STATUT=1  AND eps.ID_PRODUIT_PARTENAIRE=?";
         return query(sqlQuery, [id]);
 
     }
