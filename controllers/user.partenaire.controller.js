@@ -224,7 +224,6 @@ const createUser = async (req, res) => {
 const createPartenaire = async (req, res) => {
     try {
         const { ID_TYPE_PARTENAIRE, NOM_ORGANISATION, TELEPHONE, NIF, EMAIL, ADRESSE_COMPLETE, LATITUDE, LONGITUDE, ID_SERVICE } = req.body
-        console.log(req.body)
         const { LOGO, BACKGROUND_IMAGE } = req.files || {}
         const partenaire = (await query('SELECT * FROM partenaires WHERE ID_USER = ?', [req.userId]))[0]
         if (!partenaire) throw new Error("Partenaire not found")
@@ -270,7 +269,6 @@ const createPartenaire = async (req, res) => {
             const { fileInfo: fileInfo_2 } = await partenaireUpload.upload(BACKGROUND_IMAGE, false)
             backgoundImage = fileInfo_2.fileName
         }
-
 
         const { insertId } = await userModel.createpartenaire(
             partenaire.ID_PARTENAIRE,
@@ -319,7 +317,6 @@ const getAllPartenaire = async (req, res) => {
 
         const partenaires = await Promise.all(allPartenaire.map(async partenaire => {
             const categorie = await userModel.findbycategorie(partenaire.ID_PARTENAIRE_SERVICE)
-            console.log(categorie)
             return {
                 ...partenaire,
                 LOGO: getImageUri(partenaire.LOGO, 'partenaire'),
