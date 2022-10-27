@@ -124,7 +124,7 @@ const findCategories = async () => {
 
 const findSousCategories = async (id_categorie) => {
         try {
-            var sqlQuery ="SELECT * FROM ecommerce_produit_sous_categorie ec_s_c LEFT JOIN ecommerce_produit_categorie ec ON ec_s_c.ID_CATEGORIE_PRODUIT=ec.ID_CATEGORIE_PRODUIT WHERE ec.ID_CATEGORIE_PRODUIT=?";
+            var sqlQuery ="SELECT ec_s_c.ID_PRODUIT_SOUS_CATEGORIE,ec_s_c.ID_CATEGORIE_PRODUIT,ec_s_c.NOM FROM ecommerce_produit_sous_categorie ec_s_c LEFT JOIN ecommerce_produit_categorie ec ON ec_s_c.ID_CATEGORIE_PRODUIT=ec.ID_CATEGORIE_PRODUIT WHERE ec.ID_CATEGORIE_PRODUIT=?";
             return query(sqlQuery, [id_categorie]);
        
         }
