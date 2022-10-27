@@ -35,6 +35,7 @@ const createProduitStock = async (req, res) => {
                 // console.log(req.body)
                 // console.log(AllDetail)
                 console.log(AllProduits)
+                //console.log(AllProduits.produit.PRIX)
                 // console.log(req.files)
                 const { IMAGE_1, IMAGE_2, IMAGE_3 } = req.files || {}
                 const validation = new Validation(
@@ -111,13 +112,13 @@ const createProduitStock = async (req, res) => {
                                 ID_PARTENAIRE_SERVICE,
                                 AllProduits.produit.ID_PRODUIT,
                         )
-                        ID_PRODUIT_PARTENAIRE=produitPartenaite
+                        ID_PRODUIT_PARTENAIRE = produitPartenaite
                 } else {
                         const { insertId: produitPartenaite } = await stockmodel.createProduitPartenaire(
                                 ID_PARTENAIRE_SERVICE,
                                 StockId,
                         )
-                        ID_PRODUIT_PARTENAIRE=produitPartenaite
+                        ID_PRODUIT_PARTENAIRE = produitPartenaite
                 }
 
 
@@ -130,15 +131,17 @@ const createProduitStock = async (req, res) => {
                         0,
                         quantiteTotal
                 )
-
+                
                 const { insertId: insertPrixStock } = await stockmodel.createProduitPrix(
                         insertStock,
-                        PRIX ? PRIX : null,
+                        PRIX ? PRIX : AllProduits.produit.PRIX,
                         1,
                 )
-               
+
+
+
                 await Promise.all(AllDetail.map(async detail => {
-                        
+
                         if (detail.TailleSelect.ID_TAILLE == "autre") {
                                 const { insertId: insertTaille } = await stockmodel.createProduitTaille(
                                         PRODUIT ? AllProduits.produit.ID_CATEGORIE_PRODUIT : ID_CATEGORIE_PRODUIT,
@@ -162,7 +165,7 @@ const createProduitStock = async (req, res) => {
                                         ID_PARTENAIRE_SERVICE
                                 )
                                 ID_COULEUR = insertCouleur
-                        }else{
+                        } else {
                                 ID_COULEUR = detail.selectedCouleur.ID_COULEUR
                         }
 
@@ -177,7 +180,7 @@ const createProduitStock = async (req, res) => {
                         )
                 }))
 
-                
+
 
 
 
@@ -230,7 +233,7 @@ const getAllProduit = async (req, res) => {
                                 IMAGE_1: getImageUri(produit.IMAGE_1),
                                 IMAGE_2: getImageUri(produit.IMAGE_2),
                                 IMAGE_3: getImageUri(produit.IMAGE_3),
-                                PRIX:produit.PRIX
+                                PRIX: produit.PRIX
                         },
                 }))
 
