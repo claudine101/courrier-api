@@ -155,6 +155,41 @@ const findByIdPoduit = async (userID, id) => {
                     throw error;
           }
 };
+
+const findProduitAllDetail = async (id_produit_partenaire, category, subCategory, limit = 10, offset = 0) => {
+    try {
+              var binds = [id_produit_partenaire]
+              var sqlQuery = "SELECT pro_part.ID_PRODUIT_PARTENAIRE, pro_part.ID_PARTENAIRE_SERVICE,pro_part.ID_PRODUIT,pro_part.DESCRIPTION,"
+              sqlQuery += " pro.NOM,pro.IMAGE_1,pro.IMAGE_2,pro.IMAGE_3, eco_pro_de.ID_DETAIL, eco_pro_de.QUANTITE_TOTAL,"
+              sqlQuery += "eco_pro_de.QUANTITE_VENDUS,eco_pro_de.QUANTITE_RESTANTE,pro_coul.ID_COULEUR,pro_coul.COULEUR, "
+
+              sqlQuery += " pro_tai.ID_TAILLE,pro_tai.TAILLE, pro_cat.ID_CATEGORIE_PRODUIT, pro_cat.NOM AS NOM_CATEGORIE, pro_s_cat.ID_PRODUIT_SOUS_CATEGORIE, "
+              sqlQuery += " pro_s_cat.NOM AS SOUS_CATEGORIE FROM ecommerce_produit_partenaire pro_part "
+              sqlQuery += " LEFT JOIN ecommerce_produits pro ON pro.ID_PRODUIT=pro_part.ID_PRODUIT "
+              sqlQuery += " LEFT JOIN ecommerce_produit_stock pro_sto ON pro_sto.ID_PRODUIT_PARTENAIRE=pro_part.ID_PRODUIT_PARTENAIRE"
+              sqlQuery += " LEFT JOIN ecommerce_produit_details eco_pro_de ON eco_pro_de.ID_PRODUIT_STOCK=pro_sto.ID_PRODUIT_STOCK "
+              sqlQuery += " LEFT JOIN ecommerce_produit_couleur pro_coul ON pro_coul.ID_COULEUR=eco_pro_de.ID_COULEUR "
+              sqlQuery += " LEFT JOIN ecommerce_produit_tailles pro_tai ON pro_tai.ID_TAILLE=eco_pro_de.ID_TAILLE "
+              sqlQuery += " LEFT JOIN ecommerce_produit_categorie pro_cat ON pro_cat.ID_CATEGORIE_PRODUIT=pro.ID_CATEGORIE_PRODUIT "
+              sqlQuery += " LEFT JOIN ecommerce_produit_sous_categorie pro_s_cat ON pro_s_cat.ID_PRODUIT_SOUS_CATEGORIE=pro.ID_PRODUIT_SOUS_CATEGORIE "
+              sqlQuery += " WHERE pro_part.ID_PRODUIT_PARTENAIRE=?"
+              if(category) {
+                        sqlQuery += " AND pro_cat.ID_CATEGORIE_PRODUIT = ? "
+                        binds.push(category)
+              }
+              if(subCategory) {
+                        sqlQuery += " AND pro_s_cat.ID_PRODUIT_SOUS_CATEGORIE = ? "
+                        binds.push(subCategory)
+              }
+              // sqlQuery += " ORDER BY pp.DATE_INSERTION DESC "
+              sqlQuery += `LIMIT ${offset}, ${limit}`;
+              return query(sqlQuery, binds);
+    }
+    catch (error) {
+              throw error
+    }
+
+}
 module.exports = {
           createProduit,
           createStock,
@@ -163,5 +198,6 @@ module.exports = {
           findByIdPartenaire,
           findByIdPoduit,
           createDetails,
-          findAllPrix
+          findAllPrix,
+          findProduitAllDetail
 }

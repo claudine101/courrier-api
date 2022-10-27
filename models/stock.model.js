@@ -1,11 +1,11 @@
 const { query } = require("../utils/db")
 
-const createProduitStock = (ID_PRODUIT_PARTENAIRE, ID_TAILLE, QUANTITE_TOTAL, QUANTITE_VENDUS, QUANTITE_RESTANTE
+const createProduitStock = (ID_PRODUIT_PARTENAIRE, QUANTITE_TOTAL, QUANTITE_VENDUS, QUANTITE_RESTANTE
 ) => {
         try {
-                var sqlQuery = "INSERT INTO  ecommerce_produit_stock (	ID_PRODUIT_PARTENAIRE, ID_TAILLE, QUANTITE_TOTAL,QUANTITE_VENDUS,QUANTITE_RESTANTE)";
-                sqlQuery += "values (?,?,?,?,?)";
-                return query(sqlQuery, [ID_PRODUIT_PARTENAIRE, ID_TAILLE, QUANTITE_TOTAL, QUANTITE_VENDUS, QUANTITE_RESTANTE])
+                var sqlQuery = "INSERT INTO  ecommerce_produit_stock (	ID_PRODUIT_PARTENAIRE, QUANTITE_TOTAL,QUANTITE_VENDUS,QUANTITE_RESTANTE)";
+                sqlQuery += "values (?,?,?,?)";
+                return query(sqlQuery, [ID_PRODUIT_PARTENAIRE, QUANTITE_TOTAL, QUANTITE_VENDUS, QUANTITE_RESTANTE])
         }
         catch (error) {
 

@@ -122,9 +122,23 @@ const createProduitStock = async (req, res) => {
 
 
 
+                var ID_TAILLE
 
+                const { insertId: insertStock } = await stockmodel.createProduitStock(
+                        ID_PRODUIT_PARTENAIRE,
+                        quantiteTotal,
+                        0,
+                        quantiteTotal
+                )
+
+                const { insertId: insertPrixStock } = await stockmodel.createProduitPrix(
+                        insertStock,
+                        PRIX ? PRIX : null,
+                        1,
+                )
+               
                 await Promise.all(AllDetail.map(async detail => {
-                        var ID_TAILLE
+                        
                         if (detail.TailleSelect.ID_TAILLE == "autre") {
                                 const { insertId: insertTaille } = await stockmodel.createProduitTaille(
                                         PRODUIT ? AllProduits.produit.ID_CATEGORIE_PRODUIT : ID_CATEGORIE_PRODUIT,
@@ -152,30 +166,18 @@ const createProduitStock = async (req, res) => {
                                 ID_COULEUR = detail.selectedCouleur.ID_COULEUR
                         }
 
-                        const { insertId: insertStock } = await stockmodel.createProduitStock(
-                                ID_PRODUIT_PARTENAIRE,
-                                ID_TAILLE,
-                                quantiteTotal,
-                                0,
-                                quantiteTotal
-                        )
-
-                        const { insertId: insertPrixStock } = await stockmodel.createProduitPrix(
-                                insertStock,
-                                PRIX ? PRIX : AllProduits.produit.PRIX,
-                                1,
-                        )
-
                         const { insertId: insertDetailStock } = await stockmodel.createProduitDetailStock(
                                 insertStock,
                                 ID_COULEUR,
                                 ID_TAILLE,
                                 1,
-                                quantiteTotal,
+                                detail.quantite,
                                 0,
-                                quantiteTotal
+                                detail.quantite
                         )
                 }))
+
+                
 
 
 
