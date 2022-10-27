@@ -10,16 +10,16 @@ const { query } = require('../utils/db');
 const createMenu = async (req, res) => {
           try {
                     const {
-                              DESCRIPTION,
                               ID_CATEGORIE_MENU,
                               ID_SOUS_CATEGORIE_MENU,
-                              ID_SOUS_SOUS_CATEGORIE,
-                              QUANTITE,
-                              DESCRIPTION_TAILLE,
-                              ID_UNITE,
-                              MONTANT,
+                              ID_PARTENAIRE_SERVICE,
+                              NOM_MENU,
+                              PRIX,
+                              DESCRIPTION,
+
 
                     } = req.body
+                    console.log(req.body)
                     const { IMAGE_1, IMAGE_2, IMAGE_3 } = req.files || {}
                     const validation = new Validation(
                               { ...req.body, ...req.files },
@@ -86,46 +86,27 @@ const createMenu = async (req, res) => {
                     const { insertId } = await menuModel.createMenu(
                               ID_CATEGORIE_MENU,
                               ID_SOUS_CATEGORIE_MENU,
-                              ID_SOUS_SOUS_CATEGORIE,
-                              DESCRIPTION,
-                              2,
+                              ID_PARTENAIRE_SERVICE,
+                              NOM_MENU,
+                              PRIX,
                               fileInfo_1.fileName,
                               filename_2 ? filename_2 : null,
                               filename_3 ? filename_3 : null,
-                              2,
+                              DESCRIPTION,
                     );
 
-                    const { insertId: id_prix_categorie } = await menuModel.createMenuPrix(
-                              MONTANT,
-                              2,
-                              insertId,
-                              2
-                    );
-
-                    const { insertId: taille } = await menuModel.createMenuTaille(
-                              insertId,
-                              ID_CATEGORIE_MENU,
-                              QUANTITE,
-                              DESCRIPTION_TAILLE,
-                              ID_UNITE,
-                    );
-
+                   
+                    // 
 
 
                     const menu = (await menuModel.findById(insertId))[0]
-                    const categorie = (await query("SELECT NOM AS NOM_CATEGORIE,DESCRIPTION AS DESCRIPTION_MENU FROM restaurant_categorie_menu WHERE ID_CATEGORIE_MENU=" + menu.ID_CATEGORIE_MENU))[0]
-                    // const Subcategorie = (await query("SELECT NOM AS NOM_SUB_CATEGORY, DESCRIPTION AS DESC_SUB_CSTEGORY FROM restaurant_sous_categorie_menu WHERE ID_SOUS_CATEGORIE_MENU=" + menu.ID_SOUS_CATEGORIE_MENU))[0]
-                    // const SubSubcategorie = (await query("SELECT DESCRIPTION FROM restaurant_sous_sous_categorie WHERE ID_SOUS_SOUS_CATEGORIE=" + menu.ID_SOUS_SOUS_CATEGORIE))[0]
-                    const repas = (await query("SELECT DESCRIPTION AS NOM_REPAS, DESCRIPTION_FOURNISSEUR AS DESCR_REPAS FROM restaurant_repas WHERE ID_REPAS=" + menu.ID_REPAS))[0]
-                    const partenaire = (await query("SELECT NOM_ORGANISATION FROM partenaire_service WHERE ID_PARTENAIRE= ? AND ID_SERVICE = 2", [menu.ID_PARTENAIRE]))[0]
-                    const unites = (await query("SELECT UNITES_MESURES FROM restaurant_menu_unite WHERE ID_UNITE=" + menu.ID_UNITE))[0]
-                    const prix = (await query("SELECT MONTANT FROM restaurant_menu_prix WHERE ID_PRIX_CATEGORIE=" + menu.ID_PRIX_CATEGORIE))[0]
-
+                    
                     const getImageUri = (fileName) => {
                               if (!fileName) return null
                               if (fileName.indexOf("http") === 0) return fileName
                               return `${req.protocol}://${req.get("host")}/uploads/menu/${fileName}`
                     }
+                    console.log(menu)
                     res.status(RESPONSE_CODES.CREATED).json({
                               statusCode: RESPONSE_CODES.CREATED,
                               httpStatus: RESPONSE_STATUS.CREATED,
@@ -135,13 +116,6 @@ const createMenu = async (req, res) => {
                                         IMAGES_1: getImageUri(menu.IMAGES_1),
                                         IMAGES_2: getImageUri(menu.IMAGES_2),
                                         IMAGES_3: getImageUri(menu.IMAGES_3),
-                                        categorie: categorie,
-                                        // Subcategorie:Subcategorie,
-                                        // SubSubcategorie:SubSubcategorie,
-                                        repas: repas,
-                                        partenaire: partenaire,
-                                        unites: unites,
-                                        prix: prix
                               }
                     })
           }

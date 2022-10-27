@@ -69,7 +69,6 @@ const getAllPartenaire = async (req, res) => {
                 categories: categorie
             }
         }))
-        console.log(partenaires)
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_STATUS.OK,
@@ -95,16 +94,17 @@ const getmenu = async (req, res) => {
             return `${req.protocol}://${req.get("host")}/uploads/menu/${fileName}`
         }
         const { partenaire,category } = req.query
-        var menu = await restoMenuModel.findmenu(category, partenaire)
-        const menus = menu.map(m => {
+        var menu = await restoMenuModel.findmenu()
+        const menus = await Promise.all(menu.map(async m => {
+            // const categorie = await userModel.findbycategorie(partenaire.ID_PARTENAIRE)
             return {
                 ...m,
-                IMAGE: getImageUri(m.IMAGE),
-                IMAGE2: getImageUri(m.IMAGE2),
-                IMAGE3: getImageUri(m.IMAGE3)
+                IMAGE: getImageUri(m.IMAGES_1),
+                IMAGE2: getImageUri(m.IMAGES_2),
+                IMAGE3: getImageUri(m.IMAGES_3)
             }
-        })
-        res.status(RESPONSE_CODES.OK).json({
+        }))
+         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_CODES.OK,
             message: "Liste des  menu restaurants",
