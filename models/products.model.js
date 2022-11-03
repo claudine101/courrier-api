@@ -113,19 +113,19 @@ const findBYidPartenaire = async (ID_PARTENAIRE_SERVICE, limit = 10, offset = 0)
 
     }
 }
-// const findproductsby = async (ID_PARTENAIRE) => {
-//     try {
-
-//         var sqlQuery="SELECT epc.ID_CATEGORIE_PRODUIT,epc.NOM,epc.IMAGE FROM ecommerce_produit_partenaire epp LEFT JOIN partenaires p ON p.ID_PARTENAIRE=epp.ID_PARTENAIRE  LEFT JOIN ecommerce_produit_categorie epc ON epc.ID_CATEGORIE_PRODUIT=epp.ID_CATEGORIE_PRODUIT WHERE 1 AND epp.ID_PARTENAIRE=?GROUP BY epc.ID_CATEGORIE_PRODUIT "
-
-
-//         return query(sqlQuery, [ID_PARTENAIRE]);
-//     }
-//     catch (error) {
-//         throw error
-
-//     }
-// }
+const createNotes = (ID_USER,ID_PRODUIT_PARTENAIRE,NOTE,COMMENTAIRE) => {
+    try {
+      var sqlQuery = "INSERT INTO ecommerce_produit_notes (ID_USER,ID_PRODUIT_PARTENAIRE,NOTE,COMMENTAIRE)";
+      console.log(ID_USER,ID_PRODUIT_PARTENAIRE,NOTE,COMMENTAIRE)
+      sqlQuery += "values (?,?,?,?)";
+      return query(sqlQuery, [
+        ID_USER,ID_PRODUIT_PARTENAIRE,NOTE,COMMENTAIRE])
+    }
+    catch (error) {
+  
+      throw error
+    }
+  }
 
 const findCategories = async () => {
     try {
@@ -138,7 +138,7 @@ const findCategories = async () => {
 
 const findById = async (id) => {
     try {
-        var sqlQuery = "SELECT * FROM ecommerce_produit_categorie  cat LEFT JOIN  ecommerce_produits px ON px.ID_CATEGORIE_PRODUIT=cat.ID_CATEGORIE_PRODUIT  WHERE px.ID_PARTENAIRE_SERVICE=?";
+        var sqlQuery = "SELECT * FROM  ecommerce_produit_notes WHERE ecommerce_produit_notes.ID_NOTE=?";
         return query(sqlQuery, [id]);
 
     }
@@ -230,7 +230,8 @@ module.exports = {
     findproduct,
     findBYidPartenaire,
     getPrix,
-    findColor
+    findColor,
+    createNotes
    
    
     

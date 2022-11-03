@@ -2,7 +2,7 @@ const RESPONSE_CODES = require("../constants/RESPONSE_CODES.js")
 const RESPONSE_STATUS = require("../constants/RESPONSE_STATUS.js")
 const productsModel = require("../models/products.model.js")
 const { query } = require("../utils/db")
-
+const Validation = require('../class/Validation')
 const getAllProducts = async (req, res) => {
     try {
         const getImageUri = (fileName) => {
@@ -232,7 +232,7 @@ const getbyID = async (req, res) => {
             partenaire: {
                 NOM_ORGANISATION: product.NOM_ORGANISATION,
                 ID_PARTENAIRE: product.ID_PARTENAIRE,
-               
+
             },
             produit_partenaire: {
                 ID_PARTENAIRE_SERVICE: product.ID_PARTENAIRE_SERVICE,
@@ -298,6 +298,82 @@ const getAllCategorie = async (req, res) => {
             statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
             httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
             message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
+
+const insertNote = async (req, res) => {
+
+    try {
+
+
+        const { ID_PRODUIT_PARTENAIRE,NOTE, COMMENTAIRE } = req.body
+       // console.log( req.body)
+
+        const validation = new Validation(req.body,
+            {
+
+
+                NOTE:
+                {
+                    required: true,
+                },
+
+
+
+
+            },
+            {
+
+                NOTE: {
+                    required: "La note est obligatoire"
+                },
+
+
+
+
+
+            }
+
+        )
+
+        await validation.run();
+        const isValide = await validation.isValidate()
+        const errors = await validation.getErrors()
+        if (!isValide) {
+            return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
+                statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
+                httpStatus: RESPONSE_STATUS.UNPROCESSABLE_ENTITY,
+                message: "Probleme de validation des donnees",
+                result: errors
+            })
+
+        }
+
+
+
+        const { insertId } = await productsModel.createNotes(
+            req.userId,
+            ID_PRODUIT_PARTENAIRE,
+            NOTE,
+            COMMENTAIRE,
+
+        )
+        const note = (await productsModel.findById(insertId))[0]
+        res.status(RESPONSE_CODES.CREATED).json({
+            statusCode: RESPONSE_CODES.CREATED,
+            httpStatus: RESPONSE_STATUS.CREATED,
+            message: "Enregistrement est fait avec succès",
+            result: note
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Enregistrement echoue",
 
         })
     }
@@ -448,8 +524,8 @@ const getSize = async (req, res) => {
 }
 const getColor = async (req, res) => {
     try {
-        const { ID_TAILLE,ID_PRODUIT_PARTENAIRE} = req.params
-        const colors = await productsModel.findColor(ID_PRODUIT_PARTENAIRE,ID_TAILLE)
+        const { ID_TAILLE, ID_PRODUIT_PARTENAIRE } = req.params
+        const colors = await productsModel.findColor(ID_PRODUIT_PARTENAIRE, ID_TAILLE)
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_STATUS.OK,
@@ -480,7 +556,8 @@ module.exports = {
     getOne,
     getCategorieByPartenaire,
     getbyID,
-    getAllColors
+    getAllColors,
+    insertNote
 
 
 }

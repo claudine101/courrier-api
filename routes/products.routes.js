@@ -2,6 +2,7 @@ const express = require('express')
 const productsController = require("../controllers/products.controller.js")
 const productsRouter = express.Router()
 productsRouter.get('/', productsController.getAllProducts)
+productsRouter.post('/note', productsController.insertNote)
 productsRouter.get('/wishlist', productsController.getAllProduct)
 
 productsRouter.get('/product/:ID_PRODUIT', productsController.getOne)
