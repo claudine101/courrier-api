@@ -8,285 +8,322 @@ const path = require("path");
 const MenuUpload = require("../class/uploads/MenuUpload");
 const { query } = require('../utils/db');
 const createMenu = async (req, res) => {
-          try {
-                    const {
-                              ID_CATEGORIE_MENU,
-                              ID_SOUS_CATEGORIE_MENU,
-                              ID_PARTENAIRE_SERVICE,
-                              NOM_MENU,
-                              PRIX,
-                              DESCRIPTION,
+    try {
+        const {
+            ID_CATEGORIE_MENU,
+            ID_REPAS,
+            NOM_REPAS,
+            ID_SOUS_CATEGORIE_MENU,
+            ID_PARTENAIRE_SERVICE,
+            NOM_MENU,
+            PRIX,
+            DESCRIPTION,
 
 
-                    } = req.body
-                    console.log(req.body)
-                    const { IMAGE_1, IMAGE_2, IMAGE_3 } = req.files || {}
-                    const validation = new Validation(
-                              { ...req.body, ...req.files },
-                              {
-                                        IMAGE_1: {
-                                                  required: true,
-                                                  image: 21000000
-                                        },
-                                        IMAGE_2: {
-                                                  image: 21000000
-                                        },
-                                        IMAGE_3: {
-                                                  image: 21000000
-                                        },
-                                        ID_CATEGORIE_MENU:
-                                        {
-                                                  exists: "restaurant_categorie_menu,ID_CATEGORIE_MENU",
-                                        },
-                              },
-                              {
-                                        IMAGE_1: {
-                                                  required: "Image d'un produit est obligatoire",
-                                                  image: "taille invalide"
-                                        },
-                                        IMAGE_2: {
-                                                  image: "Veuillez choisir une image valide",
-                                                  size: "L'image est trop volumineux"
-                                        },
-                                        IMAGE_3: {
-                                                  image: "Veuillez choisir une image valide",
-                                                  size: "L'image est trop volumineux"
-                                        },
+        } = req.body
+        console.log(req.body)
+        const { IMAGE_1, IMAGE_2, IMAGE_3 } = req.files || {}
+        const validation = new Validation(
+            { ...req.body, ...req.files },
+            {
+                IMAGE_1: {
+                    required: true,
+                    image: 21000000
+                },
+                IMAGE_2: {
+                    image: 21000000
+                },
+                IMAGE_3: {
+                    image: 21000000
+                },
+                ID_CATEGORIE_MENU:
+                {
+                    exists: "restaurant_categorie_menu,ID_CATEGORIE_MENU",
+                },
+                // ID_REPAS:
+                // {
+                //           exists: "restaurant_categorie_menu,ID_CATEGORIE_MENU",
+                // },
+            },
+            {
+                IMAGE_1: {
+                    required: "Image d'un produit est obligatoire",
+                    image: "taille invalide"
+                },
+                IMAGE_2: {
+                    image: "Veuillez choisir une image valide",
+                    size: "L'image est trop volumineux"
+                },
+                IMAGE_3: {
+                    image: "Veuillez choisir une image valide",
+                    size: "L'image est trop volumineux"
+                },
 
-                                        ID_CATEGORIE_MENU:
-                                        {
-                                                  exists: "categorie invalide",
-                                        },
-                              }
-                    );
-                    await validation.run();
-                    const isValide = await validation.isValidate()
-                    const errors = await validation.getErrors()
-                    if (!isValide) {
-                              return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
-                                        statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
-                                        httpStatus: RESPONSE_STATUS.UNPROCESSABLE_ENTITY,
-                                        message: "Probleme de validation des donnees",
-                                        result: errors
-                              })
-                    }
-                    const menuUpload = new MenuUpload()
-                    var filename_2
-                    var filename_3
-                    const { fileInfo: fileInfo_1, thumbInfo: thumbInfo_1 } = await menuUpload.upload(IMAGE_1, false)
-                    if (IMAGE_2) {
-                              const { fileInfo: fileInfo_2, thumbInfo: thumbInfo_2 } = await menuUpload.upload(IMAGE_2, false)
-                              filename_2 = fileInfo_2.fileName
-                    }
-                    if (IMAGE_3) {
-                              const { fileInfo: fileInfo_3, thumbInfo: thumbInfo_3 } = await menuUpload.upload(IMAGE_3, false)
-                              filename_3 = fileInfo_3.fileName
-                    }
+                ID_CATEGORIE_MENU:
+                {
+                    exists: "categorie invalide",
+                },
+            }
+        );
+        await validation.run();
+        const isValide = await validation.isValidate()
+        const errors = await validation.getErrors()
+        if (!isValide) {
+            return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
+                statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
+                httpStatus: RESPONSE_STATUS.UNPROCESSABLE_ENTITY,
+                message: "Probleme de validation des donnees",
+                result: errors
+            })
+        }
+        const menuUpload = new MenuUpload()
+        var filename_2
+        var filename_3
+        const { fileInfo: fileInfo_1, thumbInfo: thumbInfo_1 } = await menuUpload.upload(IMAGE_1, false)
+        if (IMAGE_2) {
+            const { fileInfo: fileInfo_2, thumbInfo: thumbInfo_2 } = await menuUpload.upload(IMAGE_2, false)
+            filename_2 = fileInfo_2.fileName
+        }
+        if (IMAGE_3) {
+            const { fileInfo: fileInfo_3, thumbInfo: thumbInfo_3 } = await menuUpload.upload(IMAGE_3, false)
+            filename_3 = fileInfo_3.fileName
+        }
 
-                    const { insertId } = await menuModel.createMenu(
-                              ID_CATEGORIE_MENU,
-                              ID_SOUS_CATEGORIE_MENU,
-                              ID_PARTENAIRE_SERVICE,
-                              NOM_MENU,
-                              PRIX,
-                              fileInfo_1.fileName,
-                              filename_2 ? filename_2 : null,
-                              filename_3 ? filename_3 : null,
-                              DESCRIPTION,
-                    );
+        var Repas = 0
+        if (NOM_REPAS) {
+            const { insertId:repas } = await query("INSERT INTO  restaurant_repas (NOM,DESCRIPTION) VALUES (?,?)", [NOM_REPAS,DESCRIPTION])
+            const { insertId:idmenu } = await menuModel.createMenu(
+                repas,
+                ID_CATEGORIE_MENU,
+                ID_SOUS_CATEGORIE_MENU,
+                ID_PARTENAIRE_SERVICE,
+                NOM_MENU,
+                PRIX,
+                fileInfo_1.fileName,
+                filename_2 ? filename_2 : null,
+                filename_3 ? filename_3 : null,
+                DESCRIPTION,
+            );
+            const menu = (await menuModel.findById(idmenu))[0]
+            const getImageUri = (fileName) => {
+                if (!fileName) return null
+                if (fileName.indexOf("http") === 0) return fileName
+                return `${req.protocol}://${req.get("host")}/uploads/menu/${fileName}`
+            }
+            res.status(RESPONSE_CODES.CREATED).json({
+                statusCode: RESPONSE_CODES.CREATED,
+                httpStatus: RESPONSE_STATUS.CREATED,
+                message: "Enregistrement est fait avec succès",
+                result: {
+                    ...menu,
+                    IMAGES_1: getImageUri(menu.IMAGES_1),
+                    IMAGES_2: getImageUri(menu.IMAGES_2),
+                    IMAGES_3: getImageUri(menu.IMAGES_3),
+                }
+            })
 
-                   
-                    // 
 
 
-                    const menu = (await menuModel.findById(insertId))[0]
-                    
-                    const getImageUri = (fileName) => {
-                              if (!fileName) return null
-                              if (fileName.indexOf("http") === 0) return fileName
-                              return `${req.protocol}://${req.get("host")}/uploads/menu/${fileName}`
-                    }
-                    console.log(menu)
-                    res.status(RESPONSE_CODES.CREATED).json({
-                              statusCode: RESPONSE_CODES.CREATED,
-                              httpStatus: RESPONSE_STATUS.CREATED,
-                              message: "Enregistrement est fait avec succès",
-                              result: {
-                                        ...menu,
-                                        IMAGES_1: getImageUri(menu.IMAGES_1),
-                                        IMAGES_2: getImageUri(menu.IMAGES_2),
-                                        IMAGES_3: getImageUri(menu.IMAGES_3),
-                              }
-                    })
-          }
-          catch (error) {
-                    console.log(error)
-                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-                              message: "Enregistrement echoue",
+        }
+        else{
+            const { insertId } = await menuModel.createMenu(
+                ID_REPAS,
+                ID_CATEGORIE_MENU,
+                ID_SOUS_CATEGORIE_MENU,
+                ID_PARTENAIRE_SERVICE,
+                PRIX,
+                fileInfo_1.fileName,
+                filename_2 ? filename_2 : null,
+                filename_3 ? filename_3 : null,
+            );
+            const menu = (await menuModel.findById(insertId))[0]
+            const getImageUri = (fileName) => {
+                if (!fileName) return null
+                if (fileName.indexOf("http") === 0) return fileName
+                return `${req.protocol}://${req.get("host")}/uploads/menu/${fileName}`
+            }
+            res.status(RESPONSE_CODES.CREATED).json({
+                statusCode: RESPONSE_CODES.CREATED,
+                httpStatus: RESPONSE_STATUS.CREATED,
+                message: "Enregistrement est fait avec succès",
+                result: {
+                    ...menu,
+                    IMAGES_1: getImageUri(menu.IMAGES_1),
+                    IMAGES_2: getImageUri(menu.IMAGES_2),
+                    IMAGES_3: getImageUri(menu.IMAGES_3),
+                }
+            })
+        }
+        
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Enregistrement echoue",
 
-                    })
-          }
+        })
+    }
 }
 const findByInsertId = async (req, res) => {
-          const { id } = req.params
-          try {
-                    const service = await menuModel.findById(id)
-                    res.status(RESPONSE_CODES.OK).json({
-                              statusCode: RESPONSE_CODES.OK,
-                              httpStatus: RESPONSE_STATUS.OK,
-                              message: "succès",
-                              result: service
-                    })
-          }
-          catch (error) {
-                    console.log(error)
-                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-                              message: "echoue",
+    const { id } = req.params
+    try {
+        const service = await menuModel.findById(id)
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "succès",
+            result: service
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "echoue",
 
-                    })
-          }
+        })
+    }
 }
 
 const getRepas = async (req, res) => {
 
-          try {
-                    const { ID_TYPE_REPAS } = req.params
-                    const produits = await menuModel.findAllRepas(ID_TYPE_REPAS)
-                    res.status(RESPONSE_CODES.OK).json({
-                              statusCode: RESPONSE_CODES.OK,
-                              httpStatus: RESPONSE_STATUS.OK,
-                              message: "succès",
-                              result: produits
-                    })
-          }
-          catch (error) {
-                    console.log(error)
-                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-                              message: "echoue",
+    try {
+        const { ID_TYPE_REPAS } = req.params
+        const produits = await menuModel.findAllRepas(ID_TYPE_REPAS)
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "succès",
+            result: produits
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "echoue",
 
-                    })
-          }
+        })
+    }
 }
 
 const getCategories = async (req, res) => {
-          try {
-                    const categories = await menuModel.findAllCategories()
-                    res.status(RESPONSE_CODES.OK).json({
-                              statusCode: RESPONSE_CODES.OK,
-                              httpStatus: RESPONSE_STATUS.OK,
-                              message: "succès",
-                              result: categories
-                    })
-          }
-          catch (error) {
-                    console.log(error)
-                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-                              message: "echoue",
+    try {
+        const categories = await menuModel.findAllCategories()
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "succès",
+            result: categories
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "echoue",
 
-                    })
-          }
+        })
+    }
 }
 
 const getSousCategories = async (req, res) => {
-          try {
-                    const Souscategories = await menuModel.findAllSousCategories()
-                    res.status(RESPONSE_CODES.OK).json({
-                              statusCode: RESPONSE_CODES.OK,
-                              httpStatus: RESPONSE_STATUS.OK,
-                              message: "succès",
-                              result: Souscategories
-                    })
-          }
-          catch (error) {
-                    console.log(error)
-                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-                              message: "echoue",
+    try {
+        const Souscategories = await menuModel.findAllSousCategories()
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "succès",
+            result: Souscategories
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "echoue",
 
-                    })
-          }
+        })
+    }
 }
 
 const getSousSousCategories = async (req, res) => {
-          try {
-                    const SousSouscategories = await menuModel.findAllSousSousCategories()
-                    res.status(RESPONSE_CODES.OK).json({
-                              statusCode: RESPONSE_CODES.OK,
-                              httpStatus: RESPONSE_STATUS.OK,
-                              message: "succès",
-                              result: SousSouscategories
-                    })
-          }
-          catch (error) {
-                    console.log(error)
-                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-                              message: "echoue",
+    try {
+        const SousSouscategories = await menuModel.findAllSousSousCategories()
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "succès",
+            result: SousSouscategories
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "echoue",
 
-                    })
-          }
+        })
+    }
 }
 
 const getTypesRepas = async (req, res) => {
-          try {
-                    const TypesRepas = await menuModel.findAllTypesRepas()
-                    res.status(RESPONSE_CODES.OK).json({
-                              statusCode: RESPONSE_CODES.OK,
-                              httpStatus: RESPONSE_STATUS.OK,
-                              message: "succès",
-                              result: TypesRepas
-                    })
-          }
-          catch (error) {
-                    console.log(error)
-                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-                              message: "echoue",
+    try {
+        const TypesRepas = await menuModel.findAllTypesRepas()
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "succès",
+            result: TypesRepas
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "echoue",
 
-                    })
-          }
+        })
+    }
 }
 
 const getUnites = async (req, res) => {
-          try {
-                    const unites = await menuModel.findAllUnites()
-                    res.status(RESPONSE_CODES.OK).json({
-                              statusCode: RESPONSE_CODES.OK,
-                              httpStatus: RESPONSE_STATUS.OK,
-                              message: "succès",
-                              result: unites
-                    })
-          }
-          catch (error) {
-                    console.log(error)
-                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-                              message: "echoue",
+    try {
+        const unites = await menuModel.findAllUnites()
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "succès",
+            result: unites
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "echoue",
 
-                    })
-          }
+        })
+    }
 }
 
 module.exports = {
-          createMenu,
-          findByInsertId,
-          getRepas,
-          getCategories,
-          getSousCategories,
-          getSousSousCategories,
-          getUnites,
-          getTypesRepas
+    createMenu,
+    findByInsertId,
+    getRepas,
+    getCategories,
+    getSousCategories,
+    getSousSousCategories,
+    getUnites,
+    getTypesRepas
 
 }

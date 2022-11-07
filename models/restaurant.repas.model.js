@@ -20,7 +20,15 @@ const findById = async (id) => {
                     throw error;
           }
 };
+const findRepas = async (id) => {
+  try {
+            return query("SELECT * FROM  restaurant_repas WHERE 1 ");
+  } catch (error) {
+            throw error;
+  }
+};
 module.exports = {
         createOne,
           findById,
+          findRepas
 }
