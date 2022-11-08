@@ -303,6 +303,114 @@ const getAllCategorie = async (req, res) => {
     }
 }
 
+
+const getAllNotes = async (req, res) => {
+    try {
+        const getImageUri = (fileName) => {
+            if (!fileName) return null
+            if (fileName.indexOf("http") === 0) return fileName
+            return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+        }
+
+        const { ID_PRODUIT_PARTENAIRE, limit, offset } = req.params
+
+        const noteListe = await productsModel.findBYidProduitPartenaire(ID_PRODUIT_PARTENAIRE, limit, offset)
+        const notes = noteListe.map(note => ({
+            produit_note: {
+                NOTE: note.NOTE,
+                COMENTAIRE: note.COMMENTAIRE,
+                DATE: note.DATE_INSERTION,
+                ID_PRODUIT_PARTENAIRE: note.ID_PRODUIT_PARTENAIRE
+            },
+
+            utilisateur:{
+
+                IMAGE: getImageUri(note.IMAGE),
+                ID_USER: note.ID_USER,
+                NOM: note.NOM,
+                PRENOM: note.PRENOM
+
+
+
+
+
+
+            },
+
+
+        }))
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Les notes",
+            result: notes
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
+
+const getnotes = async (req, res) => {
+    try {
+        const getImageUri = (fileName) => {
+            if (!fileName) return null
+            if (fileName.indexOf("http") === 0) return fileName
+            return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+        }
+
+        const { ID_PRODUIT_PARTENAIRE} = req.params
+
+        const noteListe = await productsModel.findnoteProduitPartenaire(ID_PRODUIT_PARTENAIRE,req.userId)
+        // const notes = noteListe.map(note => ({
+        //     produit_note: {
+        //         NOTE: note.NOTE,
+        //         COMENTAIRE: note.COMMENTAIRE,
+        //         DATE: note.DATE_INSERTION,
+        //         ID_PRODUIT_PARTENAIRE: note.ID_PRODUIT_PARTENAIRE
+        //     },
+
+        //     utilisateur:{
+
+        //         IMAGE: getImageUri(note.IMAGE),
+        //         ID_USER: note.ID_USER,
+        //         NOM: note.NOM,
+        //         PRENOM: note.PRENOM
+
+
+
+
+
+
+        //     },
+
+
+        // }))
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Les notes",
+            noteListe
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
+
+
 const insertNote = async (req, res) => {
 
     try {
@@ -557,7 +665,9 @@ module.exports = {
     getCategorieByPartenaire,
     getbyID,
     getAllColors,
-    insertNote
+    insertNote,
+    getAllNotes,
+    getnotes
 
 
 }

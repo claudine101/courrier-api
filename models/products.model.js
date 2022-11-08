@@ -146,6 +146,35 @@ const findById = async (id) => {
         throw error
     }
 }
+const findBYidProduitPartenaire = async (id,limit = 10, offset = 0) => {
+    try {
+        var sqlQuery = "SELECT epn.NOTE,epn.COMMENTAIRE,epn.ID_PRODUIT_PARTENAIRE,u.NOM,u.PRENOM,"
+        sqlQuery+=" epn.ID_USER,epn.DATE_INSERTION,u.IMAGE FROM ecommerce_produit_notes epn LEFT JOIN"
+        sqlQuery +=" users u ON epn.ID_USER=u.ID_USER   WHERE epn.ID_PRODUIT_PARTENAIRE=?"
+        sqlQuery+=` ORDER BY epn.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
+        return query(sqlQuery, [id]);
+
+    }
+    catch (error) {
+        throw error
+    }
+} 
+const findnoteProduitPartenaire = async (ID_PRODUIT_PARTENAIRE,id) => {
+    try {
+        var sqlQuery = "SELECT epn.NOTE,epn.COMMENTAIRE,epn.ID_PRODUIT_PARTENAIRE,u.NOM,u.PRENOM,"
+        sqlQuery+=" epn.ID_USER,epn.DATE_INSERTION,u.IMAGE FROM ecommerce_produit_notes epn LEFT JOIN"
+        sqlQuery +=" users u ON epn.ID_USER=u.ID_USER   WHERE epn.ID_PRODUIT_PARTENAIRE=? AND  epn.ID_USER=?"
+        //sqlQuery+=` ORDER BY epn.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
+        return query(sqlQuery, [ID_PRODUIT_PARTENAIRE,id]);
+
+    }
+    catch (error) {
+        throw error
+    }
+}
+
+
+
 const getPrix = async (id) => {
     try {
         var sqlQuery = "SELECT esp.PRIX   FROM ecommerce_produit_stock eps LEFT JOIN ecommerce_stock_prix esp ON eps.ID_PRODUIT_STOCK=esp.ID_PRODUIT_STOCK LEFT join ecommerce_statut_prix espr ON espr.ID_STATUT=esp.ID_STATUT WHERE espr.ID_STATUT=1  AND eps.ID_PRODUIT_PARTENAIRE=?";
@@ -231,7 +260,10 @@ module.exports = {
     findBYidPartenaire,
     getPrix,
     findColor,
-    createNotes
+    createNotes,
+    findBYidProduitPartenaire,
+    
+    findnoteProduitPartenaire
    
    
     
