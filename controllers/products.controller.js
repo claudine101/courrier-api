@@ -323,7 +323,7 @@ const getAllNotes = async (req, res) => {
                 ID_PRODUIT_PARTENAIRE: note.ID_PRODUIT_PARTENAIRE
             },
 
-            utilisateur:{
+            utilisateur: {
 
                 IMAGE: getImageUri(note.IMAGE),
                 ID_USER: note.ID_USER,
@@ -365,38 +365,15 @@ const getnotes = async (req, res) => {
             return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
         }
 
-        const { ID_PRODUIT_PARTENAIRE} = req.params
+        const { ID_PRODUIT_PARTENAIRE } = req.params
 
-        const noteListe = await productsModel.findnoteProduitPartenaire(ID_PRODUIT_PARTENAIRE,req.userId)
-        // const notes = noteListe.map(note => ({
-        //     produit_note: {
-        //         NOTE: note.NOTE,
-        //         COMENTAIRE: note.COMMENTAIRE,
-        //         DATE: note.DATE_INSERTION,
-        //         ID_PRODUIT_PARTENAIRE: note.ID_PRODUIT_PARTENAIRE
-        //     },
-
-        //     utilisateur:{
-
-        //         IMAGE: getImageUri(note.IMAGE),
-        //         ID_USER: note.ID_USER,
-        //         NOM: note.NOM,
-        //         PRENOM: note.PRENOM
-
-
-
-
-
-
-        //     },
-
-
-        // }))
+        const noteListe = await productsModel.findnoteProduitPartenaire(ID_PRODUIT_PARTENAIRE, req.userId)
+        
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_STATUS.OK,
-            message: "Les notes",
-            noteListe
+            message: "La commentaire",
+            result: noteListe
         })
     }
     catch (error) {
@@ -416,9 +393,12 @@ const insertNote = async (req, res) => {
     try {
 
 
-        const { ID_PRODUIT_PARTENAIRE,NOTE, COMMENTAIRE } = req.body
-       // console.log( req.body)
-
+        const { ID_PRODUIT_PARTENAIRE, NOTE, COMMENTAIRE } = req.body
+        const getImageUri = (fileName) => {
+            if (!fileName) return null
+            if (fileName.indexOf("http") === 0) return fileName
+            return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+        }
         const validation = new Validation(req.body,
             {
 
@@ -469,12 +449,32 @@ const insertNote = async (req, res) => {
 
         )
         const note = (await productsModel.findById(insertId))[0]
-        res.status(RESPONSE_CODES.CREATED).json({
-            statusCode: RESPONSE_CODES.CREATED,
-            httpStatus: RESPONSE_STATUS.CREATED,
-            message: "Enregistrement est fait avec succès",
-            result: note
+        const  notes={
+            produit_note: {
+                NOTE: note.NOTE,
+                COMENTAIRE: note.COMMENTAIRE,
+                DATE: note.DATE_INSERTION,
+                ID_PRODUIT_PARTENAIRE: note.ID_PRODUIT_PARTENAIRE
+            },
+
+            utilisateur: {
+
+                IMAGE: getImageUri(note.IMAGE),
+                ID_USER: note.ID_USER,
+                NOM: note.NOM,
+                PRENOM: note.PRENOM
+            },
+        }
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "le commentaire",
+            result: notes
+
+
         })
+      
+       
     }
     catch (error) {
         console.log(error)

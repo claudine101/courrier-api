@@ -116,7 +116,7 @@ const findBYidPartenaire = async (ID_PARTENAIRE_SERVICE, limit = 10, offset = 0)
 const createNotes = (ID_USER,ID_PRODUIT_PARTENAIRE,NOTE,COMMENTAIRE) => {
     try {
       var sqlQuery = "INSERT INTO ecommerce_produit_notes (ID_USER,ID_PRODUIT_PARTENAIRE,NOTE,COMMENTAIRE)";
-      console.log(ID_USER,ID_PRODUIT_PARTENAIRE,NOTE,COMMENTAIRE)
+     // console.log(ID_USER,ID_PRODUIT_PARTENAIRE,NOTE,COMMENTAIRE)
       sqlQuery += "values (?,?,?,?)";
       return query(sqlQuery, [
         ID_USER,ID_PRODUIT_PARTENAIRE,NOTE,COMMENTAIRE])
@@ -138,7 +138,7 @@ const findCategories = async () => {
 
 const findById = async (id) => {
     try {
-        var sqlQuery = "SELECT * FROM  ecommerce_produit_notes WHERE ecommerce_produit_notes.ID_NOTE=?";
+        var sqlQuery = "SELECT epn.ID_NOTE, epn.NOTE,epn.COMMENTAIRE,epn.ID_PRODUIT_PARTENAIRE,u.NOM,u.PRENOM, epn.ID_USER,epn.DATE_INSERTION,u.IMAGE FROM ecommerce_produit_notes epn LEFT JOIN users u ON epn.ID_USER=u.ID_USER   WHERE epn.ID_NOTE=?";
         return query(sqlQuery, [id]);
 
     }
