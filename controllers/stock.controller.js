@@ -22,6 +22,7 @@ const createProduitStock = async (req, res) => {
                         NOM,
                         ID_PARTENAIRE_SERVICE,
                         PRIX,
+                        PRIXNOUVEAU,
                         DETAIL,
                         PRODUIT
 
@@ -134,7 +135,7 @@ const createProduitStock = async (req, res) => {
                 
                 const { insertId: insertPrixStock } = await stockmodel.createProduitPrix(
                         insertStock,
-                        PRIX ? PRIX : AllProduits.produit.PRIX,
+                        PRIX ? PRIX : PRIXNOUVEAU,
                         1,
                 )
 

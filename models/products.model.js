@@ -101,17 +101,8 @@ const findone = async (ID_PRODUIT, limit = 10, offset = 0) => {
 const findBYidPartenaire = async (ID_PARTENAIRE_SERVICE, limit = 10, offset = 0) => {
     try {
         var binds = []
-        var sqlQuery = "SELECT ep.ID_PRODUIT,ps.ID_PARTENAIRE_SERVICE,epc.NOM AS NOM_CATEGORIE,ep.NOM,ep.IMAGE_1,ep.IMAGE_2,ep.IMAGE_3,ps.NOM_ORGANISATION,"
-         sqlQuery+=  " ps.ID_TYPE_PARTENAIRE,epp.DESCRIPTION , eps.ID_PRODUIT_STOCK,eps.QUANTITE_TOTAL,"       
-        sqlQuery+=" eps.QUANTITE_VENDUS,eps.QUANTITE_RESTANTE ,ept.TAILLE,ep.ID_CATEGORIE_PRODUIT,"   
-        sqlQuery+=" ep.ID_PRODUIT_SOUS_CATEGORIE  FROM ecommerce_produits ep  LEFT JOIN partenaire_service ps"    
-        sqlQuery+=" ON ps.ID_PARTENAIRE_SERVICE=ep.ID_PARTENAIRE_SERVICE   LEFT JOIN  partenaires"  
-        sqlQuery+=" par ON par.ID_PARTENAIRE=ps.ID_PARTENAIRE  LEFT JOIN users u ON u.ID_USER=par.ID_USER"      
-        sqlQuery+=" LEFT JOIN ecommerce_produit_partenaire epp ON epp.ID_PRODUIT=ep.ID_PRODUIT" 
-        sqlQuery+=" LEFT JOIN ecommerce_produit_stock eps ON eps.ID_PRODUIT_PARTENAIRE=epp.ID_PRODUIT_PARTENAIRE"  
-        sqlQuery+=" LEFT JOIN ecommerce_produit_tailles ept  ON ept.ID_TAILLE=eps.ID_PRODUIT_PARTENAIRE LEFT JOIN "      
-        sqlQuery+=" ecommerce_produit_categorie epc ON epc.ID_CATEGORIE_PRODUIT=ep.ID_CATEGORIE_PRODUIT "    
-        sqlQuery+=" WHERE  par.IS_VALIDE=1 AND eps.QUANTITE_RESTANTE>0 AND ps.ID_SERVICE=1   AND ps.ID_PARTENAIRE_SERVICE=?" 
+        var sqlQuery = "SELECT ep.ID_PRODUIT,ps.ID_PARTENAIRE_SERVICE,epc.NOM AS NOM_CATEGORIE,ep.NOM,ep.IMAGE_1,ep.IMAGE_2,ep.IMAGE_3,ps.NOM_ORGANISATION, ps.ID_TYPE_PARTENAIRE,epp.DESCRIPTION , eps.ID_PRODUIT_STOCK,eps.QUANTITE_TOTAL, eps.QUANTITE_VENDUS,sp.PRIX,eps.QUANTITE_RESTANTE ,ept.TAILLE,ep.ID_CATEGORIE_PRODUIT, ep.ID_PRODUIT_SOUS_CATEGORIE  FROM ecommerce_produits ep  LEFT JOIN partenaire_service ps ON ps.ID_PARTENAIRE_SERVICE=ep.ID_PARTENAIRE_SERVICE   LEFT JOIN  partenaires par ON par.ID_PARTENAIRE=ps.ID_PARTENAIRE  LEFT JOIN users u ON u.ID_USER=par.ID_USER LEFT JOIN ecommerce_produit_partenaire epp ON epp.ID_PRODUIT=ep.ID_PRODUIT LEFT JOIN ecommerce_produit_stock eps ON eps.ID_PRODUIT_PARTENAIRE=epp.ID_PRODUIT_PARTENAIRE LEFT JOIN ecommerce_produit_tailles ept  ON ept.ID_TAILLE=eps.ID_PRODUIT_PARTENAIRE LEFT JOIN  ecommerce_produit_categorie epc ON epc.ID_CATEGORIE_PRODUIT=ep.ID_CATEGORIE_PRODUIT LEFT JOIN ecommerce_stock_prix sp ON sp.ID_PRODUIT_STOCK=eps.ID_PRODUIT_STOCK LEFT JOIN ecommerce_statut_prix stp ON stp.ID_STATUT=sp.ID_STATUT  WHERE stp.ID_STATUT=1 AND  par.IS_VALIDE=1 AND eps.QUANTITE_RESTANTE>0 AND ps.ID_SERVICE=1   AND ps.ID_PARTENAIRE_SERVICE=?"
+          
         
         sqlQuery += ` ORDER BY eps.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
         return query(sqlQuery, [ID_PARTENAIRE_SERVICE]);
