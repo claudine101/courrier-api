@@ -18,10 +18,7 @@ const createMenu = async (req, res) => {
             NOM_MENU,
             PRIX,
             DESCRIPTION,
-
-
         } = req.body
-        console.log(req.body)
         const { IMAGE_1, IMAGE_2, IMAGE_3 } = req.files || {}
         const validation = new Validation(
             { ...req.body, ...req.files },
@@ -77,9 +74,13 @@ const createMenu = async (req, res) => {
             })
         }
         const menuUpload = new MenuUpload()
+        var filename_1
         var filename_2
         var filename_3
-        const { fileInfo: fileInfo_1, thumbInfo: thumbInfo_1 } = await menuUpload.upload(IMAGE_1, false)
+        if (IMAGE_1) {
+            const { fileInfo: fileInfo_1, thumbInfo: thumbInfo_1 } = await menuUpload.upload(IMAGE_1, false)
+            filename_1 = fileInfo_1.fileName
+        }
         if (IMAGE_2) {
             const { fileInfo: fileInfo_2, thumbInfo: thumbInfo_2 } = await menuUpload.upload(IMAGE_2, false)
             filename_2 = fileInfo_2.fileName
@@ -97,9 +98,8 @@ const createMenu = async (req, res) => {
                 ID_CATEGORIE_MENU,
                 ID_SOUS_CATEGORIE_MENU,
                 ID_PARTENAIRE_SERVICE,
-                NOM_MENU,
                 PRIX,
-                fileInfo_1.fileName,
+                filename_1 ? filename_1 : null,
                 filename_2 ? filename_2 : null,
                 filename_3 ? filename_3 : null,
                 DESCRIPTION,
@@ -132,7 +132,7 @@ const createMenu = async (req, res) => {
                 ID_SOUS_CATEGORIE_MENU,
                 ID_PARTENAIRE_SERVICE,
                 PRIX,
-                fileInfo_1.fileName,
+                filename_1 ? filename_1 : null,
                 filename_2 ? filename_2 : null,
                 filename_3 ? filename_3 : null,
             );
@@ -154,7 +154,6 @@ const createMenu = async (req, res) => {
                 }
             })
         }
-        
     }
     catch (error) {
         console.log(error)

@@ -12,20 +12,6 @@ const createMenu = (ID_REPAS,ID_CATEGORIE_MENU,ID_SOUS_CATEGORIE_MENU,ID_PARTENA
         throw error
     }
 };
-
-// const createRepas = (ID_PARTENAIRE, ID_TYPE_REPAS, DESCRIPTION, DESCRIPTION_FOURNISSEUR
-// ) => {
-//     try {
-//         var sqlQuery = "INSERT INTO restaurant_repas (ID_PARTENAIRE,ID_TYPE_REPAS, DESCRIPTION,DESCRIPTION_FOURNISSEUR)";
-//         sqlQuery += "values (?,?,?,?)";
-//         return query(sqlQuery, [ID_PARTENAIRE, ID_TYPE_REPAS, DESCRIPTION, DESCRIPTION_FOURNISSEUR])
-//     }
-//     catch (error) {
-
-//         throw error
-//     }
-// };
-
 const createMenuTaille = (ID_RESTAURANT_MENU, ID_CATEGORIE_MENU, QUANTITE,DESCRIPTION, ID_UNITE
 ) => {
     try {
@@ -61,14 +47,34 @@ const createMenuPrix = (MONTANT, ID_STATUT_PRIX, ID_RESTAURANT_MENU, CODE_ACTIF
 //     }
 // };
 
-const findById = async (id) => {
-    try {
+// const findById = async (id) => {
+//     try {
      
-        return query("SELECT * FROM restaurant_menus menu LEFT JOIN  restaurant_categorie_menu c_menu ON menu.ID_CATEGORIE_MENU=c_menu.ID_CATEGORIE_MENU LEFT JOIN  restaurant_sous_categorie_menu sc_menu ON sc_menu.ID_SOUS_CATEGORIE_MENU=menu.ID_SOUS_CATEGORIE_MENU WHERE menu.ID_RESTAURANT_MENU=?", [id]);
-    } catch (error) {
-        throw error;
+//         return query("SELECT * FROM restaurant_menus menu LEFT JOIN  restaurant_categorie_menu c_menu ON menu.ID_CATEGORIE_MENU=c_menu.ID_CATEGORIE_MENU LEFT JOIN  restaurant_sous_categorie_menu sc_menu ON sc_menu.ID_SOUS_CATEGORIE_MENU=menu.ID_SOUS_CATEGORIE_MENU WHERE menu.ID_RESTAURANT_MENU=?", [id]);
+//     } catch (error) {
+//         throw error;
+//     }
+// };
+const findById = async (ID) => {
+    try {
+        var binds = [ID]
+        var sqlQuery = "SELECT  menu.ID_RESTAURANT_MENU,menu.IMAGES_1,menu.IMAGES_2,menu.IMAGES_3 , rr.ID_REPAS,rr.NOM AS repas ,rr.DESCRIPTION,  " 
+        sqlQuery += " menu.PRIX,c_menu.ID_CATEGORIE_MENU,c_menu.NOM as categorie,sc_menu.ID_SOUS_CATEGORIE_MENU  FROM restaurant_menus menu LEFT JOIN  "
+        sqlQuery += "restaurant_categorie_menu c_menu ON menu.ID_CATEGORIE_MENU=c_menu.ID_CATEGORIE_MENU "
+        sqlQuery += "LEFT JOIN  restaurant_sous_categorie_menu sc_menu ON  "
+        sqlQuery += "sc_menu.ID_SOUS_CATEGORIE_MENU=menu.ID_SOUS_CATEGORIE_MENU LEFT JOIN partenaire_service ps ON  "
+        sqlQuery += "ps.ID_PARTENAIRE_SERVICE=menu.ID_PARTENAIRE_SERVICE "
+        sqlQuery += "LEFT JOIN partenaires p on p.ID_PARTENAIRE=ps.ID_PARTENAIRE "
+        sqlQuery += "LEFT JOIN restaurant_repas rr ON rr.ID_REPAS=menu.ID_REPAS " 
+        sqlQuery += "WHERE menu.ID_RESTAURANT_MENU=? "
+        return query(sqlQuery, [ID]);
+
     }
-};
+    catch (error) {
+        throw error
+
+    }
+}
 
 const findAllRepas = async (ID_TYPE_REPAS) => {
     try {
