@@ -526,6 +526,44 @@ const findAll = async (req, res) => {
         })
     }
 }
+const findAllShop = async (req, res) => {
+    
+    try {
+        const partenaires = await query("SELECT ps.NOM_ORGANISATION  AS  NOM_ORGANISATION ,ps.ID_PARTENAIRE_SERVICE,par.ID_PARTENAIRE FROM partenaires par LEFT JOIN partenaire_service ps ON par.ID_PARTENAIRE=ps.ID_PARTENAIRE WHERE ps.ID_SERVICE=1 and ps.NOM_ORGANISATION!=''");
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Liste de tous les partenaires",
+            result: partenaires
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard"
+        })
+    }
+}
+const findAllResto = async (req, res) => {
+    
+    try {
+        const partenaires = await query("SELECT ps.NOM_ORGANISATION  AS  NOM_ORGANISATION ,ps.ID_PARTENAIRE_SERVICE,par.ID_PARTENAIRE FROM partenaires par LEFT JOIN partenaire_service ps ON par.ID_PARTENAIRE=ps.ID_PARTENAIRE WHERE ps.ID_SERVICE=2 and ps.NOM_ORGANISATION!=''");
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Liste de tous les partenaires",
+            result: partenaires
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard"
+        })
+    }
+}
 module.exports = {
     login,
     createUser,
@@ -534,5 +572,7 @@ module.exports = {
     getcategories,
     createPartenaire,
     getProduits,
-    findAll
+    findAll,
+    findAllShop,
+    findAllResto
 }

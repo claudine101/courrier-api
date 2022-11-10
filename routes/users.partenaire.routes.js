@@ -10,6 +10,10 @@ userPartenaireRouter.get('/ecommerce', userPartenairecontroller.getAllPartenaire
 // userPartenaireRouter.get('/ecommerces', userPartenairecontroller.getAllPartenaires)
 userPartenaireRouter.get('/ecommerce/:id', userPartenairecontroller.findByIdPartenaire)
 userPartenaireRouter.get('/', userPartenairecontroller.findAll)
+userPartenaireRouter.get('/shop', userPartenairecontroller.findAllShop)
+userPartenaireRouter.get('/Resto', userPartenairecontroller.findAllResto)
+
+
 userPartenaireRouter.get('/produits/:id', userPartenairecontroller.getProduits) 
 
 module.exports = userPartenaireRouter
