@@ -61,14 +61,14 @@ const createMenuPrix = (MONTANT, ID_STATUT_PRIX, ID_RESTAURANT_MENU, CODE_ACTIF
 //     }
 // };
 
-const findById = async (id) => {
-    try {
+// const findById = async (id) => {
+//     try {
      
-        return query("SELECT * FROM restaurant_menus menu LEFT JOIN  restaurant_categorie_menu c_menu ON menu.ID_CATEGORIE_MENU=c_menu.ID_CATEGORIE_MENU LEFT JOIN  restaurant_sous_categorie_menu sc_menu ON sc_menu.ID_SOUS_CATEGORIE_MENU=menu.ID_SOUS_CATEGORIE_MENU WHERE menu.ID_RESTAURANT_MENU=?", [id]);
-    } catch (error) {
-        throw error;
-    }
-};
+//         return query("SELECT * FROM restaurant_menus menu LEFT JOIN  restaurant_categorie_menu c_menu ON menu.ID_CATEGORIE_MENU=c_menu.ID_CATEGORIE_MENU LEFT JOIN  restaurant_sous_categorie_menu sc_menu ON sc_menu.ID_SOUS_CATEGORIE_MENU=menu.ID_SOUS_CATEGORIE_MENU WHERE menu.ID_RESTAURANT_MENU=?", [id]);
+//     } catch (error) {
+//         throw error;
+//     }
+// };
 
 const findAllRepas = async (ID_TYPE_REPAS) => {
     try {
@@ -120,7 +120,7 @@ const findAllUnites = async () => {
 
 module.exports = {
     createMenu,
-    findById,
+    // findById,
     findAllRepas,
     findAllCategories,
     findAllSousCategories,
