@@ -33,7 +33,7 @@ const findmenusouscategories = async (ID_CATEGORIE_MENU) => {
 
 const findById = async (id) => {
     try {
-        var sqlQuery = "SELECT epn.ID_NOTE, epn.NOTE,epn.COMMENTAIRE,ID_RESTAURANT_MENU,u.NOM,u.PRENOM, epn.ID_USER,epn.DATE_INSERTION,u.IMAGE FROM restaurant_menus_notes epn LEFT JOIN users u ON epn.ID_USER=u.ID_USER   WHERE epn.ID_NOTE=?";
+        var sqlQuery = "SELECT epn.ID_NOTE,epn.NOTE,epn.COMMENTAIRE,epn.ID_RESTAURANT_MENU,u.NOM,u.PRENOM, epn.ID_USER,epn.DATE_INSERTION,u.IMAGE FROM restaurant_menus_notes epn LEFT JOIN users u ON epn.ID_USER=u.ID_USER   WHERE epn.ID_NOTE=?";
         return query(sqlQuery, [id]);
 
     }
@@ -55,6 +55,19 @@ const createNotes = (ID_USER,ID_RESTAURANT_MENU,NOTE,COMMENTAIRE) => {
       throw error
     }
   }
+  const findBYidProduitPartenaire = async (id,limit = 10, offset = 0) => {
+    try {
+        var sqlQuery = "SELECT epn.NOTE,epn.COMMENTAIRE,epn.ID_RESTAURANT_MENU,u.NOM,u.PRENOM,"
+        sqlQuery+=" epn.ID_USER,epn.DATE_INSERTION,u.IMAGE FROM restaurant_menus_notes epn LEFT JOIN"
+        sqlQuery +=" users u ON epn.ID_USER=u.ID_USER   WHERE epn.ID_RESTAURANT_MENU=?"
+        sqlQuery+=` ORDER BY epn.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
+        return query(sqlQuery, [id]);
+
+    }
+    catch (error) {
+        throw error
+    }
+} 
 
 
 const findmenu = async (ID_CATEGORIE_MENU, ID_PARTENAIRE) => {
@@ -163,6 +176,19 @@ const findWishlist = async (ID_USER,category, limit = 10, offset = 0) => {
 
     }
 }
+const findnotemenu = async (ID_RESTAURANT_MENU,id) => {
+    try {
+        var sqlQuery = "SELECT epn.NOTE,epn.COMMENTAIRE,epn.ID_RESTAURANT_MENU,u.NOM,u.PRENOM,"
+        sqlQuery+=" epn.ID_USER,epn.DATE_INSERTION,u.IMAGE FROM restaurant_menus_notes epn LEFT JOIN"
+        sqlQuery +=" users u ON epn.ID_USER=u.ID_USER   WHERE epn.ID_RESTAURANT_MENU=? AND  epn.ID_USER=?"
+        //sqlQuery+=` ORDER BY epn.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
+        return query(sqlQuery, [ID_RESTAURANT_MENU,id]);
+
+    }
+    catch (error) {
+        throw error
+    }
+}
 
 module.exports = {
     findmenucategories,
@@ -174,7 +200,9 @@ module.exports = {
     findByIDmenu,
     findWishlist,
     createNotes,
-    findById
+    findById,
+    findBYidProduitPartenaire,
+    findnotemenu
 
 
 }
