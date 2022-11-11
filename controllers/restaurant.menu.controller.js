@@ -165,6 +165,8 @@ const createMenu = async (req, res) => {
         })
     }
 }
+
+
 const findByInsertId = async (req, res) => {
     const { id } = req.params
     try {
@@ -316,6 +318,7 @@ const getUnites = async (req, res) => {
 }
 
 module.exports = {
+
     createMenu,
     findByInsertId,
     getRepas,
@@ -323,6 +326,15 @@ module.exports = {
     getSousCategories,
     getSousSousCategories,
     getUnites,
-    getTypesRepas
+    getTypesRepas,
+    findByInsertId,
+          
+          
+         
+         
+          
+          
+         
+
 
 }

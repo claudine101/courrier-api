@@ -2,7 +2,7 @@ const RESPONSE_CODES = require("../constants/RESPONSE_CODES.js")
 const RESPONSE_STATUS = require("../constants/RESPONSE_STATUS.js")
 const productsModel = require("../models/products.model.js")
 const { query } = require("../utils/db")
-
+const Validation = require('../class/Validation')
 const getAllProducts = async (req, res) => {
     try {
         const getImageUri = (fileName) => {
@@ -227,12 +227,13 @@ const getbyID = async (req, res) => {
             produit: {
                 ID_PRODUIT: product.ID_PRODUIT,
                 NOM: product.NOM,
-                IMAGE: product.IMAGE
+                IMAGE: product.IMAGE,
+                ID_PRODUIT_PARTENAIRE: product.ID_PRODUIT_PARTENAIRE,
             },
             partenaire: {
                 NOM_ORGANISATION: product.NOM_ORGANISATION,
                 ID_PARTENAIRE: product.ID_PARTENAIRE,
-               
+
             },
             produit_partenaire: {
                 ID_PARTENAIRE_SERVICE: product.ID_PARTENAIRE_SERVICE,
@@ -298,6 +299,190 @@ const getAllCategorie = async (req, res) => {
             statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
             httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
             message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
+
+
+const getAllNotes = async (req, res) => {
+    try {
+        const getImageUri = (fileName) => {
+            if (!fileName) return null
+            if (fileName.indexOf("http") === 0) return fileName
+            return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+        }
+
+        const { ID_PRODUIT_PARTENAIRE, limit, offset } = req.params
+
+        const noteListe = await productsModel.findBYidProduitPartenaire(ID_PRODUIT_PARTENAIRE, limit, offset)
+        const notes = noteListe.map(note => ({
+            produit_note: {
+                NOTE: note.NOTE,
+                COMENTAIRE: note.COMMENTAIRE,
+                DATE: note.DATE_INSERTION,
+                ID_PRODUIT_PARTENAIRE: note.ID_PRODUIT_PARTENAIRE
+            },
+
+            utilisateur: {
+
+                IMAGE: getImageUri(note.IMAGE),
+                ID_USER: note.ID_USER,
+                NOM: note.NOM,
+                PRENOM: note.PRENOM
+
+
+
+
+
+
+            },
+
+
+        }))
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Les notes",
+            result: notes
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
+
+const getnotes = async (req, res) => {
+    try {
+        const getImageUri = (fileName) => {
+            if (!fileName) return null
+            if (fileName.indexOf("http") === 0) return fileName
+            return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+        }
+
+        const { ID_PRODUIT_PARTENAIRE } = req.params
+
+        const noteListe = await productsModel.findnoteProduitPartenaire(ID_PRODUIT_PARTENAIRE, req.userId)
+        
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "La commentaire",
+            result: noteListe
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
+
+
+const insertNote = async (req, res) => {
+
+    try {
+
+
+        const { ID_PRODUIT_PARTENAIRE, NOTE, COMMENTAIRE } = req.body
+        const getImageUri = (fileName) => {
+            if (!fileName) return null
+            if (fileName.indexOf("http") === 0) return fileName
+            return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+        }
+        const validation = new Validation(req.body,
+            {
+
+
+                NOTE:
+                {
+                    required: true,
+                },
+
+
+
+
+            },
+            {
+
+                NOTE: {
+                    required: "La note est obligatoire"
+                },
+
+
+
+
+
+            }
+
+        )
+
+        await validation.run();
+        const isValide = await validation.isValidate()
+        const errors = await validation.getErrors()
+        if (!isValide) {
+            return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
+                statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
+                httpStatus: RESPONSE_STATUS.UNPROCESSABLE_ENTITY,
+                message: "Probleme de validation des donnees",
+                result: errors
+            })
+
+        }
+
+
+
+        const { insertId } = await productsModel.createNotes(
+            req.userId,
+            ID_PRODUIT_PARTENAIRE,
+            NOTE,
+            COMMENTAIRE,
+
+        )
+        const note = (await productsModel.findById(insertId))[0]
+        const  notes={
+            produit_note: {
+                NOTE: note.NOTE,
+                COMENTAIRE: note.COMMENTAIRE,
+                DATE: note.DATE_INSERTION,
+                ID_PRODUIT_PARTENAIRE: note.ID_PRODUIT_PARTENAIRE
+            },
+
+            utilisateur: {
+
+                IMAGE: getImageUri(note.IMAGE),
+                ID_USER: note.ID_USER,
+                NOM: note.NOM,
+                PRENOM: note.PRENOM
+            },
+        }
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "le commentaire",
+            result: notes
+
+
+        })
+      
+       
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Enregistrement echoue",
 
         })
     }
@@ -448,8 +633,8 @@ const getSize = async (req, res) => {
 }
 const getColor = async (req, res) => {
     try {
-        const { ID_TAILLE,ID_PRODUIT_PARTENAIRE} = req.params
-        const colors = await productsModel.findColor(ID_PRODUIT_PARTENAIRE,ID_TAILLE)
+        const { ID_TAILLE, ID_PRODUIT_PARTENAIRE } = req.params
+        const colors = await productsModel.findColor(ID_PRODUIT_PARTENAIRE, ID_TAILLE)
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_STATUS.OK,
@@ -480,7 +665,10 @@ module.exports = {
     getOne,
     getCategorieByPartenaire,
     getbyID,
-    getAllColors
+    getAllColors,
+    insertNote,
+    getAllNotes,
+    getnotes
 
 
 }
