@@ -1,6 +1,8 @@
 const RESPONSE_CODES = require('../constants/RESPONSE_CODES')
 const RESPONSE_STATUS = require('../constants/RESPONSE_STATUS')
 const restoMenuModel = require('../models/resto.menu.model')
+const jwt = require("jsonwebtoken");
+const Validation = require('../class/Validation')
 const getAllCategories = async (req, res) => {
     try {
 
@@ -45,6 +47,90 @@ const getSousCategories = async (req, res) => {
             statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
             httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
             message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
+
+const insertNote = async (req, res) => {
+
+    try {
+
+
+        const { ID_RESTAURANT_MENU, NOTE, COMMENTAIRE } = req.body
+        const getImageUri = (fileName) => {
+            if (!fileName) return null
+            if (fileName.indexOf("http") === 0) return fileName
+            return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+        }
+        const validation = new Validation(req.body,
+            {
+
+
+                NOTE:
+                {
+                    required: true,
+                },
+
+
+
+
+            },
+            {
+
+                NOTE: {
+                    required: "La note est obligatoire"
+                },
+
+
+
+
+
+            }
+
+        )
+
+        await validation.run();
+        const isValide = await validation.isValidate()
+        const errors = await validation.getErrors()
+        if (!isValide) {
+            return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
+                statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
+                httpStatus: RESPONSE_STATUS.UNPROCESSABLE_ENTITY,
+                message: "Probleme de validation des donnees",
+                result: errors
+            })
+
+        }
+
+
+
+        const { insertId } = await restoMenuModel.createNotes(
+            req.userId,
+            ID_RESTAURANT_MENU,
+            NOTE,
+            COMMENTAIRE,
+
+        )
+        const note = (await restoMenuModel.findById(insertId))[0]
+        
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "le commentaire",
+            result: note
+
+
+        })
+      
+       
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Enregistrement echoue",
 
         })
     }
@@ -152,5 +238,6 @@ module.exports = {
     getAllCategories,
     getSousCategories,
     getmenu,
-    getmenubyIdPartenaire
+    getmenubyIdPartenaire,
+    insertNote
 }
