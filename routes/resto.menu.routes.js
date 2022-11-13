@@ -9,6 +9,6 @@ restoMenuRouter.get('/:ID_PARTENAIRE_SERVICE', restoMenuController.getmenu)
 restoMenuRouter.get('/restaurant/:ID_PARTENAIRE_SERVICE', restoMenuController.getByIdmenu)
 restoMenuRouter.get('/', restoMenuController.getAllmenu)
  restoMenuRouter.get('/:ID_PARTENAIRE', restoMenuController.getmenubyIdPartenaire)
- restoMenuRouter.get('/wishlist', restoMenuController.getWishlist)
+ restoMenuRouter.get('/wishlist/all', restoMenuController.getWishlist)
 
 module.exports =restoMenuRouter
