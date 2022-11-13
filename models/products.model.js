@@ -101,7 +101,7 @@ const findone = async (ID_PRODUIT, limit = 10, offset = 0) => {
 const findBYidPartenaire = async (ID_PARTENAIRE_SERVICE, limit = 10, offset = 0) => {
     try {
         var binds = []
-        var sqlQuery = "SELECT ep.ID_PRODUIT,ps.ID_PARTENAIRE_SERVICE,epc.NOM AS NOM_CATEGORIE,ep.NOM,ep.IMAGE_1,ep.IMAGE_2,ep.IMAGE_3,ps.NOM_ORGANISATION, ps.ID_TYPE_PARTENAIRE,epp.DESCRIPTION , eps.ID_PRODUIT_STOCK,eps.QUANTITE_TOTAL, eps.QUANTITE_VENDUS,sp.PRIX,eps.QUANTITE_RESTANTE ,ept.TAILLE,ep.ID_CATEGORIE_PRODUIT, ep.ID_PRODUIT_SOUS_CATEGORIE  FROM ecommerce_produits ep  LEFT JOIN partenaire_service ps ON ps.ID_PARTENAIRE_SERVICE=ep.ID_PARTENAIRE_SERVICE   LEFT JOIN  partenaires par ON par.ID_PARTENAIRE=ps.ID_PARTENAIRE  LEFT JOIN users u ON u.ID_USER=par.ID_USER LEFT JOIN ecommerce_produit_partenaire epp ON epp.ID_PRODUIT=ep.ID_PRODUIT LEFT JOIN ecommerce_produit_stock eps ON eps.ID_PRODUIT_PARTENAIRE=epp.ID_PRODUIT_PARTENAIRE LEFT JOIN ecommerce_produit_tailles ept  ON ept.ID_TAILLE=eps.ID_PRODUIT_PARTENAIRE LEFT JOIN  ecommerce_produit_categorie epc ON epc.ID_CATEGORIE_PRODUIT=ep.ID_CATEGORIE_PRODUIT LEFT JOIN ecommerce_stock_prix sp ON sp.ID_PRODUIT_STOCK=eps.ID_PRODUIT_STOCK LEFT JOIN ecommerce_statut_prix stp ON stp.ID_STATUT=sp.ID_STATUT  WHERE stp.ID_STATUT=1 AND  par.IS_VALIDE=1 AND eps.QUANTITE_RESTANTE>0 AND ps.ID_SERVICE=1   AND ps.ID_PARTENAIRE_SERVICE=?"
+        var sqlQuery = "SELECT ep.ID_PRODUIT,ps.ID_PARTENAIRE_SERVICE,epp.ID_PRODUIT_PARTENAIRE,epc.NOM AS NOM_CATEGORIE,ep.NOM,ep.IMAGE_1,ep.IMAGE_2,ep.IMAGE_3,ps.NOM_ORGANISATION, ps.ID_TYPE_PARTENAIRE,epp.DESCRIPTION , eps.ID_PRODUIT_STOCK,eps.QUANTITE_TOTAL, eps.QUANTITE_VENDUS,sp.PRIX,eps.QUANTITE_RESTANTE ,ept.TAILLE,ep.ID_CATEGORIE_PRODUIT, ep.ID_PRODUIT_SOUS_CATEGORIE  FROM ecommerce_produits ep  LEFT JOIN partenaire_service ps ON ps.ID_PARTENAIRE_SERVICE=ep.ID_PARTENAIRE_SERVICE   LEFT JOIN  partenaires par ON par.ID_PARTENAIRE=ps.ID_PARTENAIRE  LEFT JOIN users u ON u.ID_USER=par.ID_USER LEFT JOIN ecommerce_produit_partenaire epp ON epp.ID_PRODUIT=ep.ID_PRODUIT LEFT JOIN ecommerce_produit_stock eps ON eps.ID_PRODUIT_PARTENAIRE=epp.ID_PRODUIT_PARTENAIRE LEFT JOIN ecommerce_produit_tailles ept  ON ept.ID_TAILLE=eps.ID_PRODUIT_PARTENAIRE LEFT JOIN  ecommerce_produit_categorie epc ON epc.ID_CATEGORIE_PRODUIT=ep.ID_CATEGORIE_PRODUIT LEFT JOIN ecommerce_stock_prix sp ON sp.ID_PRODUIT_STOCK=eps.ID_PRODUIT_STOCK LEFT JOIN ecommerce_statut_prix stp ON stp.ID_STATUT=sp.ID_STATUT  WHERE stp.ID_STATUT=1 AND  par.IS_VALIDE=1 AND eps.QUANTITE_RESTANTE>0 AND ps.ID_SERVICE=1   AND ps.ID_PARTENAIRE_SERVICE=?"
           
         
         sqlQuery += ` ORDER BY eps.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
@@ -112,19 +112,19 @@ const findBYidPartenaire = async (ID_PARTENAIRE_SERVICE, limit = 10, offset = 0)
 
     }
 }
-// const findproductsby = async (ID_PARTENAIRE) => {
-//     try {
-
-//         var sqlQuery="SELECT epc.ID_CATEGORIE_PRODUIT,epc.NOM,epc.IMAGE FROM ecommerce_produit_partenaire epp LEFT JOIN partenaires p ON p.ID_PARTENAIRE=epp.ID_PARTENAIRE  LEFT JOIN ecommerce_produit_categorie epc ON epc.ID_CATEGORIE_PRODUIT=epp.ID_CATEGORIE_PRODUIT WHERE 1 AND epp.ID_PARTENAIRE=?GROUP BY epc.ID_CATEGORIE_PRODUIT "
-
-
-//         return query(sqlQuery, [ID_PARTENAIRE]);
-//     }
-//     catch (error) {
-//         throw error
-
-//     }
-// }
+const createNotes = (ID_USER,ID_PRODUIT_PARTENAIRE,NOTE,COMMENTAIRE) => {
+    try {
+      var sqlQuery = "INSERT INTO ecommerce_produit_notes (ID_USER,ID_PRODUIT_PARTENAIRE,NOTE,COMMENTAIRE)";
+     // console.log(ID_USER,ID_PRODUIT_PARTENAIRE,NOTE,COMMENTAIRE)
+      sqlQuery += "values (?,?,?,?)";
+      return query(sqlQuery, [
+        ID_USER,ID_PRODUIT_PARTENAIRE,NOTE,COMMENTAIRE])
+    }
+    catch (error) {
+  
+      throw error
+    }
+  }
 
 const findCategories = async () => {
     try {
@@ -137,7 +137,7 @@ const findCategories = async () => {
 
 const findById = async (id) => {
     try {
-        var sqlQuery = "SELECT * FROM ecommerce_produit_categorie  cat LEFT JOIN  ecommerce_produits px ON px.ID_CATEGORIE_PRODUIT=cat.ID_CATEGORIE_PRODUIT  WHERE px.ID_PARTENAIRE_SERVICE=?";
+        var sqlQuery = "SELECT epn.ID_NOTE, epn.NOTE,epn.COMMENTAIRE,epn.ID_PRODUIT_PARTENAIRE,u.NOM,u.PRENOM, epn.ID_USER,epn.DATE_INSERTION,u.IMAGE FROM ecommerce_produit_notes epn LEFT JOIN users u ON epn.ID_USER=u.ID_USER   WHERE epn.ID_NOTE=?";
         return query(sqlQuery, [id]);
 
     }
@@ -145,6 +145,35 @@ const findById = async (id) => {
         throw error
     }
 }
+const findBYidProduitPartenaire = async (id,limit = 10, offset = 0) => {
+    try {
+        var sqlQuery = "SELECT epn.NOTE,epn.COMMENTAIRE,epn.ID_PRODUIT_PARTENAIRE,u.NOM,u.PRENOM,"
+        sqlQuery+=" epn.ID_USER,epn.DATE_INSERTION,u.IMAGE FROM ecommerce_produit_notes epn LEFT JOIN"
+        sqlQuery +=" users u ON epn.ID_USER=u.ID_USER   WHERE epn.ID_PRODUIT_PARTENAIRE=?"
+        sqlQuery+=` ORDER BY epn.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
+        return query(sqlQuery, [id]);
+
+    }
+    catch (error) {
+        throw error
+    }
+} 
+const findnoteProduitPartenaire = async (ID_PRODUIT_PARTENAIRE,id) => {
+    try {
+        var sqlQuery = "SELECT epn.NOTE,epn.COMMENTAIRE,epn.ID_PRODUIT_PARTENAIRE,u.NOM,u.PRENOM,"
+        sqlQuery+=" epn.ID_USER,epn.DATE_INSERTION,u.IMAGE FROM ecommerce_produit_notes epn LEFT JOIN"
+        sqlQuery +=" users u ON epn.ID_USER=u.ID_USER   WHERE epn.ID_PRODUIT_PARTENAIRE=? AND  epn.ID_USER=?"
+        //sqlQuery+=` ORDER BY epn.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
+        return query(sqlQuery, [ID_PRODUIT_PARTENAIRE,id]);
+
+    }
+    catch (error) {
+        throw error
+    }
+}
+
+
+
 const getPrix = async (id) => {
     try {
         var sqlQuery = "SELECT esp.PRIX   FROM ecommerce_produit_stock eps LEFT JOIN ecommerce_stock_prix esp ON eps.ID_PRODUIT_STOCK=esp.ID_PRODUIT_STOCK LEFT join ecommerce_statut_prix espr ON espr.ID_STATUT=esp.ID_STATUT WHERE espr.ID_STATUT=1  AND eps.ID_PRODUIT_PARTENAIRE=?";
@@ -229,7 +258,11 @@ module.exports = {
     findproduct,
     findBYidPartenaire,
     getPrix,
-    findColor
+    findColor,
+    createNotes,
+    findBYidProduitPartenaire,
+    
+    findnoteProduitPartenaire
    
    
     

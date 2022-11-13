@@ -55,6 +55,7 @@ const createMenuPrix = (MONTANT, ID_STATUT_PRIX, ID_RESTAURANT_MENU, CODE_ACTIF
 //         throw error;
 //     }
 // };
+
 const findById = async (ID) => {
     try {
         var binds = [ID]
@@ -75,6 +76,8 @@ const findById = async (ID) => {
 
     }
 }
+
+
 
 const findAllRepas = async (ID_TYPE_REPAS) => {
     try {
@@ -126,7 +129,7 @@ const findAllUnites = async () => {
 
 module.exports = {
     createMenu,
-    findById,
+     findById,
     findAllRepas,
     findAllCategories,
     findAllSousCategories,

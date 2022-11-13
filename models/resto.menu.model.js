@@ -28,7 +28,50 @@ const findmenusouscategories = async (ID_CATEGORIE_MENU) => {
         throw error
     }
 }
-const findmenu = async () => {
+
+
+
+const findById = async (id) => {
+    try {
+        var sqlQuery = "SELECT epn.ID_NOTE,epn.NOTE,epn.COMMENTAIRE,epn.ID_RESTAURANT_MENU,u.NOM,u.PRENOM, epn.ID_USER,epn.DATE_INSERTION,u.IMAGE FROM restaurant_menus_notes epn LEFT JOIN users u ON epn.ID_USER=u.ID_USER   WHERE epn.ID_NOTE=?";
+        return query(sqlQuery, [id]);
+
+    }
+    catch (error) {
+        throw error
+    }
+}
+
+const createNotes = (ID_USER,ID_RESTAURANT_MENU,NOTE,COMMENTAIRE) => {
+    try {
+      var sqlQuery = "INSERT INTO restaurant_menus_notes (ID_USER,ID_RESTAURANT_MENU,NOTE,COMMENTAIRE)";
+     // console.log(ID_USER,ID_PRODUIT_PARTENAIRE,NOTE,COMMENTAIRE)
+      sqlQuery += "values (?,?,?,?)";
+      return query(sqlQuery, [
+        ID_USER,ID_RESTAURANT_MENU,NOTE,COMMENTAIRE])
+    }
+    catch (error) {
+  
+      throw error
+    }
+  }
+  const findBYidProduitPartenaire = async (id,limit = 10, offset = 0) => {
+    try {
+        var sqlQuery = "SELECT epn.NOTE,epn.COMMENTAIRE,epn.ID_RESTAURANT_MENU,u.NOM,u.PRENOM,"
+        sqlQuery+=" epn.ID_USER,epn.DATE_INSERTION,u.IMAGE FROM restaurant_menus_notes epn LEFT JOIN"
+        sqlQuery +=" users u ON epn.ID_USER=u.ID_USER   WHERE epn.ID_RESTAURANT_MENU=?"
+        sqlQuery+=` ORDER BY epn.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
+        return query(sqlQuery, [id]);
+
+    }
+    catch (error) {
+        throw error
+    }
+} 
+
+
+const findmenu = async (ID_CATEGORIE_MENU, ID_PARTENAIRE) => {
+
     try {
         var binds = [ID_USER, ID_PARTENAIRE_SERVICE]
         var sqlQuery = "SELECT  ps.ID_PARTENAIRE_SERVICE,ps.NOM_ORGANISATION,menu.DATE_INSERTION,menu.ID_RESTAURANT_MENU,menu.IMAGES_1,menu.IMAGES_2,menu.IMAGES_3 , rr.ID_REPAS,rr.NOM AS repas ,rr.DESCRIPTION,  " 
@@ -133,6 +176,19 @@ const findWishlist = async (ID_USER,category, limit = 10, offset = 0) => {
 
     }
 }
+const findnotemenu = async (ID_RESTAURANT_MENU,id) => {
+    try {
+        var sqlQuery = "SELECT epn.NOTE,epn.COMMENTAIRE,epn.ID_RESTAURANT_MENU,u.NOM,u.PRENOM,"
+        sqlQuery+=" epn.ID_USER,epn.DATE_INSERTION,u.IMAGE FROM restaurant_menus_notes epn LEFT JOIN"
+        sqlQuery +=" users u ON epn.ID_USER=u.ID_USER   WHERE epn.ID_RESTAURANT_MENU=? AND  epn.ID_USER=?"
+        //sqlQuery+=` ORDER BY epn.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
+        return query(sqlQuery, [ID_RESTAURANT_MENU,id]);
+
+    }
+    catch (error) {
+        throw error
+    }
+}
 
 module.exports = {
     findmenucategories,
@@ -142,5 +198,11 @@ module.exports = {
     findmenubyPartenaire,
     findCategories,
     findByIDmenu,
-    findWishlist
+    findWishlist,
+    createNotes,
+    findById,
+    findBYidProduitPartenaire,
+    findnotemenu
+
+
 }
