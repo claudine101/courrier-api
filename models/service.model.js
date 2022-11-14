@@ -47,7 +47,16 @@ const findByIdPart = async (idPartenaire) => {
     }
 
 }
+const createOne = async (ID_PARTENAIRE_SERVICE,ID_SERVICE, MODE_ID = 1, NUMERO, TXNI_D,  ) => {
+    try {
+              return query('INSERT INTO service_payement(ID_PARTENAIRE_SERVICE,ID_SERVICE, MODE_ID, NUMERO,  TXNI_D)VALUES(?, ?, ?, ?, ?)', [
+                ID_PARTENAIRE_SERVICE,ID_SERVICE, MODE_ID = 1, NUMERO, TXNI_D, ])
+    } catch (error) {
+              throw error
+    }
+}
 module.exports = {
+    createOne,
     findAll,
     findById,
     findByIdPart

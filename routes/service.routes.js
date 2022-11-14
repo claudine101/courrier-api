@@ -4,5 +4,7 @@ const serviceRouter = express.Router()
 serviceRouter.get('/', servicecontroller.findAllService)
 serviceRouter.get('/search/:ID_SERVICE', servicecontroller.findOne)
 serviceRouter.get('/partenaire', servicecontroller.findService)
+serviceRouter.post('/payement', servicecontroller.paye)
+
 
 module.exports = serviceRouter
