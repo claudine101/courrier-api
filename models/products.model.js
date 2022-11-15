@@ -278,7 +278,6 @@ module.exports = {
     findColor,
     createNotes,
     findBYidProduitPartenaire,
-    
     findnoteProduitPartenaire
    
    
