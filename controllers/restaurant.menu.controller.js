@@ -214,12 +214,21 @@ const getRepas = async (req, res) => {
 
 const getCategories = async (req, res) => {
     try {
+        const getImageUri = (fileName, folder) => {
+            if (!fileName) return null
+            if (fileName.indexOf("http") === 0) return fileName
+            return `${req.protocol}://${req.get("host")}/uploads/${folder}/${fileName}`
+        }
         const categories = await menuModel.findAllCategories()
+        const categoriess = categories.map(categorie => ({
+            ...categorie,
+            IMAGE: getImageUri(categorie.IMAGE, "menu"),
+  }))
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_STATUS.OK,
-            message: "succès",
-            result: categories
+            message: "succès categorie",
+            result: categoriess
         })
     }
     catch (error) {
