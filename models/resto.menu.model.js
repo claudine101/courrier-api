@@ -12,7 +12,7 @@ const findmenucategories = async () => {
 const findCategories = async (ID_PARTENAIRE_SERVICE) => {
     try {
         var binds = [ID_PARTENAIRE_SERVICE]
-        var sqlQuery =" SELECT DISTINCT rcm.ID_CATEGORIE_MENU ,rcm.NOM FROM  restaurant_categorie_menu   rcm LEFT JOIN  restaurant_menus rm  "
+        var sqlQuery =" SELECT DISTINCT rcm.ID_CATEGORIE_MENU ,rcm.NOM ,rcm.IMAGE FROM  restaurant_categorie_menu   rcm LEFT JOIN  restaurant_menus rm  "
         sqlQuery +=" ON rm.ID_CATEGORIE_MENU=rcm.ID_CATEGORIE_MENU WHERE rm.ID_PARTENAIRE_SERVICE= ? "
         return query(sqlQuery, [binds]);
     }

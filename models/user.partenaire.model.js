@@ -45,7 +45,7 @@ const findpartenaire = async (category, subCategory, limit = 10, offset = 0) => 
             sqlQuery += "  ON ep.ID_PARTENAIRE_SERVICE = ps.ID_PARTENAIRE_SERVICE LEFT JOIN users u  ON u.ID_USER=p.ID_USER WHERE ep.ID_PARTENAIRE_SERVICE=?  "
             binds.push(category)
         }
-        sqlQuery += " WHERE ID_TYPE_PARTENAIRE = 2 AND ID_SERVICE = 1 AND p.IS_VALIDE=1 "
+        sqlQuery += " WHERE ID_TYPE_PARTENAIRE = 2 AND ID_SERVICE = 1 "
         sqlQuery += `LIMIT ${offset}, ${limit}`;
         return query(sqlQuery, binds);
     }

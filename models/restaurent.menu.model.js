@@ -89,7 +89,7 @@ const findAllRepas = async (ID_TYPE_REPAS) => {
 
 const findAllCategories = async () => {
     try {
-        return query("SELECT ID_CATEGORIE_MENU,NOM FROM restaurant_categorie_menu WHERE 1");
+        return query("SELECT * FROM restaurant_categorie_menu WHERE 1");
     } catch (error) {
         throw error;
     }

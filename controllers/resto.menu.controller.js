@@ -5,13 +5,18 @@ const jwt = require("jsonwebtoken");
 const Validation = require('../class/Validation')
 const getAllCategories = async (req, res) => {
     try {
-
+        const getImageUri = (fileName) => {
+            if (!fileName) return null
+            if (fileName.indexOf("http") === 0) return fileName
+            return `${req.protocol}://${req.get("host")}/uploads/menu/${fileName}`
+        }
         const menucategories = await restoMenuModel.findmenucategories()
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_CODES.OK,
             message: "Liste des menucategories",
-            result: menucategories
+            result: menucategories,
+               
 
 
         })
@@ -55,12 +60,21 @@ const getnote = async (req, res) => {
 const getByIdCategories = async (req, res) => {
     try {
         const {ID_PARTENAIRE_SERVICE}=req.params
+        const getImageUri = (fileName) => {
+            if (!fileName) return null
+            if (fileName.indexOf("http") === 0) return fileName
+            return `${req.protocol}://${req.get("host")}/uploads/menu/${fileName}`
+        }
         const menucategories = await restoMenuModel.findCategories(ID_PARTENAIRE_SERVICE)
+        const categoriess = menucategories.map(categorie => ({
+            ...categorie,
+            IMAGE: getImageUri(categorie.IMAGE, "menu"),
+  }))
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_CODES.OK,
             message: "Liste des menu categories",
-            result: menucategories
+            result: categoriess
 
 
         })
