@@ -39,7 +39,7 @@ const findproduct = async (id,category, subCategory, limit = 10, offset = 0) => 
 
 }
 }
-const findproducts = async (category, subCategory, limit = 10, offset = 0) => {
+const findproducts = async (q,category, subCategory, limit = 10, offset = 0) => {
 
     try {
         
@@ -55,6 +55,23 @@ const findproducts = async (category, subCategory, limit = 10, offset = 0) => {
         sqlQuery += " LEFT JOIN ecommerce_produit_partenaire epp ON epp.ID_PRODUIT=ep.ID_PRODUIT  "
         sqlQuery += "  LEFT JOIN ecommerce_produit_stock eps ON eps.ID_PRODUIT_PARTENAIRE=epp.ID_PRODUIT_PARTENAIRE "
         sqlQuery += " WHERE   ps.ID_SERVICE=1 "
+        if (q && q != "") {
+            sqlQuery +=
+                      "AND (ps.NOM_ORGANISATION LIKE ? OR imm.NOM_PROPRIETAIRE LIKE ? OR imm.PRENOM_PROPRIETAIRE LIKE ? ";
+            sqlQuery +=
+                      " OR imm.MODELE_VOITURE LIKE ? OR permis.NOM_PROPRIETAIRE LIKE ? OR permis.CATEGORIES LIKE ? OR hi.NUMERO_PERMIS LIKE ? OR hi.NUMERO_PLAQUE LIKE ? OR IF(hi.MONTANT != 0,hi.IS_PAID LIKE ?, '' ) )";
+            binds.push(
+                      `%${q}%`,
+                      `%${q}%`,
+                      `%${q}%`,
+                      `%${q}%`,
+                      `%${q}%`,
+                      `%${q}%`,
+                      `%${q}%`,
+                      `%${q}%`,
+                      `%${q}%`
+            );
+  }
 
         if (category) {
             sqlQuery += " AND ep.ID_CATEGORIE_PRODUIT=? "

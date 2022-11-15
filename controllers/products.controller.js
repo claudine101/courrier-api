@@ -10,8 +10,8 @@ const getAllProducts = async (req, res) => {
             if (fileName.indexOf("http") === 0) return fileName
             return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
         }
-        const { category, subCategory, limit, offset } = req.query
-        const allProducts = await productsModel.findproducts(category, subCategory, limit, offset)
+        const { q,category, subCategory, limit, offset } = req.query
+        const allProducts = await productsModel.findproducts(q,category, subCategory, limit, offset)
         const products = await Promise.all(allProducts.map(async product => {
             const prix = (await productsModel.getPrix(product.ID_PRODUIT_PARTENAIRE))[0]
             if (prix) {
