@@ -295,7 +295,7 @@ const getAllPartenaire = async (req, res) => {
               var sqlQuery = "SELECT ps.*, s.NOM NOM_SERVICE FROM partenaire_service ps "
               sqlQuery += " LEFT JOIN partenaires p ON p.ID_PARTENAIRE = ps.ID_PARTENAIRE "
               sqlQuery += " LEFT JOIN services s ON s.ID_SERVICE = ps.ID_SERVICE "
-              sqlQuery += " WHERE   ps.ID_SERVICE =2 "
+              sqlQuery += " WHERE   ps.ID_SERVICE =2  ORDER BY ps.DATE_INSERTION DESC"
               const svs = await query(sqlQuery, [req.userId])
               const services = svs.map(service => ({
                         ...service,
