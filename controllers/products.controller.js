@@ -267,6 +267,7 @@ const getbyID = async (req, res) => {
             message: "Le produit",
             result: products
         })
+        console.log(products)
     }
     catch (error) {
         console.log(error)
