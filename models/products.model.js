@@ -254,7 +254,7 @@ const findSize = async (ID_PRODUIT_PARTENAIRE) => {
         var binds = [ID_PRODUIT_PARTENAIRE]
         var sqlQuery = " SELECT DISTINCT(ept.ID_TAILLE) as id,ept.TAILLE as name  FROM   ecommerce_produit_stock eps "
         sqlQuery +=" LEFT JOIN ecommerce_produit_details epd ON epd.ID_PRODUIT_STOCK=eps.ID_PRODUIT_STOCK "
-        sqlQuery +=" LEFT JOIN ecommerce_produit_tailles ept ON ept.ID_TAILLE=epd.ID_TAILLE WHERE eps.ID_PRODUIT_PARTENAIRE=?"
+        sqlQuery +=" LEFT JOIN ecommerce_produit_tailles ept ON ept.ID_TAILLE=epd.ID_TAILLE WHERE ept.TAILLE!='' AND eps.ID_PRODUIT_PARTENAIRE=? "
         return query(sqlQuery,binds);
         
     }
