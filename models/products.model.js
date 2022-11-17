@@ -118,7 +118,25 @@ const findone = async (ID_PRODUIT, limit = 10, offset = 0) => {
 const findBYidPartenaire = async (ID_PARTENAIRE_SERVICE, limit = 10, offset = 0) => {
     try {
         var binds = []
-        var sqlQuery = "SELECT ep.ID_PRODUIT,ps.ID_PARTENAIRE_SERVICE,epp.ID_PRODUIT_PARTENAIRE,epc.NOM AS NOM_CATEGORIE,ep.NOM,ep.IMAGE_1,ep.IMAGE_2,ep.IMAGE_3,ps.NOM_ORGANISATION, ps.ID_TYPE_PARTENAIRE,epp.DESCRIPTION , eps.ID_PRODUIT_STOCK,epd.QUANTITE_TOTAL, epd.QUANTITE_VENDUS,sp.PRIX,epd.QUANTITE_RESTANTE ,ept.TAILLE,ep.ID_CATEGORIE_PRODUIT, ep.ID_PRODUIT_SOUS_CATEGORIE  FROM ecommerce_produits ep  LEFT JOIN partenaire_service ps ON ps.ID_PARTENAIRE_SERVICE=ep.ID_PARTENAIRE_SERVICE   LEFT JOIN  partenaires par ON par.ID_PARTENAIRE=ps.ID_PARTENAIRE  LEFT JOIN users u ON u.ID_USER=par.ID_USER LEFT JOIN ecommerce_produit_partenaire epp  ON epp.ID_PRODUIT=ep.ID_PRODUIT LEFT JOIN ecommerce_produit_stock eps ON eps.ID_PRODUIT_PARTENAIRE=epp.ID_PRODUIT_PARTENAIRE LEFT JOIN ecommerce_produit_tailles ept  ON ept.ID_TAILLE=eps.	ID_TAILLE LEFT JOIN  ecommerce_produit_categorie epc ON epc.ID_CATEGORIE_PRODUIT=ep.ID_CATEGORIE_PRODUIT LEFT JOIN ecommerce_stock_prix sp ON sp.ID_PRODUIT_STOCK=eps.ID_PRODUIT_STOCK LEFT JOIN ecommerce_statut_prix stp ON stp.ID_STATUT=sp.ID_STATUT LEFT JOIN ecommerce_produit_details epd ON epd.ID_PRODUIT_STOCK=eps.ID_PRODUIT_STOCK WHERE  ps.ID_SERVICE=1   AND ps.ID_PARTENAIRE_SERVICE=?"
+
+        var sqlQuery ="SELECT ep.ID_PRODUIT,ps.ID_PARTENAIRE_SERVICE,epp.ID_PRODUIT_PARTENAIRE ,"
+        sqlQuery+=" epc.NOM AS NOM_CATEGORIE,ep.NOM,ep.IMAGE_1,ep.IMAGE_2,ep.IMAGE_3,ps.NOM_ORGANISATION,"
+        sqlQuery+=" ps.ID_TYPE_PARTENAIRE,epp.DESCRIPTION,eps.ID_PRODUIT_STOCK,sp.PRIX ,ept.TAILLE,"
+        sqlQuery+=" ep.ID_CATEGORIE_PRODUIT, ep.ID_PRODUIT_SOUS_CATEGORIE FROM ecommerce_produits ep "
+        sqlQuery+= " LEFT JOIN ecommerce_produit_partenaire epp  ON epp.ID_PRODUIT=ep.ID_PRODUIT LEFT"
+        sqlQuery+=" JOIN partenaire_service ps ON ps.ID_PARTENAIRE_SERVICE=epp.ID_PARTENAIRE_SERVICE"
+        sqlQuery+=" LEFT JOIN  partenaires par ON par.ID_PARTENAIRE=ps.ID_PARTENAIRE   LEFT JOIN users"
+        sqlQuery+= " u ON u.ID_USER=par.ID_USER  LEFT JOIN  ecommerce_produit_stock eps ON"
+        //sqlQuery+=" LEFT JOIN  ecommerce_produit_categorie epc ON epc.ID_CATEGORIE_PRODUIT=ep.ID_CATEGORIE_PRODUIT "
+        sqlQuery+=" eps.ID_PRODUIT_PARTENAIRE=epp.ID_PRODUIT_PARTENAIRE  LEFT JOIN"
+        sqlQuery+=" ecommerce_produit_tailles ept  ON ept.ID_TAILLE=eps.ID_TAILLE "
+        sqlQuery+=" LEFT JOIN  ecommerce_produit_categorie epc ON epc.ID_CATEGORIE_PRODUIT=ep.ID_CATEGORIE_PRODUIT"
+        sqlQuery+=" LEFT JOIN ecommerce_stock_prix sp ON sp.ID_PRODUIT_STOCK=eps.ID_PRODUIT_STOCK "
+        sqlQuery+=" LEFT JOIN ecommerce_statut_prix stp ON stp.ID_STATUT=sp.ID_STATUT  "
+        sqlQuery+=" WHERE  ps.ID_PARTENAIRE_SERVICE=?"
+        
+          //var sqlQuery = "SELECT ep.ID_PRODUIT,ps.ID_PARTENAIRE_SERVICE,epp.ID_PRODUIT_PARTENAIRE,epc.NOM AS NOM_CATEGORIE,ep.NOM,ep.IMAGE_1,ep.IMAGE_2,ep.IMAGE_3,ps.NOM_ORGANISATION, ps.ID_TYPE_PARTENAIRE,epp.DESCRIPTION , eps.ID_PRODUIT_STOCK,epd.QUANTITE_TOTAL, epd.QUANTITE_VENDUS,sp.PRIX,epd.QUANTITE_RESTANTE ,ept.TAILLE,ep.ID_CATEGORIE_PRODUIT, ep.ID_PRODUIT_SOUS_CATEGORIE  FROM ecommerce_produits ep  LEFT JOIN partenaire_service ps ON ps.ID_PARTENAIRE_SERVICE=ep.ID_PARTENAIRE_SERVICE   LEFT JOIN  partenaires par ON par.ID_PARTENAIRE=ps.ID_PARTENAIRE  LEFT JOIN users u ON u.ID_USER=par.ID_USER LEFT JOIN ecommerce_produit_partenaire epp  ON epp.ID_PRODUIT=ep.ID_PRODUIT LEFT JOIN ecommerce_produit_stock eps ON eps.ID_PRODUIT_PARTENAIRE=epp.ID_PRODUIT_PARTENAIRE LEFT JOIN ecommerce_produit_tailles ept  ON ept.ID_TAILLE=eps.	ID_TAILLE LEFT JOIN  ecommerce_produit_categorie epc ON epc.ID_CATEGORIE_PRODUIT=ep.ID_CATEGORIE_PRODUIT LEFT JOIN ecommerce_stock_prix sp ON sp.ID_PRODUIT_STOCK=eps.ID_PRODUIT_STOCK LEFT JOIN ecommerce_statut_prix stp ON stp.ID_STATUT=sp.ID_STATUT LEFT JOIN ecommerce_produit_details epd ON epd.ID_PRODUIT_STOCK=eps.ID_PRODUIT_STOCK WHERE  ps.ID_SERVICE=1   AND ps.ID_PARTENAIRE_SERVICE=?"
+
         sqlQuery += ` ORDER BY eps.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
         return query(sqlQuery, [ID_PARTENAIRE_SERVICE]);
     }
@@ -144,6 +162,19 @@ const createNotes = (ID_USER,ID_PRODUIT_PARTENAIRE,NOTE,COMMENTAIRE) => {
 const findCategories = async () => {
     try {
         return query("SELECT * FROM ecommerce_produit_categorie WHERE 1");
+    }
+    catch (error) {
+        throw error
+    }
+}
+const getdetail = async (ID_PRODUIT_PARTENAIRE) => {
+    try {
+        var sqlQuery="SELECT ept.TAILLE, epd.QUANTITE_VENDUS,epd.QUANTITE_TOTAL,epd.QUANTITE_RESTANTE"
+        sqlQuery+=" FROM ecommerce_produit_details epd LEFT JOIN ecommerce_produit_stock eps ON "
+        sqlQuery+=" epd.ID_PRODUIT_STOCK=eps.ID_PRODUIT_STOCK "
+        sqlQuery+=" LEFT JOIN ecommerce_produit_tailles ept ON ept.ID_TAILLE=epd.ID_TAILLE"
+        sqlQuery+" WHERE eps.ID_PRODUIT_PARTENAIRE=?"
+        return query(sqlQuery, [ID_PRODUIT_PARTENAIRE]);
     }
     catch (error) {
         throw error
@@ -276,8 +307,8 @@ module.exports = {
     findColor,
     createNotes,
     findBYidProduitPartenaire,
-    
-    findnoteProduitPartenaire
+    findnoteProduitPartenaire,
+    getdetail
    
    
     

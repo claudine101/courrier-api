@@ -37,7 +37,7 @@ const findByIdPartenai = async (id) => {
 const findpartenaire = async (category, subCategory, limit = 10, offset = 0) => {
     try {
         var binds = []
-        var sqlQuery = " SELECT ps.NOM_ORGANISATION,ps.ID_PARTENAIRE_SERVICE,u.IMAGE,ps.LOGO,ps.BACKGROUND_IMAGE FROM partenaire_service ps "
+        var sqlQuery = " SELECT ps.NOM_ORGANISATION,ps.ID_PARTENAIRE_SERVICE,ps.DATE_INSERTION,u.IMAGE,ps.LOGO,ps.BACKGROUND_IMAGE FROM partenaire_service ps "
         sqlQuery += " LEFT JOIN partenaires p ON ps.ID_PARTENAIRE=p.ID_PARTENAIRE LEFT JOIN users u ON u.ID_USER=p.ID_USER "
         if (category) {
             sqlQuery = " SELECT u.IMAGE,ps.ID_PARTENAIRE_SERVICE,ep.ID_CATEGORIE_PRODUIT,ps.NOM_ORGANISATION  "
@@ -45,8 +45,8 @@ const findpartenaire = async (category, subCategory, limit = 10, offset = 0) => 
             sqlQuery += "  ON ep.ID_PARTENAIRE_SERVICE = ps.ID_PARTENAIRE_SERVICE LEFT JOIN users u  ON u.ID_USER=p.ID_USER WHERE ep.ID_PARTENAIRE_SERVICE=?  "
             binds.push(category)
         }
-        sqlQuery += " WHERE ID_TYPE_PARTENAIRE = 2 AND ID_SERVICE = 1 "
-        sqlQuery += `LIMIT ${offset}, ${limit}`;
+        sqlQuery += " WHERE ID_TYPE_PARTENAIRE = 2 AND ID_SERVICE = 1  "
+        sqlQuery += ` ORDER BY ps.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
         return query(sqlQuery, binds);
     }
     catch (error) {
