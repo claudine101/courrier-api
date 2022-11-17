@@ -160,6 +160,20 @@ const findCategories = async () => {
         throw error
     }
 }
+const findCategoriesPartnaire = async (ID_PARTENAIRE_SERVICE) => {
+    try {
+        var sqlQuery="SELECT  DISTINCT epc.ID_CATEGORIE_PRODUIT,epc.NOM,epc.IMAGE  "
+        sqlQuery+="FROM ecommerce_produit_categorie  epc LEFT  JOIN ecommerce_produits "
+        sqlQuery+="ep ON ep.ID_CATEGORIE_PRODUIT=epc.ID_CATEGORIE_PRODUIT "
+        sqlQuery+="LEFT JOIN ecommerce_produit_partenaire epp ON epp.ID_PRODUIT=ep.ID_PRODUIT "
+        sqlQuery+="WHERE epp.ID_PARTENAIRE_SERVICE=?"
+        return query(sqlQuery, [ID_PARTENAIRE_SERVICE]);
+
+    }
+    catch (error) {
+        throw error
+    }
+}
 const getdetail = async (ID_PRODUIT_PARTENAIRE) => {
     try {
         var sqlQuery="SELECT ept.TAILLE, epd.QUANTITE_VENDUS,epd.QUANTITE_TOTAL,epd.QUANTITE_RESTANTE"
@@ -301,7 +315,8 @@ module.exports = {
     createNotes,
     findBYidProduitPartenaire,
     findnoteProduitPartenaire,
-    getdetail
+    getdetail,
+    findCategoriesPartnaire
    
    
     

@@ -621,7 +621,7 @@ const getCategorieByPartenaire = async (req, res) => {
     try {
         const { ID_PARTENAIRE_SERVICE } = req.params
 
-        const categories = await productsModel.findById(ID_PARTENAIRE_SERVICE)
+        const categories = await productsModel.findCategoriesPartnaire(ID_PARTENAIRE_SERVICE)
 
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
