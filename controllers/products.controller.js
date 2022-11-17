@@ -150,8 +150,6 @@ const getAllProduct = async (req, res) => {
         })
     }
 }
-
-
 const getOne = async (req, res) => {
     try {
         const getImageUri = (fileName) => {
@@ -303,8 +301,6 @@ const getAllCategorie = async (req, res) => {
         })
     }
 }
-
-
 const getAllNotes = async (req, res) => {
     try {
         const getImageUri = (fileName) => {
@@ -357,7 +353,6 @@ const getAllNotes = async (req, res) => {
         })
     }
 }
-
 const getnotes = async (req, res) => {
     try {
         const getImageUri = (fileName) => {
@@ -387,7 +382,6 @@ const getnotes = async (req, res) => {
         })
     }
 }
-
 
 const insertNote = async (req, res) => {
 
@@ -562,8 +556,6 @@ const getAllSubCategories = async (req, res) => {
         })
     }
 }
-
-
 const getSousCategoriesBy = async (req, res) => {
     try {
         const { ID_CATEGORIE_PRODUIT } = req.params
