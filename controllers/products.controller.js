@@ -309,6 +309,34 @@ const getAllCategorie = async (req, res) => {
         })
     }
 }
+
+const getDeatail = async (req, res) => {
+    try {
+        const { ID_PRODUIT_PARTENAIRE, limit, offset } = req.params
+        const details = await productsModel.finddetails(ID_PRODUIT_PARTENAIRE)
+
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Les deatils prduits",
+            result: details
+
+
+        })
+
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
+
+
 const getAllNotes = async (req, res) => {
     try {
         const getImageUri = (fileName) => {
