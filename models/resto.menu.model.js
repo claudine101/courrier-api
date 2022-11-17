@@ -70,7 +70,7 @@ const createNotes = (ID_USER,ID_RESTAURANT_MENU,NOTE,COMMENTAIRE) => {
 } 
 
 
-const findmenu = async (ID_CATEGORIE_MENU, ID_PARTENAIRE) => {
+const findmenu = async (ID_USER, ID_PARTENAIRE_SERVICE) => {
 
     try {
         var binds = [ID_USER, ID_PARTENAIRE_SERVICE]
