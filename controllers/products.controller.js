@@ -435,7 +435,8 @@ const getbyID = async (req, res) => {
 const getAllCategorie = async (req, res) => {
     try {
 
-        const categories = await productsModel.findCategories()
+        const {q}= req.query
+        const categories = await productsModel.findCategories(q)
 
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,

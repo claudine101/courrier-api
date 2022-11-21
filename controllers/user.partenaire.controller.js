@@ -223,6 +223,7 @@ const createUser = async (req, res) => {
 }
 const createPartenaire = async (req, res) => {
     try {
+        
         const { ID_TYPE_PARTENAIRE, NOM_ORGANISATION, TELEPHONE, NIF, EMAIL, ADRESSE_COMPLETE, LATITUDE, LONGITUDE, ID_SERVICE } = req.body
         const { LOGO, BACKGROUND_IMAGE } = req.files || {}
         const partenaire = (await query('SELECT * FROM partenaires WHERE ID_USER = ?', [req.userId]))[0]
@@ -274,7 +275,7 @@ const createPartenaire = async (req, res) => {
             partenaire.ID_PARTENAIRE,
             ID_SERVICE,
             ID_TYPE_PARTENAIRE,
-            ID_TYPE_PARTENAIRE == 2 ? NOM_ORGANISATION : null,
+             NOM_ORGANISATION ,
             TELEPHONE,
             ID_TYPE_PARTENAIRE == 2 ? NIF : null,
             EMAIL,

@@ -186,9 +186,17 @@ const createNotes = (ID_USER,ID_PRODUIT_PARTENAIRE,NOTE,COMMENTAIRE) => {
     }
   }
 
-const findCategories = async () => {
+const findCategories = async (q) => {
     try {
-        return query("SELECT * FROM ecommerce_produit_categorie WHERE 1");
+        var binds = []
+        var sqlQuery="SELECT * FROM ecommerce_produit_categorie WHERE 1 "
+        // return query("SELECT * FROM ecommerce_produit_categorie WHERE 1");
+        if (q && q != "") {
+            sqlQuery +=" AND LIKE  NOM ?"
+            binds.push(
+                `%${q}%`)
+        }
+        return query(sqlQuery, binds);
     }
     catch (error) {
         throw error

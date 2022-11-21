@@ -17,8 +17,12 @@ const createMenu = async (req, res) => {
             ID_PARTENAIRE_SERVICE,
             NOM_MENU,
             PRIX,
-            DESCRIPTION,
+            DESCRIPT,
+            DESCRIPTIONrepas,
+            TEMPS_PREPARATION
         } = req.body
+        console.log(req.body)
+
         const { IMAGE_1, IMAGE_2, IMAGE_3 } = req.files || {}
         const validation = new Validation(
             { ...req.body, ...req.files },
@@ -92,17 +96,18 @@ const createMenu = async (req, res) => {
 
         var Repas = 0
         if (NOM_REPAS) {
-            const { insertId:repas } = await query("INSERT INTO  restaurant_repas (NOM,DESCRIPTION) VALUES (?,?)", [NOM_REPAS,DESCRIPTION])
-            const { insertId:idmenu } = await menuModel.createMenu(
+            const { insertId: repas } = await query("INSERT INTO  restaurant_repas (NOM,DESCRIPTION) VALUES (?,?)", [NOM_REPAS, DESCRIPTIONrepas])
+            const { insertId: idmenu } = await menuModel.createMenu(
                 repas,
                 ID_CATEGORIE_MENU,
                 ID_SOUS_CATEGORIE_MENU,
                 ID_PARTENAIRE_SERVICE,
                 PRIX,
+                TEMPS_PREPARATION,
+                DESCRIPT,
                 filename_1 ? filename_1 : null,
                 filename_2 ? filename_2 : null,
                 filename_3 ? filename_3 : null,
-                DESCRIPTION,
             );
             const menu = (await menuModel.findById(idmenu))[0]
             const getImageUri = (fileName) => {
@@ -125,13 +130,15 @@ const createMenu = async (req, res) => {
 
 
         }
-        else{
+        else {
             const { insertId } = await menuModel.createMenu(
                 ID_REPAS,
                 ID_CATEGORIE_MENU,
                 ID_SOUS_CATEGORIE_MENU,
                 ID_PARTENAIRE_SERVICE,
                 PRIX,
+                TEMPS_PREPARATION,
+                DESCRIPT,
                 filename_1 ? filename_1 : null,
                 filename_2 ? filename_2 : null,
                 filename_3 ? filename_3 : null,
@@ -223,7 +230,7 @@ const getCategories = async (req, res) => {
         const categoriess = categories.map(categorie => ({
             ...categorie,
             IMAGE: getImageUri(categorie.IMAGE, "menu"),
-  }))
+        }))
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_STATUS.OK,
@@ -337,13 +344,13 @@ module.exports = {
     getUnites,
     getTypesRepas,
     findByInsertId,
-          
-          
-         
-         
-          
-          
-         
+
+
+
+
+
+
+
 
 
 }
