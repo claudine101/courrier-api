@@ -139,6 +139,33 @@ const findAllmenu = async (category, limit = 10, offset = 0) => {
 
     }
 }
+const findmenuResearch = async (q,category, limit = 10, offset = 0) => {
+    try {
+        var binds = []
+        binds.push( `%${q}%`)
+        var sqlQuery = "SELECT  ps.ID_PARTENAIRE_SERVICE,ps.NOM_ORGANISATION,menu.DATE_INSERTION,menu.ID_RESTAURANT_MENU,menu.IMAGES_1,menu.IMAGES_2,menu.IMAGES_3 , rr.ID_REPAS,rr.NOM AS repas ,rr.DESCRIPTION,  " 
+        sqlQuery += " menu.PRIX,c_menu.ID_CATEGORIE_MENU,c_menu.NOM as categorie,sc_menu.ID_SOUS_CATEGORIE_MENU  FROM restaurant_menus menu LEFT JOIN  "
+        sqlQuery += "restaurant_categorie_menu c_menu ON menu.ID_CATEGORIE_MENU=c_menu.ID_CATEGORIE_MENU "
+        sqlQuery += "LEFT JOIN  restaurant_sous_categorie_menu sc_menu ON  "
+        sqlQuery += "sc_menu.ID_SOUS_CATEGORIE_MENU=menu.ID_SOUS_CATEGORIE_MENU LEFT JOIN partenaire_service ps ON  "
+        sqlQuery += "ps.ID_PARTENAIRE_SERVICE=menu.ID_PARTENAIRE_SERVICE "
+        sqlQuery += "LEFT JOIN partenaires p on p.ID_PARTENAIRE=ps.ID_PARTENAIRE "
+        sqlQuery += "LEFT JOIN restaurant_repas rr ON rr.ID_REPAS=menu.ID_REPAS WHERE  rr.NOM  LIKE  ?" 
+        
+        if (category) {
+            sqlQuery += " WHERE  c_menu.ID_CATEGORIE_MENU=? "
+            binds.push(category)
+        }
+        sqlQuery += ` ORDER BY menu.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
+
+        return query(sqlQuery , binds);
+
+    }
+    catch (error) {
+        throw error
+
+    }
+}
 const findmenubyPartenaire = async (ID_PARTENAIRE) => {
     try {
 
@@ -194,6 +221,7 @@ module.exports = {
     findmenucategories,
     findmenusouscategories,
     findmenu,
+    findmenuResearch,
     findAllmenu,
     findmenubyPartenaire,
     findCategories,

@@ -407,6 +407,43 @@ const getAllmenu = async (req, res) => {
         })
     }
 };
+const getmenuResearch = async (req, res) => {
+    try {
+        const getImageUri = (fileName) => {
+            if (!fileName) return null
+            if (fileName.indexOf("http") === 0) return fileName
+            return `${req.protocol}://${req.get("host")}/uploads/menu/${fileName}`
+        }
+        const { q,category, limit, offset } = req.query
+        var menu = await restoMenuModel.findmenuResearch(q,category, limit, offset )
+        const menus = await Promise.all(menu.map(async m => {
+            // const categorie = await userModel.findbycategorie(partenaire.ID_PARTENAIRE)
+            return {
+                ...m,
+                IMAGE: getImageUri(m.IMAGES_1),
+                IMAGE2: getImageUri(m.IMAGES_2),
+                IMAGE3: getImageUri(m.IMAGES_3)
+            }
+        }))
+         res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_CODES.OK,
+            message: "Research menus restaurants",
+            result: menus
+
+        })
+
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+};
 const  getmenubyIdPartenaire = async (req, res) => {
     try {
         const { ID_PARTENAIRE } = req.params
@@ -473,6 +510,7 @@ module.exports = {
     getSousCategories,
     getmenu,
     getAllmenu,
+    getmenuResearch,
     getmenubyIdPartenaire,
     getByIdCategories,
     getByIdmenu,
