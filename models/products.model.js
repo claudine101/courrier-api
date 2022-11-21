@@ -90,6 +90,40 @@ const findproducts = async (q,category, subCategory, limit = 10, offset = 0) => 
 
     }
 }
+const findproductsResearch = async (q,category, subCategory, limit = 10, offset = 0) => {
+
+    try {
+        
+        var binds = []
+        binds.push( `%${q}%`)
+        var sqlQuery = " SELECT ep.ID_PRODUIT,ep.NOM,ep.IMAGE_1,ep.IMAGE_2,ep.IMAGE_3,ps.NOM_ORGANISATION, "
+        sqlQuery += " ps.ID_TYPE_PARTENAIRE,ps.ID_PARTENAIRE,u.NOM AS NOM_USER, u.PRENOM,ps.ID_PARTENAIRE_SERVICE, "
+        sqlQuery += " epp.ID_PRODUIT_PARTENAIRE,epp.DESCRIPTION , eps.ID_PRODUIT_STOCK,eps.QUANTITE_TOTAL,"
+        sqlQuery += " eps.QUANTITE_VENDUS,eps.QUANTITE_RESTANTE ,ep.ID_CATEGORIE_PRODUIT,ep.ID_PRODUIT_SOUS_CATEGORIE "
+        sqlQuery += " FROM ecommerce_produits ep "
+        sqlQuery += " LEFT JOIN partenaire_service ps ON ps.ID_PARTENAIRE_SERVICE=ep.ID_PARTENAIRE_SERVICE  "
+        sqlQuery += " LEFT JOIN  partenaires par ON par.ID_PARTENAIRE=ps.ID_PARTENAIRE "
+        sqlQuery += " LEFT JOIN users u ON u.ID_USER=par.ID_USER "
+        sqlQuery += " LEFT JOIN ecommerce_produit_partenaire epp ON epp.ID_PRODUIT=ep.ID_PRODUIT  "
+        sqlQuery += "  LEFT JOIN ecommerce_produit_stock eps ON eps.ID_PRODUIT_PARTENAIRE=epp.ID_PRODUIT_PARTENAIRE "
+        sqlQuery += " WHERE   ps.ID_SERVICE=1 AND ep.NOM LIKE ? "
+        if (category) {
+            sqlQuery += " AND ep.ID_CATEGORIE_PRODUIT=? "
+            binds.push(category)
+        }
+        if (subCategory) {
+            sqlQuery += " AND ep.ID_PRODUIT_SOUS_CATEGORIE = ? "
+            binds.push(subCategory)
+        }
+        sqlQuery += ` ORDER BY eps.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
+        return query(sqlQuery, binds);
+
+    }
+    catch (error) {
+        throw error
+
+    }
+}
 const findone = async (ID_PRODUIT, limit = 10, offset = 0) => {
 
     try {
@@ -301,6 +335,7 @@ const findColor = async (ID_PRODUIT_PARTENAIRE,ID_TAILLE) => {
 }
 module.exports = {
     findproducts,
+    findproductsResearch,
     findCategories,
     findSousCategoriesBy,
     findSizes,

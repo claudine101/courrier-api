@@ -76,6 +76,79 @@ const getAllProducts = async (req, res) => {
         })
     }
 }
+const getProductResearch = async (req, res) => {
+    try {
+        const getImageUri = (fileName) => {
+            if (!fileName) return null
+            if (fileName.indexOf("http") === 0) return fileName
+            return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+        }
+        const { q, category, subCategory, limit, offset } = req.query
+        const allProducts = await productsModel.findproductsResearch(q, category, subCategory, limit, offset)
+        const products = await Promise.all(allProducts.map(async product => {
+            const prix = (await productsModel.getPrix(product.ID_PRODUIT_PARTENAIRE))[0]
+            if (prix) {
+                return {
+                    produit: {
+                        ID_PRODUIT: product.ID_PRODUIT,
+                        NOM: product.NOM,
+                        ID_PRODUIT_PARTENAIRE: product.ID_PRODUIT_PARTENAIRE,
+
+                        IMAGE: getImageUri(product.IMAGE_1),
+                    },
+                    partenaire: {
+                        NOM_ORGANISATION: product.NOM_ORGANISATION,
+                        ID_PARTENAIRE: product.ID_PARTENAIRE,
+                        ID_TYPE_PARTENAIRE: product.ID_TYPE_PARTENAIRE,
+                        NOM: product.NOM_USER,
+                        PRENOM: product.PRENOM
+                    },
+                    produit_partenaire: {
+                        ID_PARTENAIRE_SERVICE: product.ID_PARTENAIRE_SERVICE,
+                        NOM_ORGANISATION: product.NOM_ORGANISATION,
+                        NOM: product.NOM_PRODUIT_PARTENAIRE,
+                        DESCRIPTION: product.DESCRIPTION,
+                        IMAGE_1: getImageUri(product.IMAGE_1),
+                        IMAGE_2: getImageUri(product.IMAGE_2),
+                        IMAGE_3: getImageUri(product.IMAGE_3),
+                        TAILLE: product.NOM_TAILLE,
+                        PRIX: prix.PRIX
+                    },
+                    categorie: {
+                        ID_CATEGORIE_PRODUIT: product.ID_CATEGORIE_PRODUIT,
+                        NOM: product.NOM_CATEGORIE
+                    },
+                    sous_categorie: {
+                        ID_PRODUIT_SOUS_CATEGORIE: product.ID_PRODUIT_SOUS_CATEGORIE,
+                        NOM: product.NOM_SOUS_CATEGORIE
+                    },
+                    stock: {
+                        ID_PRODUIT_STOCK: product.ID_PRODUIT_STOCK,
+                        QUANTITE_STOCKE: product.QUANTITE_TOTAL,
+                        QUANTITE_RESTANTE: product.QUANTITE_RESTANTE,
+                        QUANTITE_VENDUE: product.QUANTITE_VENDUS
+                    }
+                }
+            }
+        }
+        ))
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Liste des produits",
+            result: products
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
 const getAllProduct = async (req, res) => {
     try {
         const getImageUri = (fileName) => {
@@ -759,6 +832,7 @@ const getColor = async (req, res) => {
 module.exports = {
     getColor,
     getAllProducts,
+    getProductResearch,
     getAllProduct,
     getAllCategorie,
     getSousCategoriesBy,
