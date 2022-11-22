@@ -95,7 +95,7 @@ const findproductsResearch = async (q,category, subCategory, limit = 10, offset 
     try {
         
         var binds = []
-        binds.push( `%${q}%`)
+        
         var sqlQuery = " SELECT ep.ID_PRODUIT,ep.NOM,ep.IMAGE_1,ep.IMAGE_2,ep.IMAGE_3,ps.NOM_ORGANISATION, "
         sqlQuery += " ps.ID_TYPE_PARTENAIRE,ps.ID_PARTENAIRE,u.NOM AS NOM_USER, u.PRENOM,ps.ID_PARTENAIRE_SERVICE, "
         sqlQuery += " epp.ID_PRODUIT_PARTENAIRE,epp.DESCRIPTION , eps.ID_PRODUIT_STOCK,eps.QUANTITE_TOTAL,"
@@ -106,7 +106,12 @@ const findproductsResearch = async (q,category, subCategory, limit = 10, offset 
         sqlQuery += " LEFT JOIN users u ON u.ID_USER=par.ID_USER "
         sqlQuery += " LEFT JOIN ecommerce_produit_partenaire epp ON epp.ID_PRODUIT=ep.ID_PRODUIT  "
         sqlQuery += "  LEFT JOIN ecommerce_produit_stock eps ON eps.ID_PRODUIT_PARTENAIRE=epp.ID_PRODUIT_PARTENAIRE "
-        sqlQuery += " WHERE   ps.ID_SERVICE=1 AND ep.NOM LIKE ? "
+        sqlQuery += " WHERE 1 AND   ps.ID_SERVICE=1 "
+        if(q&& q!="")
+        {
+            sqlQuery += "  AND ep.NOM LIKE ? "
+            binds.push( `%${q}%`)
+        }
         if (category) {
             sqlQuery += " AND ep.ID_CATEGORIE_PRODUIT=? "
             binds.push(category)
