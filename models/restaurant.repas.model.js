@@ -20,13 +20,26 @@ const findById = async (id) => {
                     throw error;
           }
 };
-const findRepas = async (id) => {
+const findRepas = async (q) => {
+  // try {
+  //           return query("SELECT * FROM  restaurant_repas WHERE 1 ");
+  // }
   try {
-            return query("SELECT * FROM  restaurant_repas WHERE 1 ");
-  } catch (error) {
+    var binds = []
+    var sqlQuery="SELECT * FROM  restaurant_repas WHERE 1 "
+    // return query("SELECT * FROM ecommerce_produit_categorie WHERE 1");
+    if (q && q != "") {
+        sqlQuery +=" AND  NOM LIKE  ?"
+        binds.push(
+            `%${q}%`)
+    }
+    return query(sqlQuery, binds);
+}
+   catch (error) {
             throw error;
   }
 };
+
 module.exports = {
         createOne,
           findById,
