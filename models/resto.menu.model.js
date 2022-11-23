@@ -92,7 +92,7 @@ const findmenu = async (ID_USER, ID_PARTENAIRE_SERVICE) => {
 const findByIDmenu = async (ID_PARTENAIRE_SERVICE,category,limit = 10, offset = 0) => {
     try {
         var binds = [ ID_PARTENAIRE_SERVICE]
-        var sqlQuery = "SELECT  ps.ID_PARTENAIRE_SERVICE,ps.NOM_ORGANISATION,menu.DATE_INSERTION,menu.ID_RESTAURANT_MENU,menu.IMAGES_1,menu.IMAGES_2,menu.IMAGES_3 , rr.ID_REPAS,rr.NOM AS repas ,rr.DESCRIPTION,  " 
+        var sqlQuery = "SELECT ps.OUVERT,ps.PRESENTATION, ps.ADRESSE_COMPLETE,ps.TELEPHONE,ps.ID_PARTENAIRE_SERVICE, ps.LOGO,ps.NOM_ORGANISATION,menu.DATE_INSERTION,menu.ID_RESTAURANT_MENU,menu.IMAGES_1,menu.IMAGES_2,menu.IMAGES_3 , rr.ID_REPAS,rr.NOM AS repas ,rr.DESCRIPTION,  " 
         sqlQuery += " menu.PRIX,c_menu.ID_CATEGORIE_MENU,c_menu.NOM as categorie,sc_menu.ID_SOUS_CATEGORIE_MENU  FROM restaurant_menus menu LEFT JOIN  "
         sqlQuery += "restaurant_categorie_menu c_menu ON menu.ID_CATEGORIE_MENU=c_menu.ID_CATEGORIE_MENU "
         sqlQuery += "LEFT JOIN  restaurant_sous_categorie_menu sc_menu ON  "

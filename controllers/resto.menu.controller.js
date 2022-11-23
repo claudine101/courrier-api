@@ -333,23 +333,23 @@ const getByIdmenu = async (req, res) => {
    
     try {
         const {ID_PARTENAIRE_SERVICE}=req.params
-        // const {ID_USER}=req.userId
-        // console.log(ID_USER)
-        const getImageUri = (fileName) => {
-            if (!fileName) return null
-            if (fileName.indexOf("http") === 0) return fileName
-            return `${req.protocol}://${req.get("host")}/uploads/menu/${fileName}`
-        }
+       
+         const getImageUri = (fileName, folder) => {
+                              if (!fileName) return null
+                              if (fileName.indexOf("http") === 0) return fileName
+                              return `${req.protocol}://${req.get("host")}/uploads/${folder}/${fileName}`
+                    }
         const { category, limit, offset } = req.query
         var menu = await restoMenuModel.findByIDmenu(ID_PARTENAIRE_SERVICE,category, limit, offset)
         const menus = await Promise.all(menu.map(async m => {
-            // const categorie = await userModel.findbycategorie(partenaire.ID_PARTENAIRE)
             return {
                 ...m,
-                IMAGE: getImageUri(m.IMAGES_1),
-                IMAGE2: getImageUri(m.IMAGES_2),
-                IMAGE3: getImageUri(m.IMAGES_3)
+                LOGO:getImageUri(m.LOGO,"partenaire"),
+                IMAGE: getImageUri(m.IMAGES_1,"menu"),
+                IMAGE2: getImageUri(m.IMAGES_2,"menu"),
+                IMAGE3: getImageUri(m.IMAGES_3,"menu")
             }
+
         }))
          res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
