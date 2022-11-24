@@ -220,6 +220,18 @@ const findnotemenu = async (ID_RESTAURANT_MENU,id) => {
     }
 }
 
+const updateMenu = async (IMAGES_1,ID_RESTAURANT_MENU) =>{
+    try {
+      var sqlQuery = "UPDATE  restaurant_menus SET IMAGES_1 = ? WHERE ID_RESTAURANT_MENU = ?";
+      return query(sqlQuery, [
+        IMAGES_1,
+        ID_RESTAURANT_MENU
+      ]);
+    } catch (error) {
+      throw error;
+    }
+   }
+
 module.exports = {
     findmenucategories,
     findmenusouscategories,
@@ -233,7 +245,8 @@ module.exports = {
     createNotes,
     findById,
     findBYidProduitPartenaire,
-    findnotemenu
+    findnotemenu,
+    updateMenu
 
 
 }
