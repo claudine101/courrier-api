@@ -127,6 +127,31 @@ const findAllUnites = async () => {
     }
 };
 
+const createMenuUpdate = (ID_REPAS,ID_CATEGORIE_MENU,ID_SOUS_CATEGORIE_MENU,ID_PARTENAIRE_SERVICE,PRIX,TEMPS_PREPARATION, DESCRIPTION
+    ) => {
+        try {
+            var sqlQuery = "INSERT INTO restaurant_menus (ID_REPAS,ID_CATEGORIE_MENU,ID_SOUS_CATEGORIE_MENU,ID_PARTENAIRE_SERVICE,PRIX,TEMPS_PREPARATION, DESCRIPTION)";
+            sqlQuery += "values (?,?,?,?,?,?,?)";
+            return query(sqlQuery, [ID_REPAS,ID_CATEGORIE_MENU,ID_SOUS_CATEGORIE_MENU,ID_PARTENAIRE_SERVICE,PRIX,TEMPS_PREPARATION, DESCRIPTION])
+        }
+        catch (error) {
+    
+            throw error
+        }
+    };
+
+    const updateMenuRestaurant = (ID_RESTAURANT_MENU,ID_REPAS,ID_CATEGORIE_MENU,ID_SOUS_CATEGORIE_MENU,ID_PARTENAIRE_SERVICE,PRIX,TEMPS_PREPARATION, DESCRIPTION
+        ) => {
+            try {
+                var sqlQuery = "UPDATE restaurant_menus SET ID_RESTAURANT_MENU=?, ID_REPAS=?,ID_CATEGORIE_MENU=?,ID_SOUS_CATEGORIE_MENU=?,ID_PARTENAIRE_SERVICE=?,PRIX=?,TEMPS_PREPARATION=?, DESCRIPTION=?)";
+                return query(sqlQuery, [ID_RESTAURANT_MENU,ID_REPAS,ID_CATEGORIE_MENU,ID_SOUS_CATEGORIE_MENU,ID_PARTENAIRE_SERVICE,PRIX,TEMPS_PREPARATION, DESCRIPTION])
+            }
+            catch (error) {
+        
+                throw error
+            }
+        };
+
 module.exports = {
     createMenu,
      findById,
@@ -137,6 +162,8 @@ module.exports = {
     findAllUnites,
     createMenuTaille,
     createMenuPrix,
-    findAllTypesRepas
+    findAllTypesRepas,
+    createMenuUpdate,
+    updateMenuRestaurant
 
 }

@@ -9,4 +9,6 @@ menuRouter.get('/soussouscategories', menucontroller.getSousSousCategories)
 menuRouter.get('/types', menucontroller.getTypesRepas)
 menuRouter.get('/unites', menucontroller.getUnites)
 
+menuRouter.put('/all/:ID_RESTAURANT_MENU', menucontroller.updateAllMenu)
+
 module.exports = menuRouter

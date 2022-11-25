@@ -168,7 +168,6 @@ const createPartenaire = async (req, res) => {
                                         message: "Probleme de validation des donnees",
                                         result: errors
                               })
-
                     }
                     const userUpload = new UserUpload()
                     const { fileInfo, thumbInfo } = await userUpload.upload(IMAGE, false)
