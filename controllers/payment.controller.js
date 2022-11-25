@@ -10,7 +10,6 @@ const confirmEconet = async (req, res) => {
                    const { txni_d } = req.params
                    const payment = (await paymentModel.findBy('TXNI_D', txni_d))[0]
                    if(payment.ID_SERVICE==1 && payment.STATUT_ID == 0) {
-
                              const commande = (await query("SELECT ID_COMMANDE, ID_USER FROM ecommerce_commandes WHERE ID_COMMANDE = ? ", [payment.ID_COMMANDE]))[0]
                              await query("UPDATE ecommerce_commandes SET ID_STATUT = 2 WHERE ID_COMMANDE = ?", [payment.ID_COMMANDE])
                              await saveStatus(payment.ID_COMMANDE, req.userId, 2)

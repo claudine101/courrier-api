@@ -2,7 +2,8 @@ const RESPONSE_CODES = require('../constants/RESPONSE_CODES')
 const RESPONSE_STATUS = require('../constants/RESPONSE_STATUS')
 const restoMenuModel = require('../models/resto.menu.model')
 const jwt = require("jsonwebtoken");
-const Validation = require('../class/Validation')
+const Validation = require('../class/Validation');
+const MenuUpload = require('../class/uploads/MenuUpload');
 const getAllCategories = async (req, res) => {
     try {
         const getImageUri = (fileName) => {
@@ -16,7 +17,7 @@ const getAllCategories = async (req, res) => {
             httpStatus: RESPONSE_CODES.OK,
             message: "Liste des menucategories",
             result: menucategories,
-               
+
 
 
         })
@@ -34,12 +35,12 @@ const getAllCategories = async (req, res) => {
 }
 const getnote = async (req, res) => {
     try {
-        
+
 
         const { ID_RESTAURANT_MENU } = req.params
 
         const noteListe = await restoMenuModel.findnotemenu(ID_RESTAURANT_MENU, req.userId)
-        
+
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_STATUS.OK,
@@ -59,7 +60,7 @@ const getnote = async (req, res) => {
 }
 const getByIdCategories = async (req, res) => {
     try {
-        const {ID_PARTENAIRE_SERVICE}=req.params
+        const { ID_PARTENAIRE_SERVICE } = req.params
         const getImageUri = (fileName) => {
             if (!fileName) return null
             if (fileName.indexOf("http") === 0) return fileName
@@ -69,7 +70,7 @@ const getByIdCategories = async (req, res) => {
         const categoriess = menucategories.map(categorie => ({
             ...categorie,
             IMAGE: getImageUri(categorie.IMAGE, "menu"),
-  }))
+        }))
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_CODES.OK,
@@ -182,19 +183,19 @@ const insertNote = async (req, res) => {
                 ID_USER: note.ID_USER,
                 NOM: note.NOM,
                 PRENOM: note.PRENOM
-           },
+            },
         }
-        
+
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_STATUS.OK,
             message: "le commentaire",
             result: notes
 
-     })
+        })
         console.log(notes)
-      
-       
+
+
     }
     catch (error) {
         console.log(error)
@@ -232,7 +233,7 @@ const getAllNotes = async (req, res) => {
                 NOM: note.NOM,
                 PRENOM: note.PRENOM
 
-           },
+            },
         }))
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
@@ -289,9 +290,9 @@ const getAllPartenaire = async (req, res) => {
     }
 }
 const getmenu = async (req, res) => {
-   
+
     try {
-        const {ID_PARTENAIRE_SERVICE}=req.params
+        const { ID_PARTENAIRE_SERVICE } = req.params
         // const {ID_USER}=req.userId
         // console.log(ID_USER)
         const getImageUri = (fileName) => {
@@ -299,8 +300,8 @@ const getmenu = async (req, res) => {
             if (fileName.indexOf("http") === 0) return fileName
             return `${req.protocol}://${req.get("host")}/uploads/menu/${fileName}`
         }
-        const { partenaire,category } = req.query
-        var menu = await restoMenuModel.findmenu(req.userId,ID_PARTENAIRE_SERVICE)
+        const { partenaire, category } = req.query
+        var menu = await restoMenuModel.findmenu(req.userId, ID_PARTENAIRE_SERVICE)
         const menus = await Promise.all(menu.map(async m => {
             // const categorie = await userModel.findbycategorie(partenaire.ID_PARTENAIRE)
             return {
@@ -310,7 +311,7 @@ const getmenu = async (req, res) => {
                 IMAGE3: getImageUri(m.IMAGES_3)
             }
         }))
-         res.status(RESPONSE_CODES.OK).json({
+        res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_CODES.OK,
             message: "Liste des  menu restaurants",
@@ -330,28 +331,28 @@ const getmenu = async (req, res) => {
     }
 };
 const getByIdmenu = async (req, res) => {
-   
+
     try {
-        const {ID_PARTENAIRE_SERVICE}=req.params
-       
-         const getImageUri = (fileName, folder) => {
-                              if (!fileName) return null
-                              if (fileName.indexOf("http") === 0) return fileName
-                              return `${req.protocol}://${req.get("host")}/uploads/${folder}/${fileName}`
-                    }
+        const { ID_PARTENAIRE_SERVICE } = req.params
+
+        const getImageUri = (fileName, folder) => {
+            if (!fileName) return null
+            if (fileName.indexOf("http") === 0) return fileName
+            return `${req.protocol}://${req.get("host")}/uploads/${folder}/${fileName}`
+        }
         const { category, limit, offset } = req.query
-        var menu = await restoMenuModel.findByIDmenu(ID_PARTENAIRE_SERVICE,category, limit, offset)
+        var menu = await restoMenuModel.findByIDmenu(ID_PARTENAIRE_SERVICE, category, limit, offset)
         const menus = await Promise.all(menu.map(async m => {
             return {
                 ...m,
-                LOGO:getImageUri(m.LOGO,"partenaire"),
-                IMAGE: getImageUri(m.IMAGES_1,"menu"),
-                IMAGE2: getImageUri(m.IMAGES_2,"menu"),
-                IMAGE3: getImageUri(m.IMAGES_3,"menu")
+                LOGO: getImageUri(m.LOGO, "partenaire"),
+                IMAGE: getImageUri(m.IMAGES_1, "menu"),
+                IMAGE2: getImageUri(m.IMAGES_2, "menu"),
+                IMAGE3: getImageUri(m.IMAGES_3, "menu")
             }
 
         }))
-         res.status(RESPONSE_CODES.OK).json({
+        res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_CODES.OK,
             message: "Liste des  menu restaurants",
@@ -378,7 +379,7 @@ const getAllmenu = async (req, res) => {
             return `${req.protocol}://${req.get("host")}/uploads/menu/${fileName}`
         }
         const { category, limit, offset } = req.query
-        var menu = await restoMenuModel.findAllmenu(category, limit, offset )
+        var menu = await restoMenuModel.findAllmenu(category, limit, offset)
         const menus = await Promise.all(menu.map(async m => {
             // const categorie = await userModel.findbycategorie(partenaire.ID_PARTENAIRE)
             return {
@@ -388,7 +389,7 @@ const getAllmenu = async (req, res) => {
                 IMAGE3: getImageUri(m.IMAGES_3)
             }
         }))
-         res.status(RESPONSE_CODES.OK).json({
+        res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_CODES.OK,
             message: "Liste des  menu restaurants",
@@ -414,8 +415,8 @@ const getmenuResearch = async (req, res) => {
             if (fileName.indexOf("http") === 0) return fileName
             return `${req.protocol}://${req.get("host")}/uploads/menu/${fileName}`
         }
-        const { q,category, limit, offset } = req.query
-        var menu = await restoMenuModel.findmenuResearch(q,category, limit, offset )
+        const { q, category, limit, offset } = req.query
+        var menu = await restoMenuModel.findmenuResearch(q, category, limit, offset)
         const menus = await Promise.all(menu.map(async m => {
             // const categorie = await userModel.findbycategorie(partenaire.ID_PARTENAIRE)
             return {
@@ -425,7 +426,7 @@ const getmenuResearch = async (req, res) => {
                 IMAGE3: getImageUri(m.IMAGES_3)
             }
         }))
-         res.status(RESPONSE_CODES.OK).json({
+        res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_CODES.OK,
             message: "Research menus restaurants",
@@ -444,7 +445,7 @@ const getmenuResearch = async (req, res) => {
         })
     }
 };
-const  getmenubyIdPartenaire = async (req, res) => {
+const getmenubyIdPartenaire = async (req, res) => {
     try {
         const { ID_PARTENAIRE } = req.params
         const menu = await restoMenuModel.findmenubyPartenaire(ID_PARTENAIRE)
@@ -476,7 +477,7 @@ const getWishlist = async (req, res) => {
             return `${req.protocol}://${req.get("host")}/uploads/menu/${fileName}`
         }
         const { category, limit, offset } = req.query
-        var menu = await restoMenuModel.findWishlist(req.userId,category, limit, offset )
+        var menu = await restoMenuModel.findWishlist(req.userId, category, limit, offset)
         const menus = await Promise.all(menu.map(async m => {
             // const categorie = await userModel.findbycategorie(partenaire.ID_PARTENAIRE)
             return {
@@ -486,7 +487,7 @@ const getWishlist = async (req, res) => {
                 IMAGE3: getImageUri(m.IMAGES_3)
             }
         }))
-         res.status(RESPONSE_CODES.OK).json({
+        res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_CODES.OK,
             message: "Liste des  menu restaurants",
@@ -505,6 +506,37 @@ const getWishlist = async (req, res) => {
         })
     }
 };
+
+const upadtePhotoMenu = async (req, res) => {
+    try {
+        const { ID_RESTAURANT_MENU } = req.params
+        const { IMAGE } = req.files || {}
+        const menuUpload = new MenuUpload()
+        const { fileInfo, thumbInfo } = await menuUpload.upload(IMAGE, false)
+        const { insertId: insertMenu } = await restoMenuModel.updateMenu(
+            fileInfo.fileName,
+            ID_RESTAURANT_MENU,
+        )
+        
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_CODES.OK,
+            message: "Update des menu est faites avec succes",
+
+
+        })
+
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
 module.exports = {
     getAllCategories,
     getSousCategories,
@@ -517,6 +549,7 @@ module.exports = {
     getWishlist,
     insertNote,
     getAllNotes,
-    getnote
+    getnote,
+    upadtePhotoMenu
 
 }
