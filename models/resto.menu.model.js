@@ -232,6 +232,7 @@ const updateMenu = async (IMAGES_1,ID_RESTAURANT_MENU) =>{
     }
    }
 
+
 module.exports = {
     findmenucategories,
     findmenusouscategories,
@@ -246,7 +247,7 @@ module.exports = {
     findById,
     findBYidProduitPartenaire,
     findnotemenu,
-    updateMenu
+    updateMenu,
 
 
 }

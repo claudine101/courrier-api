@@ -173,7 +173,6 @@ const createMenu = async (req, res) => {
     }
 }
 
-
 const findByInsertId = async (req, res) => {
     const { id } = req.params
     try {
@@ -333,6 +332,88 @@ const getUnites = async (req, res) => {
     }
 }
 
+const updateAllMenu = async (req, res) => {
+    try {
+        const {
+            ID_CATEGORIE_MENU,
+            ID_REPAS,
+            NOM_REPAS,
+            ID_SOUS_CATEGORIE_MENU,
+            ID_PARTENAIRE_SERVICE,
+            NOM_MENU,
+            PRIX,
+            DESCRIPT,
+            DESCRIPTIONrepas,
+            TEMPS_PREPARATION
+        } = req.body
+        const {	ID_RESTAURANT_MENU} = req.params
+        console.log(req.body)
+        const getImageUri = (fileName) => {
+            if (!fileName) return null
+            if (fileName.indexOf("http") === 0) return fileName
+            return `${req.protocol}://${req.get("host")}/uploads/menu/${fileName}`
+        }
+
+        if (NOM_REPAS) {
+            const { insertId: repas } = await query("INSERT INTO  restaurant_repas (NOM,DESCRIPTION) VALUES (?,?)", [NOM_REPAS, DESCRIPTIONrepas])
+            const { insertId: idmenu } = await menuModel.createMenuUpdate(
+                repas,
+                ID_CATEGORIE_MENU,
+                ID_SOUS_CATEGORIE_MENU,
+                ID_PARTENAIRE_SERVICE,
+                PRIX,
+                TEMPS_PREPARATION,
+                DESCRIPT
+            );
+            const menu = (await menuModel.findById(idmenu))[0]
+
+            res.status(RESPONSE_CODES.CREATED).json({
+                statusCode: RESPONSE_CODES.CREATED,
+                httpStatus: RESPONSE_STATUS.CREATED,
+                message: "update de nouveau menu est fait avec succès",
+                result: menu
+            })
+
+        }
+        else {
+            const { insertId } = await menuModel.updateMenuRestaurant(
+                ID_RESTAURANT_MENU,
+                ID_REPAS,
+                ID_CATEGORIE_MENU,
+                ID_SOUS_CATEGORIE_MENU,
+                ID_PARTENAIRE_SERVICE,
+                PRIX,
+                TEMPS_PREPARATION,
+                DESCRIPT
+            );
+            // const menuUpdate = (await menuModel.findMenuById(ID_RESTAURANT_MENU))[0]
+            const menuUpdate = (await query("SELECT * FROM restaurant_menus WHERE ID_RESTAURANT_MENU=? ",[ID_RESTAURANT_MENU]))[0]
+            const menus = {
+                ...menuUpdate,
+                IMAGE: getImageUri(menuUpdate.IMAGES_1),
+                IMAGES_2: getImageUri(menuUpdate.IMAGES_2),
+                IMAGES_3: getImageUri(menuUpdate.IMAGES_3),
+            }
+            res.status(RESPONSE_CODES.CREATED).json({
+                statusCode: RESPONSE_CODES.CREATED,
+                httpStatus: RESPONSE_STATUS.CREATED,
+                message: "Update est fait avec succès",
+                menus
+            })
+        }
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Update echoue",
+
+        })
+    }
+}
+
+
 module.exports = {
 
     createMenu,
@@ -344,13 +425,5 @@ module.exports = {
     getUnites,
     getTypesRepas,
     findByInsertId,
-
-
-
-
-
-
-
-
-
+    updateAllMenu
 }

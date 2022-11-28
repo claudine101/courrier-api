@@ -4,6 +4,7 @@ const restoMenuModel = require('../models/resto.menu.model')
 const jwt = require("jsonwebtoken");
 const Validation = require('../class/Validation');
 const MenuUpload = require('../class/uploads/MenuUpload');
+const { query } = require('../utils/db');
 const getAllCategories = async (req, res) => {
     try {
         const getImageUri = (fileName) => {
@@ -410,15 +411,15 @@ const getAllmenu = async (req, res) => {
 };
 const getmenuResearch = async (req, res) => {
     try {
+        const{ID_RESTAURANT_MENU}=req.params
         const getImageUri = (fileName) => {
             if (!fileName) return null
             if (fileName.indexOf("http") === 0) return fileName
             return `${req.protocol}://${req.get("host")}/uploads/menu/${fileName}`
         }
-        const { q, category, limit, offset } = req.query
-        var menu = await restoMenuModel.findmenuResearch(q, category, limit, offset)
+        const { q, limit, offset } = req.query
+        var menu = await restoMenuModel.findmenuUpdate(q, limit, offset,ID_RESTAURANT_MENU)
         const menus = await Promise.all(menu.map(async m => {
-            // const categorie = await userModel.findbycategorie(partenaire.ID_PARTENAIRE)
             return {
                 ...m,
                 IMAGE: getImageUri(m.IMAGES_1),
@@ -429,7 +430,7 @@ const getmenuResearch = async (req, res) => {
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_CODES.OK,
-            message: "Research menus restaurants",
+            // message: "liste menus restaurants par repport au restaurant",
             result: menus
 
         })
@@ -511,19 +512,27 @@ const upadtePhotoMenu = async (req, res) => {
     try {
         const { ID_RESTAURANT_MENU } = req.params
         const { IMAGE } = req.files || {}
+        const getImageUri = (fileName) => {
+            if (!fileName) return null
+            if (fileName.indexOf("http") === 0) return fileName
+            return `${req.protocol}://${req.get("host")}/uploads/menu/${fileName}`
+        }
         const menuUpload = new MenuUpload()
         const { fileInfo, thumbInfo } = await menuUpload.upload(IMAGE, false)
         const { insertId: insertMenu } = await restoMenuModel.updateMenu(
             fileInfo.fileName,
             ID_RESTAURANT_MENU,
         )
-        
+        const menuUpdate = await query("SELECT * FROM restaurant_menus WHERE ID_RESTAURANT_MENU=? ",[ID_RESTAURANT_MENU])
+        const menus = menuUpdate.map(menu => ({
+            ...menu,
+            IMAGE: getImageUri(menu.IMAGES_1),
+        }))
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_CODES.OK,
             message: "Update des menu est faites avec succes",
-
-
+            result:menus
         })
 
     }
@@ -537,6 +546,39 @@ const upadtePhotoMenu = async (req, res) => {
         })
     }
 }
+
+const upadteAllDescription = async (req, res) => {
+    try {
+        const { ID_RESTAURANT_MENU } = req.params
+        const { insertId: insertMenu } = await restoMenuModel.updateMenu(
+            fileInfo.fileName,
+            ID_RESTAURANT_MENU,
+        )
+        const menuUpdate = await query("SELECT * FROM restaurant_menus WHERE ID_RESTAURANT_MENU=? ",[ID_RESTAURANT_MENU])
+        const menus = menuUpdate.map(menu => ({
+            ...menu,
+            IMAGE: getImageUri(menu.IMAGES_1),
+        }))
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_CODES.OK,
+            message: "Update des menu est faites avec succes",
+            result:menus
+        })
+
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
+
+
 module.exports = {
     getAllCategories,
     getSousCategories,
@@ -550,6 +592,6 @@ module.exports = {
     insertNote,
     getAllNotes,
     getnote,
-    upadtePhotoMenu
-
+    upadtePhotoMenu,
+    upadteAllDescription
 }
