@@ -43,6 +43,14 @@ const findById = async (id) => {
                     throw error;
           }
 };
+const findNote = async (ID_PARTENAIRE_SERVICE) => {
+    try {
+        var sqlQuery = "SELECT COUNT (*) AS nbre FROM  partenaire_service_note WHERE ID_PARTENAIRE_SRVICE=?";
+        return query(sqlQuery, [ID_PARTENAIRE_SERVICE]) 
+    } catch (error) {
+              throw error;
+    }
+};
 const findByIdPartenaire = async (id) => {
           try {
                     return query("SELECT * FROM   users u  LEFT JOIN partenaires p ON u.ID_USER=p.ID_USER LEFT JOIN partenaire_service pa on pa.ID_PARTENAIRE=p.ID_PARTENAIRE WHERE u.ID_USER= ?", [id]);
@@ -67,6 +75,7 @@ module.exports = {
           createService,
           findById,
           findByIdPartenaire,
-          findByService
+          findByService,
+          findNote
 
 }

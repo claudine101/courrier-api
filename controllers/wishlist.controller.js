@@ -156,7 +156,7 @@ const listeNote = async (req, res) => {
     try {
         const { ID_PARTENAIRE_SRVICE} = req.params
 
-        const wishlist= (await  query("SELECT COUNT(*) AS Nbre FROM partenaire_service_note  WHERE ID_PARTENAIRE_SRVICE= ?",[ID_PARTENAIRE_SRVICE])) 
+        const wishlist= (await  query("SELECT COUNT(*) AS Nbre FROM partenaire_service_note  WHERE ID_PARTENAIRE_SRVICE= ?",[ID_PARTENAIRE_SRVICE]))[0] 
               
         res.status(RESPONSE_CODES.OK).json({
                         statusCode: RESPONSE_CODES.OK,
