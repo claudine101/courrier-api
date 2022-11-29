@@ -41,17 +41,14 @@ const findById = async (id) => {
         throw error
     }
 }
-
 const createNotes = (ID_USER,ID_RESTAURANT_MENU,NOTE,COMMENTAIRE) => {
     try {
       var sqlQuery = "INSERT INTO restaurant_menus_notes (ID_USER,ID_RESTAURANT_MENU,NOTE,COMMENTAIRE)";
-     // console.log(ID_USER,ID_PRODUIT_PARTENAIRE,NOTE,COMMENTAIRE)
       sqlQuery += "values (?,?,?,?)";
       return query(sqlQuery, [
         ID_USER,ID_RESTAURANT_MENU,NOTE,COMMENTAIRE])
     }
     catch (error) {
-  
       throw error
     }
   }
@@ -68,8 +65,6 @@ const createNotes = (ID_USER,ID_RESTAURANT_MENU,NOTE,COMMENTAIRE) => {
         throw error
     }
 } 
-
-
 const findmenu = async (ID_USER, ID_PARTENAIRE_SERVICE) => {
 
     try {
@@ -113,9 +108,9 @@ const findByIDmenu = async (ID_PARTENAIRE_SERVICE,category,limit = 10, offset = 
         throw error
     }
 }
-const findAllmenu = async (category, limit = 10, offset = 0) => {
+const findAllmenu = async (q,category, limit = 10, offset = 0) => {
     try {
-        var binds = [category]
+        var binds = []
         var sqlQuery = "SELECT  ps.ID_PARTENAIRE_SERVICE,ps.NOM_ORGANISATION,menu.DATE_INSERTION,menu.ID_RESTAURANT_MENU,menu.IMAGES_1,menu.IMAGES_2,menu.IMAGES_3 , rr.ID_REPAS,rr.NOM AS repas ,rr.DESCRIPTION,  " 
         sqlQuery += " menu.PRIX,c_menu.ID_CATEGORIE_MENU,c_menu.NOM as categorie,sc_menu.ID_SOUS_CATEGORIE_MENU  FROM restaurant_menus menu LEFT JOIN  "
         sqlQuery += "restaurant_categorie_menu c_menu ON menu.ID_CATEGORIE_MENU=c_menu.ID_CATEGORIE_MENU "
@@ -126,17 +121,28 @@ const findAllmenu = async (category, limit = 10, offset = 0) => {
         sqlQuery += "LEFT JOIN restaurant_repas rr ON rr.ID_REPAS=menu.ID_REPAS " 
         
         if (category) {
-            sqlQuery += " WHERE  c_menu.ID_CATEGORIE_MENU=? "
             binds.push(category)
+            if(q&& q!="")
+            {
+                sqlQuery += " WHERE  c_menu.ID_CATEGORIE_MENU=? "
+                sqlQuery +=` AND rr.NOM LIKE '%${q}%'`
+                
+            }
+            else{
+                sqlQuery += " WHERE  c_menu.ID_CATEGORIE_MENU=? "
+            }
+        }
+        else{
+            if(q&& q!="")
+            {
+                sqlQuery += `WHERE  rr.NOM LIKE '%${q}%' `
+            }
         }
         sqlQuery += ` ORDER BY menu.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
-
         return query(sqlQuery , binds);
-
     }
     catch (error) {
         throw error
-
     }
 }
 const findmenuResearch = async (q,category, limit = 10, offset = 0) => {

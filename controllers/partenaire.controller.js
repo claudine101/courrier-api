@@ -293,7 +293,9 @@ const getAllPartenaire = async (req, res) => {
             if (fileName.indexOf("http") === 0) return fileName
             return `${req.protocol}://${req.get("host")}/uploads/partenaire/${fileName}`
         }
-        const { lat, long, q, offset, limit } = req.query
+        var binds = []
+        // binds.push(req.userId)
+        const { resto,lat, long, q, offset, limit } = req.query
         var sqlQuery = "SELECT ps.*, s.NOM NOM_SERVICE "
         if (lat && long) {
             sqlQuery += `,( 6371 * acos( cos( radians(${lat}) ) * cos( radians( ps.LATITUDE ) ) * cos( radians(ps.LONGITUDE) - radians(${long})) + sin(radians(${lat})) * sin( radians(ps.LATITUDE)))) AS DISTANCE `
@@ -303,11 +305,29 @@ const getAllPartenaire = async (req, res) => {
         sqlQuery += " LEFT JOIN services s ON s.ID_SERVICE = ps.ID_SERVICE "
         sqlQuery += " WHERE   ps.ID_SERVICE =2  "
         if (lat && long) {
-            sqlQuery += " ORDER BY DISTANCE ASC "
-        } else {
-            sqlQuery += " ORDER BY ps.DATE_INSERTION "
+            
+            if(resto&& resto!= "")
+            {
+              sqlQuery += "AND ps.NOM_ORGANISATION LIKE ?"
+              sqlQuery += " ORDER BY DISTANCE ASC "
+              binds.push(`%${resto}%`)
+            }
+            else{
+              sqlQuery += " ORDER BY DISTANCE ASC "
+            }
         }
-        const svs = await query(sqlQuery, [req.userId])
+         else {
+            if(resto&& resto!=""){
+
+                sqlQuery += "AND ps.NOM_ORGANISATION LIKE ?"
+                sqlQuery += " ORDER BY ps.DATE_INSERTION "
+                binds.push(`%${resto}%`)
+            }
+            else{
+                sqlQuery += " ORDER BY ps.DATE_INSERTION "
+            }
+        }
+        const svs = await query(sqlQuery,binds)
         const services = await Promise.all(svs.map(async service => {
             const note = (await partenaireModel.findNote(service.ID_PARTENAIRE_SERVICE))[0]
             return {

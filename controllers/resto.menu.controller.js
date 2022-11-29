@@ -379,8 +379,8 @@ const getAllmenu = async (req, res) => {
             if (fileName.indexOf("http") === 0) return fileName
             return `${req.protocol}://${req.get("host")}/uploads/menu/${fileName}`
         }
-        const { category, limit, offset } = req.query
-        var menu = await restoMenuModel.findAllmenu(category, limit, offset)
+        const { q,category, limit, offset } = req.query
+        var menu = await restoMenuModel.findAllmenu(q,category, limit, offset)
         const menus = await Promise.all(menu.map(async m => {
             // const categorie = await userModel.findbycategorie(partenaire.ID_PARTENAIRE)
             return {
@@ -418,7 +418,7 @@ const getmenuResearch = async (req, res) => {
             return `${req.protocol}://${req.get("host")}/uploads/menu/${fileName}`
         }
         const { q, limit, offset } = req.query
-        var menu = await restoMenuModel.findmenuUpdate(q, limit, offset,ID_RESTAURANT_MENU)
+        var menu = await restoMenuModel.findmenuResearch(q, limit, offset,ID_RESTAURANT_MENU)
         const menus = await Promise.all(menu.map(async m => {
             return {
                 ...m,
