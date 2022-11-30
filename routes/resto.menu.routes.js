@@ -11,15 +11,11 @@ restoMenuRouter.get('/:ID_PARTENAIRE_SERVICE', restoMenuController.getmenu)
 restoMenuRouter.get('/restaurant/:ID_PARTENAIRE_SERVICE', restoMenuController.getByIdmenu)
 restoMenuRouter.get('/', restoMenuController.getAllmenu)
 restoMenuRouter.get('/menu/research', restoMenuController.getmenuResearch)
-
-
 restoMenuRouter.get('/', restoMenuController.getmenu)
 restoMenuRouter.post('/note', restoMenuController.insertNote)
-
 restoMenuRouter.get('/:ID_PARTENAIRE', restoMenuController.getmenubyIdPartenaire)
 restoMenuRouter.get('/wishlist/all', restoMenuController.getWishlist)
 restoMenuRouter.get('/wishlist', restoMenuController.getWishlist)
-
 restoMenuRouter.put('/:ID_RESTAURANT_MENU', restoMenuController.upadtePhotoMenu)
 restoMenuRouter.put('/description/:ID_RESTAURANT_MENU', restoMenuController.upadteAllDescription)
 
