@@ -247,6 +247,36 @@ const getCategories = async (req, res) => {
         })
     }
 }
+const getCategoriesById = async (req, res) => {
+    try {
+        const {ID_PARTENAIRE_SERVICE}=req.params
+        const getImageUri = (fileName, folder) => {
+            if (!fileName) return null
+            if (fileName.indexOf("http") === 0) return fileName
+            return `${req.protocol}://${req.get("host")}/uploads/${folder}/${fileName}`
+        }
+        const categories = await menuModel.findAllCategoriesById(ID_PARTENAIRE_SERVICE)
+        const categoriess = categories.map(categorie => ({
+            ...categorie,
+            IMAGE: getImageUri(categorie.IMAGE, "menu"),
+        }))
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "succès categorie",
+            result: categoriess
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "echoue",
+
+        })
+    }
+}
 
 const getSousCategories = async (req, res) => {
     try {
@@ -425,5 +455,6 @@ module.exports = {
     getUnites,
     getTypesRepas,
     findByInsertId,
-    updateAllMenu
+    updateAllMenu,
+    getCategoriesById
 }
