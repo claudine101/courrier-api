@@ -19,8 +19,6 @@ const getAllCategories = async (req, res) => {
             message: "Liste des menucategories",
             result: menucategories,
 
-
-
         })
 
     }
