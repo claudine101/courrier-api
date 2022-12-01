@@ -34,7 +34,7 @@ const findByIdPartenai = async (id) => {
         throw error;
     }
 };
-const findpartenaire = async (lat,long,category, subCategory, limit = 10, offset = 0) => {
+const findpartenaire = async (lat,long,shop, limit = 10, offset = 0) => {
     try {
         var binds = []
         var sqlQuery = "SELECT ps.TELEPHONE, ps.ADRESSE_COMPLETE,ps.OUVERT,ps.PRESENTATION, ps.NOM_ORGANISATION,ps.ID_PARTENAIRE_SERVICE,ps.DATE_INSERTION,u.IMAGE,ps.LOGO,ps.BACKGROUND_IMAGE "
@@ -43,18 +43,16 @@ const findpartenaire = async (lat,long,category, subCategory, limit = 10, offset
           }
           sqlQuery += "   FROM partenaire_service ps "
           sqlQuery += " LEFT JOIN partenaires p ON ps.ID_PARTENAIRE=p.ID_PARTENAIRE LEFT JOIN users u ON u.ID_USER=p.ID_USER "
-        if (category) {
-            sqlQuery = " SELECT u.IMAGE,ps.ID_PARTENAIRE_SERVICE,ep.ID_CATEGORIE_PRODUIT,ps.NOM_ORGANISATION  "
-            if (lat && long) {
-                sqlQuery += `, ( 6371 * acos( cos( radians(${lat}) ) * cos( radians( ps.LATITUDE ) ) * cos( radians(ps.LONGITUDE) - radians(${long})) + sin(radians(${lat})) * sin( radians(ps.LATITUDE)))) AS DISTANCE  `
-              }
-            sqlQuery += " FROM partenaire_service ps LEFT JOIN ecommerce_produits ep"
-            sqlQuery += "  ON ep.ID_PARTENAIRE_SERVICE = ps.ID_PARTENAIRE_SERVICE LEFT JOIN users u  ON u.ID_USER=p.ID_USER WHERE ep.ID_PARTENAIRE_SERVICE=?  "
-            binds.push(category)
+       
+        if(shop&& shop!="")
+        {
+            sqlQuery += `WHERE ID_TYPE_PARTENAIRE = 2 AND ID_SERVICE = 1 AND ps.NOM_ORGANISATION  LIKE  '%${shop}%' `
         }
-        sqlQuery += " WHERE ID_TYPE_PARTENAIRE = 2 AND ID_SERVICE = 1  "
+        else{
+            sqlQuery += ` WHERE ID_TYPE_PARTENAIRE = 2 AND ID_SERVICE = 1 `
+        }
         sqlQuery += ` ORDER BY ps.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
-        return query(sqlQuery, binds);
+        return query(sqlQuery);
     }
     catch (error) {
         throw error

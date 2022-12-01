@@ -314,8 +314,8 @@ const getAllPartenaire = async (req, res) => {
             return `${req.protocol}://${req.get("host")}/uploads/${folder}/${fileName}`
         }
 
-        const {lat,long, limit, offset } = req.query
-        const allPartenaire = await userModel.findpartenaire(lat,long,limit, offset)
+        const {lat,long,shop, limit, offset } = req.query
+        const allPartenaire = await userModel.findpartenaire(lat,long,shop,limit, offset)
 
         const partenaires = await Promise.all(allPartenaire.map(async partenaire => {
             const categorie = await userModel.findbycategorie(partenaire.ID_PARTENAIRE_SERVICE)
@@ -330,7 +330,6 @@ const getAllPartenaire = async (req, res) => {
 
             }
         }))
-      console.log(partenaires)
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_STATUS.OK,

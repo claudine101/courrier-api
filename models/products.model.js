@@ -66,7 +66,6 @@ const findproducts = async (q,category, subCategory, limit = 10, offset = 0) => 
             binds.push(category)
         }
          if (subCategory) {
-            
             sqlQuery += " AND ep.ID_PRODUIT_SOUS_CATEGORIE = ? "
             binds.push(subCategory)
         }
