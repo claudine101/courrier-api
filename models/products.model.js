@@ -57,30 +57,20 @@ const findproducts = async (q,category, subCategory, limit = 10, offset = 0) => 
         sqlQuery += " WHERE   ps.ID_SERVICE=1 "
         if (q && q != "") {
             sqlQuery +=
-                      "AND (ps.NOM_ORGANISATION LIKE ? OR imm.NOM_PROPRIETAIRE LIKE ? OR imm.PRENOM_PROPRIETAIRE LIKE ? ";
-            sqlQuery +=
-                      " OR imm.MODELE_VOITURE LIKE ? OR permis.NOM_PROPRIETAIRE LIKE ? OR permis.CATEGORIES LIKE ? OR hi.NUMERO_PERMIS LIKE ? OR hi.NUMERO_PLAQUE LIKE ? OR IF(hi.MONTANT != 0,hi.IS_PAID LIKE ?, '' ) )";
-            binds.push(
-                      `%${q}%`,
-                      `%${q}%`,
-                      `%${q}%`,
-                      `%${q}%`,
-                      `%${q}%`,
-                      `%${q}%`,
-                      `%${q}%`,
-                      `%${q}%`,
-                      `%${q}%`
-            );
-  }
-
-        if (category) {
+                      "AND  ep.NOM  LIKE ?";
+            binds.push(`%${q}%`);
+        }
+        if (category) 
+        {
             sqlQuery += " AND ep.ID_CATEGORIE_PRODUIT=? "
             binds.push(category)
         }
-        if (subCategory) {
+         if (subCategory) {
+            
             sqlQuery += " AND ep.ID_PRODUIT_SOUS_CATEGORIE = ? "
             binds.push(subCategory)
         }
+        
         sqlQuery += ` ORDER BY eps.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
         return query(sqlQuery, binds);
 
