@@ -313,19 +313,24 @@ const getAllPartenaire = async (req, res) => {
             if (fileName.indexOf("http") === 0) return fileName
             return `${req.protocol}://${req.get("host")}/uploads/${folder}/${fileName}`
         }
-        const {category,subCategory, limit, offset } = req.query
-        const allPartenaire = await userModel.findpartenaire(limit, offset)
+
+        const {lat,long, limit, offset } = req.query
+        const allPartenaire = await userModel.findpartenaire(lat,long,limit, offset)
 
         const partenaires = await Promise.all(allPartenaire.map(async partenaire => {
             const categorie = await userModel.findbycategorie(partenaire.ID_PARTENAIRE_SERVICE)
+            const note = (await userModel.findNote(partenaire.ID_PARTENAIRE_SERVICE))[0]
+
             return {
                 ...partenaire,
                 LOGO: getImageUri(partenaire.LOGO, 'partenaire'),
                 IMAGE: getImageUri(partenaire.IMAGE, 'users'),
-                categories: categorie
+                categories: categorie,
+                note:note
+
             }
         }))
-      
+      console.log(partenaires)
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_STATUS.OK,
