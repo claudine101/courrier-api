@@ -111,6 +111,52 @@ const findByIdPartenaire = async (idPartenaire,id_partenaire_service, category, 
             throw error
         }
     }
+    const findTailles = async (id,ID_COULEUR) => {
+        try {
+            var sqlQuery = " SELECT eco_s_pr.PRIX,eco_p_st.QUANTITE_TOTAL,eco_p_st.QUANTITE_VENDUS,eco_p_st.QUANTITE_RESTANTE, "
+            sqlQuery += " eco_p_cou.COULEUR,eco_p_cou.ID_COULEUR, eco_p_tai.TAILLE,eco_p_tai.ID_TAILLE FROM ecommerce_stock_prix eco_s_pr "
+            sqlQuery += " LEFT JOIN ecommerce_statut_prix eco_s_p ON eco_s_p.ID_STATUT=eco_s_pr.ID_STATUT "
+            sqlQuery += " LEFT JOIN ecommerce_produit_stock eco_p_st ON eco_p_st.ID_PRODUIT_STOCK=eco_s_pr.ID_PRODUIT_STOCK "
+            sqlQuery += " LEFT JOIN ecommerce_produit_details eco_p_de ON eco_p_de.ID_PRODUIT_STOCK=eco_p_st.ID_PRODUIT_STOCK "
+            sqlQuery += " LEFT JOIN ecommerce_produit_couleur eco_p_cou ON eco_p_cou.ID_COULEUR=eco_p_de.ID_COULEUR "
+            sqlQuery += " LEFT JOIN ecommerce_produit_tailles eco_p_tai ON eco_p_tai.ID_TAILLE=eco_p_de.ID_TAILLE "
+            sqlQuery += " WHERE eco_s_p.ID_STATUT=1 AND eco_p_st.ID_PRODUIT_PARTENAIRE=?  AND eco_p_cou.ID_COULEUR=? "
+            return query(sqlQuery, [id,ID_COULEUR]);
+
+            // var sqlQuery = " SELECT eco_s_pr.PRIX,eco_p_st.QUANTITE_TOTAL,eco_p_st.QUANTITE_VENDUS,eco_p_st.QUANTITE_RESTANTE FROM ecommerce_stock_prix eco_s_pr "
+            // sqlQuery += " LEFT JOIN ecommerce_statut_prix eco_s_p ON eco_s_p.ID_STATUT=eco_s_pr.ID_STATUT "
+            // sqlQuery += " LEFT JOIN ecommerce_produit_stock eco_p_st ON eco_p_st.ID_PRODUIT_STOCK=eco_s_pr.ID_PRODUIT_STOCK "
+            // sqlQuery += " WHERE eco_s_p.ID_STATUT=1 AND eco_p_st.ID_PRODUIT_PARTENAIRE=? "
+            // return query(sqlQuery, [id]);
+    
+        }
+        catch (error) {
+            throw error
+        }
+    }
+    const findCouleurs = async (id) => {
+        try {
+            var sqlQuery = " SELECT  eco_p_cou.ID_COULEUR FROM ecommerce_stock_prix eco_s_pr "
+            sqlQuery += " LEFT JOIN ecommerce_statut_prix eco_s_p ON eco_s_p.ID_STATUT=eco_s_pr.ID_STATUT "
+            sqlQuery += " LEFT JOIN ecommerce_produit_stock eco_p_st ON eco_p_st.ID_PRODUIT_STOCK=eco_s_pr.ID_PRODUIT_STOCK "
+            sqlQuery += " LEFT JOIN ecommerce_produit_details eco_p_de ON eco_p_de.ID_PRODUIT_STOCK=eco_p_st.ID_PRODUIT_STOCK "
+            sqlQuery += " LEFT JOIN ecommerce_produit_couleur eco_p_cou ON eco_p_cou.ID_COULEUR=eco_p_de.ID_COULEUR "
+            sqlQuery += " LEFT JOIN ecommerce_produit_tailles eco_p_tai ON eco_p_tai.ID_TAILLE=eco_p_de.ID_TAILLE "
+            sqlQuery += " WHERE eco_s_p.ID_STATUT=1 AND eco_p_st.ID_PRODUIT_PARTENAIRE=? "
+            return query(sqlQuery, [id]);
+
+            // var sqlQuery = " SELECT eco_s_pr.PRIX,eco_p_st.QUANTITE_TOTAL,eco_p_st.QUANTITE_VENDUS,eco_p_st.QUANTITE_RESTANTE FROM ecommerce_stock_prix eco_s_pr "
+            // sqlQuery += " LEFT JOIN ecommerce_statut_prix eco_s_p ON eco_s_p.ID_STATUT=eco_s_pr.ID_STATUT "
+            // sqlQuery += " LEFT JOIN ecommerce_produit_stock eco_p_st ON eco_p_st.ID_PRODUIT_STOCK=eco_s_pr.ID_PRODUIT_STOCK "
+            // sqlQuery += " WHERE eco_s_p.ID_STATUT=1 AND eco_p_st.ID_PRODUIT_PARTENAIRE=? "
+            // return query(sqlQuery, [id]);
+    
+        }
+        catch (error) {
+            throw error
+        }
+    }
+
 
 //     const findByIdPartenaire = async (idPartenaire, category, subCategory, limit = 10, offset = 0) => {
 //         try {
@@ -199,5 +245,7 @@ module.exports = {
           findByIdPoduit,
           createDetails,
           findAllPrix,
+          findCouleurs,
+          findTailles,
           findProduitAllDetail
 }

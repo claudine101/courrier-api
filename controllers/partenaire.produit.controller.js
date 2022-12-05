@@ -233,8 +233,14 @@ const findByIdPartenaire = async (req, res) => {
                 const Allproduits = await partenaireProduitModel.findByIdPartenaire(partenaire.ID_PARTENAIRE, id_partenaire_service)
                 const products = await Promise.all(Allproduits.map(async product => {
                         const prix = (await partenaireProduitModel.findAllPrix(product.ID_PRODUIT_PARTENAIRE))[0]
+           const couleurs = (await partenaireProduitModel.findCouleurs(product.ID_PRODUIT_PARTENAIRE))
+           var  taille=[]
+                const taille_couleur = await Promise.all(couleurs.map(async couleur => {
+               taille = (await partenaireProduitModel.findTailles(product.ID_PRODUIT_PARTENAIRE,couleur.ID_COULEUR))
+                }))
                         if (prix) {
                                 return {
+                                        taille_couleur:taille,
                                         produit: {
                                                 ID_PRODUIT: product.ID_PRODUIT,
                                                 NOM: product.NOM,
@@ -276,6 +282,7 @@ const findByIdPartenaire = async (req, res) => {
                                 }
                         }
                 }))
+                
                 res.status(RESPONSE_CODES.OK).json({
                         statusCode: RESPONSE_CODES.OK,
                         httpStatus: RESPONSE_STATUS.OK,
