@@ -43,7 +43,6 @@ const findpartenaire = async (lat,long,shop, limit = 10, offset = 0) => {
           }
           sqlQuery += "   FROM partenaire_service ps "
           sqlQuery += " LEFT JOIN partenaires p ON ps.ID_PARTENAIRE=p.ID_PARTENAIRE LEFT JOIN users u ON u.ID_USER=p.ID_USER "
-       
         if(shop&& shop!="")
         {
             sqlQuery += `WHERE ID_TYPE_PARTENAIRE = 2 AND ID_SERVICE = 1 AND ps.NOM_ORGANISATION  LIKE  '%${shop}%' `
@@ -51,7 +50,13 @@ const findpartenaire = async (lat,long,shop, limit = 10, offset = 0) => {
         else{
             sqlQuery += ` WHERE ID_TYPE_PARTENAIRE = 2 AND ID_SERVICE = 1 `
         }
-        sqlQuery += ` ORDER BY ps.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
+        if (lat && long) {
+            sqlQuery += " ORDER BY DISTANCE ASC "
+        }
+        else{
+            sqlQuery += ` ORDER BY ps.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
+
+        }
         return query(sqlQuery);
     }
     catch (error) {

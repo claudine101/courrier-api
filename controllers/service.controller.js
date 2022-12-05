@@ -9,6 +9,7 @@ const PartenaireUpload = require("../class/uploads/PartenaireUpload");
 const path = require("path");
 const { query } = require('../utils/db');
 const getReferenceCode = require('../utils/getReferenceCode');
+const serviceRouter = require('../routes/service.routes');
 const findAllService = async (req, res) => {
     try {
         const service = await serviceModel.findAll()
@@ -73,6 +74,9 @@ const findService = async (req, res) => {
                 NOM_ORGANISATION:service.NOM_ORGANISATION,
                 TELEPHONE:service.TELEPHONE,
                 NIF:service.NIF,
+                ADDRESSE:service.ADRESSE_COMPLETE,
+                OUVERT:service.OUVERT,
+                PRESENTATION:service.PRESENTATION,
                 EMAIL:service.EMAIL,
                 LOGO:getImageUri(service.LOGO),
                 BACKGROUND_IMAGE:getImageUri(service.BACKGROUND_IMAGE)
