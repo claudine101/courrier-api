@@ -100,6 +100,7 @@ const findService = async (req, res) => {
         })
     }
 }
+
 const paye = async (req, res) => {
     try {
         const { ID_PARTENAIRE_SERVICE, NUMERO, ID_SERVICE } = req.body
