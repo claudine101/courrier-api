@@ -3,6 +3,8 @@ const RESPONSE_STATUS = require("../constants/RESPONSE_STATUS.js")
 const productsModel = require("../models/products.model.js")
 const { query } = require("../utils/db")
 const Validation = require('../class/Validation')
+const ProductUpload = require('../class/uploads/ProductUpload');
+
 const getAllProducts = async (req, res) => {
     try {
         const getImageUri = (fileName) => {
@@ -65,6 +67,148 @@ const getAllProducts = async (req, res) => {
             message: "Liste des produits",
             result: products
         })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
+const updatePhoto = async (req, res) => {
+    try {
+        const { ID_PRODUIT,index } = req.params
+        const { IMAGE } = req.files || {}
+        const getImageUri = (fileName) => {
+            if (!fileName) return null
+            if (fileName.indexOf("http") === 0) return fileName
+            return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+        }
+        const productUpload = new ProductUpload ()
+        const { fileInfo, thumbInfo } = await productUpload.upload(IMAGE, false)
+        const { insertId: insertMenu } = await productsModel.updateImage(
+            fileInfo.fileName,
+            index,
+            ID_PRODUIT,
+        )
+        const productUpdate = await query("SELECT IMAGE_1 ,IMAGE_2,IMAGE_3 FROM ecommerce_produits WHERE ID_PRODUIT=? ",[ID_PRODUIT])
+        const imageUpdate = productUpdate.map(product => ({
+            IMAGE_1: getImageUri(product.IMAGE_1),
+            IMAGE_2: getImageUri(product.IMAGE_2),
+            IMAGE_3: getImageUri(product.IMAGE_3),
+        }))
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_CODES.OK,
+            message: "Update des menu est faites avec succes",
+            result:imageUpdate
+        })
+
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
+const updateNom = async (req, res) => {
+    try {
+       const{NOM}=req.body
+       const{ID_PRODUIT}=req.params
+         await query("UPDATE   ecommerce_produits SET NOM = ? WHERE ID_PRODUIT=? ",[NOM,ID_PRODUIT])
+         const productUpdate = (await query("SELECT NOM FROM  ecommerce_produits WHERE ID_PRODUIT=? " ,[ID_PRODUIT]))[0]
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_CODES.OK,
+            message: "Update des produits est faites avec succes",
+            result:productUpdate
+        })
+
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
+const updateDescription= async (req, res) => {
+    try {
+       const{DESCRIPTION}=req.body
+       const{ID_PRODUIT_PARTENAIRE}=req.params
+       console.log(ID_PRODUIT_PARTENAIRE)
+         await query("UPDATE   ecommerce_produit_partenaire SET DESCRIPTION = ? WHERE ID_PRODUIT_PARTENAIRE=? ",[DESCRIPTION,ID_PRODUIT_PARTENAIRE])
+         const productUpdate = (await query("SELECT DESCRIPTION FROM  ecommerce_produit_partenaire WHERE ID_PRODUIT_PARTENAIRE=? " ,[ID_PRODUIT_PARTENAIRE]))[0]
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_CODES.OK,
+            message: "Update des produits est faites avec succes",
+            result:productUpdate
+        })
+
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
+const updateApprovisionner= async (req, res) => {
+    try {
+       const{QUANTITE_RESTANTE,ID_TAILLE,ID_COULEUR}=req.body
+       const{ID_PRODUIT_PARTENAIRE}=req.params
+       const STOCK= (await query("SELECT ID_PRODUIT_STOCK FROM  ecommerce_produit_stock WHERE ID_PRODUIT_PARTENAIRE=? " ,[ID_PRODUIT_PARTENAIRE]))[0]
+
+       await query("UPDATE   ecommerce_produit_details SET QUANTITE_RESTANTE = ? ,QUANTITE_TOTAL = ? WHERE ID_PRODUIT_STOCK=?  AND ID_COULEUR=? AND ID_TAILLE=?",[QUANTITE_RESTANTE,QUANTITE_RESTANTE,STOCK.ID_PRODUIT_STOCK,ID_COULEUR,ID_TAILLE])
+        const productUpdate = (await productsModel.findQte(STOCK.ID_PRODUIT_STOCK,ID_TAILLE,ID_COULEUR))[0]
+         console.log(productUpdate)
+         res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_CODES.OK,
+            message: "Update des produits est faites avec succes",
+            result:productUpdate
+        })
+
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
+const updatePrice= async (req, res) => {
+    try {
+       const{PRIX}=req.body
+       const{ID_PRODUIT_PARTENAIRE}=req.params
+       const STOCK= (await query("SELECT ID_PRODUIT_STOCK FROM  ecommerce_produit_stock WHERE ID_PRODUIT_PARTENAIRE=? " ,[ID_PRODUIT_PARTENAIRE]))[0]
+
+       await query("UPDATE   ecommerce_stock_prix SET PRIX = ?  WHERE ID_PRODUIT_STOCK=? ",[PRIX,STOCK.ID_PRODUIT_STOCK])
+         const prixUpdate = (await query("SELECT PRIX FROM  ecommerce_stock_prix WHERE ID_PRODUIT_STOCK=? ",[STOCK.ID_PRODUIT_STOCK]))[0]
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_CODES.OK,
+            message: "Update des produits est faites avec succes",
+            result:prixUpdate
+        })
+
     }
     catch (error) {
         console.log(error)
@@ -345,7 +489,6 @@ const getbyIDOL = async (req, res) => {
             message: "Le produit",
             result: details
         })
-        console.log(details)
     }
     catch (error) {
         console.log(error)
@@ -791,11 +934,20 @@ const getSize = async (req, res) => {
     try {
         const { ID_PRODUIT_PARTENAIRE } = req.params
         const sizes = await productsModel.findSize(ID_PRODUIT_PARTENAIRE)
+        const Quantite_size = await Promise.all(sizes.map(async size => {
+            const quantite=(await query("SELECT SUM(QUANTITE_RESTANTE) AS quantite FROM ecommerce_produit_details WHERE  ID_TAILLE= ? GROUP BY ID_TAILLE",[size.id]))[0]
+                return {
+                    id: size.id,
+                     name: size.name,
+                     quantite:quantite.quantite
+                }
+            }
+        ))
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_STATUS.OK,
             message: "Liste des tailles des produits",
-            result: sizes
+            result: Quantite_size
         })
     }
     catch (error) {
@@ -843,10 +995,15 @@ module.exports = {
     getOne,
     getCategorieByPartenaire,
     getbyID,
+    updateDescription,
+    updateApprovisionner,
+    updatePrice,
     getAllColors,
     insertNote,
     getAllNotes,
     getnotes,
+    updatePhoto,
+    updateNom,
     getDeatail
 
 

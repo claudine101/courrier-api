@@ -247,6 +247,7 @@ const findByIdPartenaire = async (req, res) => {
                                         produit: {
                                                 ID_PRODUIT: product.ID_PRODUIT,
                                                 NOM: product.NOM,
+                                                DESCRIPTION:product.DESCRIPTION,
                                                 IMAGE: product.IMAGE_1
                                         },
                                         partenaire: {
@@ -285,7 +286,6 @@ const findByIdPartenaire = async (req, res) => {
                                 }
                         }
                 }))
-                // console.log(products)
                 res.status(RESPONSE_CODES.OK).json({
                         statusCode: RESPONSE_CODES.OK,
                         httpStatus: RESPONSE_STATUS.OK,

@@ -335,8 +335,37 @@ const findColor = async (ID_PRODUIT_PARTENAIRE,ID_TAILLE) => {
 
     }
 }
+const findQte = async (ID_STOCK,ID_TAILLE,ID_COULEUR) => {
+    try {
+            var binds = [ID_STOCK,ID_TAILLE,ID_COULEUR]
+            var sqlQuery = " SELECT epc.ID_COULEUR,epc.COULEUR  ,epd.QUANTITE_RESTANTE FROM   ecommerce_produit_stock eps  "
+            sqlQuery +=" LEFT JOIN ecommerce_produit_details epd ON epd.ID_PRODUIT_STOCK=eps.ID_PRODUIT_STOCK " 
+            sqlQuery +=" LEFT JOIN ecommerce_produit_tailles ept ON ept.ID_TAILLE=epd.ID_TAILLE "
+            sqlQuery +=" LEFT JOIN ecommerce_produit_couleur  epc ON epc.ID_COULEUR=epd.ID_COULEUR "
+            sqlQuery +=" WHERE epd.ID_PRODUIT_STOCK=? AND epd.ID_TAILLE=?  AND epd.ID_COULEUR=?  "
+  
+        return query(sqlQuery,binds);
+        
+    }
+    catch (error) {
+        throw error
+
+    }
+}
+const updateImage = async (IMAGES,index,ID_PRODUIT) =>{
+    try {
+      var sqlQuery = `UPDATE  ecommerce_produits SET IMAGE_${parseInt(index)+1} = ? WHERE ID_PRODUIT = ?`;
+      return query(sqlQuery, [
+        IMAGES,
+        ID_PRODUIT
+      ]);
+    } catch (error) {
+      throw error;
+    }
+   }
 module.exports = {
     findproducts,
+    updateImage,
     findproductsResearch,
     findCategories,
     findSousCategoriesBy,
@@ -349,6 +378,7 @@ module.exports = {
     findBYidPartenaire,
     getPrix,
     findColor,
+    findQte,
     createNotes,
     findBYidProduitPartenaire,
     findnoteProduitPartenaire,
