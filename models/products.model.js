@@ -79,6 +79,30 @@ const findproducts = async (q,category, subCategory, limit = 10, offset = 0) => 
 
     }
 }
+const findproductByID = async (ID_PRODUIT_PARTENAIRE) => {
+
+    try {
+        
+        var binds = []
+        var sqlQuery = " SELECT ep.ID_PRODUIT,ep.NOM,ep.IMAGE_1,ep.IMAGE_2,ep.IMAGE_3,ps.NOM_ORGANISATION, "
+        sqlQuery += " ps.ID_TYPE_PARTENAIRE,ps.ID_PARTENAIRE,u.NOM AS NOM_USER, u.PRENOM,ps.ID_PARTENAIRE_SERVICE, "
+        sqlQuery += " epp.ID_PRODUIT_PARTENAIRE,epp.DESCRIPTION , eps.ID_PRODUIT_STOCK,eps.QUANTITE_TOTAL,"
+        sqlQuery += " eps.QUANTITE_VENDUS,eps.QUANTITE_RESTANTE ,ep.ID_CATEGORIE_PRODUIT,ep.ID_PRODUIT_SOUS_CATEGORIE "
+        sqlQuery += " FROM ecommerce_produits ep "
+        sqlQuery += " LEFT JOIN partenaire_service ps ON ps.ID_PARTENAIRE_SERVICE=ep.ID_PARTENAIRE_SERVICE  "
+        sqlQuery += " LEFT JOIN  partenaires par ON par.ID_PARTENAIRE=ps.ID_PARTENAIRE "
+        sqlQuery += " LEFT JOIN users u ON u.ID_USER=par.ID_USER "
+        sqlQuery += " LEFT JOIN ecommerce_produit_partenaire epp ON epp.ID_PRODUIT=ep.ID_PRODUIT  "
+        sqlQuery += "  LEFT JOIN ecommerce_produit_stock eps ON eps.ID_PRODUIT_PARTENAIRE=epp.ID_PRODUIT_PARTENAIRE "
+        sqlQuery += " WHERE   ps.ID_SERVICE=1  AND epp.ID_PRODUIT_PARTENAIRE=?"
+        return query(sqlQuery, ID_PRODUIT_PARTENAIRE);
+
+    }
+    catch (error) {
+        throw error
+
+    }
+}
 const findproductsResearch = async (q,category, subCategory, limit = 10, offset = 0) => {
 
     try {
@@ -169,7 +193,6 @@ const findBYidPartenaire = async (ID_PARTENAIRE_SERVICE, limit = 10, offset = 0)
 const createNotes = (ID_USER,ID_PRODUIT_PARTENAIRE,NOTE,COMMENTAIRE) => {
     try {
       var sqlQuery = "INSERT INTO ecommerce_produit_notes (ID_USER,ID_PRODUIT_PARTENAIRE,NOTE,COMMENTAIRE)";
-     // console.log(ID_USER,ID_PRODUIT_PARTENAIRE,NOTE,COMMENTAIRE)
       sqlQuery += "values (?,?,?,?)";
       return query(sqlQuery, [
         ID_USER,ID_PRODUIT_PARTENAIRE,NOTE,COMMENTAIRE])
@@ -309,7 +332,7 @@ const findSize = async (ID_PRODUIT_PARTENAIRE) => {
         var binds = [ID_PRODUIT_PARTENAIRE]
         var sqlQuery = " SELECT DISTINCT(ept.ID_TAILLE) as id,ept.TAILLE as name  FROM   ecommerce_produit_stock eps "
         sqlQuery +=" LEFT JOIN ecommerce_produit_details epd ON epd.ID_PRODUIT_STOCK=eps.ID_PRODUIT_STOCK "
-        sqlQuery +=" LEFT JOIN ecommerce_produit_tailles ept ON ept.ID_TAILLE=epd.ID_TAILLE WHERE ept.TAILLE!='' AND eps.ID_PRODUIT_PARTENAIRE=? "
+        sqlQuery +=" LEFT JOIN ecommerce_produit_tailles ept ON ept.ID_TAILLE=epd.ID_TAILLE WHERE ept.TAILLE!='' AND eps.ID_PRODUIT_PARTENAIRE=?  order by ept.ID_TAILLE DESC"
         return query(sqlQuery,binds);
         
     }
@@ -325,7 +348,7 @@ const findColor = async (ID_PRODUIT_PARTENAIRE,ID_TAILLE) => {
             sqlQuery +=" LEFT JOIN ecommerce_produit_details epd ON epd.ID_PRODUIT_STOCK=eps.ID_PRODUIT_STOCK " 
             sqlQuery +=" LEFT JOIN ecommerce_produit_tailles ept ON ept.ID_TAILLE=epd.ID_TAILLE "
             sqlQuery +=" LEFT JOIN ecommerce_produit_couleur  epc ON epc.ID_COULEUR=epd.ID_COULEUR "
-            sqlQuery +=" WHERE eps.ID_PRODUIT_PARTENAIRE=? AND epd.ID_TAILLE=? "
+            sqlQuery +=" WHERE eps.ID_PRODUIT_PARTENAIRE=? AND epd.ID_TAILLE=? order by epc.ID_COULEUR DESC "
   
         return query(sqlQuery,binds);
         
@@ -338,7 +361,7 @@ const findColor = async (ID_PRODUIT_PARTENAIRE,ID_TAILLE) => {
 const findQte = async (ID_STOCK,ID_TAILLE,ID_COULEUR) => {
     try {
             var binds = [ID_STOCK,ID_TAILLE,ID_COULEUR]
-            var sqlQuery = " SELECT epc.ID_COULEUR,epc.COULEUR  ,epd.QUANTITE_RESTANTE FROM   ecommerce_produit_stock eps  "
+            var sqlQuery = " SELECT epc.ID_COULEUR as id,epc.COULEUR as name,epd.QUANTITE_RESTANTE, eps.*,epd.*, ept.*  FROM   ecommerce_produit_stock eps  "
             sqlQuery +=" LEFT JOIN ecommerce_produit_details epd ON epd.ID_PRODUIT_STOCK=eps.ID_PRODUIT_STOCK " 
             sqlQuery +=" LEFT JOIN ecommerce_produit_tailles ept ON ept.ID_TAILLE=epd.ID_TAILLE "
             sqlQuery +=" LEFT JOIN ecommerce_produit_couleur  epc ON epc.ID_COULEUR=epd.ID_COULEUR "
@@ -366,6 +389,7 @@ const updateImage = async (IMAGES,index,ID_PRODUIT) =>{
 module.exports = {
     findproducts,
     updateImage,
+    findproductByID,
     findproductsResearch,
     findCategories,
     findSousCategoriesBy,

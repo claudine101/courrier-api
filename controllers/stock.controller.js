@@ -1,4 +1,5 @@
 const stockmodel = require('../models/stock.model')
+const productsModel = require("../models/products.model.js")
 const Validation = require('../class/Validation')
 const jwt = require("jsonwebtoken");
 const RESPONSE_CODES = require('../constants/RESPONSE_CODES');
@@ -27,17 +28,11 @@ const createProduitStock = async (req, res) => {
                         PRODUIT
 
                 } = req.body
-
                 const AllDetail = JSON.parse(DETAIL)
-                // console.log(AllDetail)
                 if (PRODUIT) {
                         var AllProduits = JSON.parse(PRODUIT)
                 }
-                // console.log(req.body)
-                // console.log(AllDetail)
-                console.log(AllProduits)
-                //console.log(AllProduits.produit.PRIX)
-                // console.log(req.files)
+                
                 const { IMAGE_1, IMAGE_2, IMAGE_3 } = req.files || {}
                 const validation = new Validation(
                         { ...req.body, ...req.files },
@@ -164,20 +159,58 @@ const createProduitStock = async (req, res) => {
                                 detail.quantite
                         )
                 }))
+                
+                    const product = await productsModel.findproductByID(ID_PRODUIT_PARTENAIRE)
+                    const prix = (await productsModel.getPrix(product[0].ID_PRODUIT_PARTENAIRE))[0]
+                        var proctsFormat
+                        if (prix) {
+                                proctsFormat= { 
+                                produit: {
+                                    ID_PRODUIT: product[0].ID_PRODUIT,
+                                    NOM: product[0].NOM,
+                                    ID_PRODUIT_PARTENAIRE: product[0].ID_PRODUIT_PARTENAIRE,
+            
+                                    IMAGE: getImageUri(product[0].IMAGE_1),
+                                },
+                                partenaire: {
+                                    NOM_ORGANISATION: product[0].NOM_ORGANISATION,
+                                    ID_PARTENAIRE: product[0].ID_PARTENAIRE,
+                                    ID_TYPE_PARTENAIRE: product[0].ID_TYPE_PARTENAIRE,
+                                    NOM: product[0].NOM_USER,
+                                    PRENOM: product[0].PRENOM
+                                },
+                                produit_partenaire: {
+                                    ID_PARTENAIRE_SERVICE: product[0].ID_PARTENAIRE_SERVICE,
+                                    NOM_ORGANISATION: product[0].NOM_ORGANISATION,
+                                    NOM: product[0].NOM_PRODUIT_PARTENAIRE,
+                                    DESCRIPTION: product[0].DESCRIPTION,
+                                    IMAGE_1: getImageUri(product[0].IMAGE_1),
+                                    IMAGE_2: getImageUri(product[0].IMAGE_2),
+                                    IMAGE_3: getImageUri(product[0].IMAGE_3),
+                                    TAILLE: product[0].NOM_TAILLE,
+                                    PRIX: prix.PRIX
+                                },
+                                categorie: {
+                                    ID_CATEGORIE_PRODUIT: product[0].ID_CATEGORIE_PRODUIT,
+                                    NOM: product[0].NOM_CATEGORIE
+                                },
+                                sous_categorie: {
+                                    ID_PRODUIT_SOUS_CATEGORIE: product[0].ID_PRODUIT_SOUS_CATEGORIE,
+                                    NOM: product[0].NOM_SOUS_CATEGORIE
+                                },
+                                stock: {
+                                    ID_PRODUIT_STOCK: product[0].ID_PRODUIT_STOCK,
+                                    QUANTITE_STOCKE: product[0].QUANTITE_TOTAL,
+                                    QUANTITE_RESTANTE: product[0].QUANTITE_RESTANTE,
+                                    QUANTITE_VENDUE: product[0].QUANTITE_VENDUS
+                                }
+                            }
+                        }
                 res.status(RESPONSE_CODES.CREATED).json({
                         statusCode: RESPONSE_CODES.CREATED,
                         httpStatus: RESPONSE_STATUS.CREATED,
                         message: "Enregistrement est fait avec succès",
-                        // result: {
-                        //         // ...produits,
-                        //         IMAGE_1: getImageUri(produits.IMAGE_1),
-                        //         IMAGE_2: getImageUri(produits.IMAGE_2),
-                        //         IMAGE_3: getImageUri(produits.IMAGE_3),
-                        //         categorie: categorie,
-                        //         souscategorie: souscategorie,
-                        //         pdts: pdts
-
-                        // }
+                        result: proctsFormat
                 })
         }
         catch (error) {
@@ -200,7 +233,6 @@ const getAllProduit = async (req, res) => {
                 }
                 const { limit, offset } = req.query
                 const allProducts = await stockmodel.findproduits(limit, offset)
-                // console.log(allProducts)
                 const produits = allProducts.map(produit => ({
                         produit: {
                                 ID_PRODUIT: produit.ID_PRODUIT,

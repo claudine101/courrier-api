@@ -17,7 +17,7 @@ const getAllProducts = async (req, res) => {
         const products = await Promise.all(allProducts.map(async product => {
             const prix = (await productsModel.getPrix(product.ID_PRODUIT_PARTENAIRE))[0]
             if (prix) {
-                return {
+                return { 
                     produit: {
                         ID_PRODUIT: product.ID_PRODUIT,
                         NOM: product.NOM,
@@ -146,7 +146,6 @@ const updateDescription= async (req, res) => {
     try {
        const{DESCRIPTION}=req.body
        const{ID_PRODUIT_PARTENAIRE}=req.params
-       console.log(ID_PRODUIT_PARTENAIRE)
          await query("UPDATE   ecommerce_produit_partenaire SET DESCRIPTION = ? WHERE ID_PRODUIT_PARTENAIRE=? ",[DESCRIPTION,ID_PRODUIT_PARTENAIRE])
          const productUpdate = (await query("SELECT DESCRIPTION FROM  ecommerce_produit_partenaire WHERE ID_PRODUIT_PARTENAIRE=? " ,[ID_PRODUIT_PARTENAIRE]))[0]
         res.status(RESPONSE_CODES.OK).json({
@@ -169,18 +168,67 @@ const updateDescription= async (req, res) => {
 }
 const updateApprovisionner= async (req, res) => {
     try {
-       const{QUANTITE_RESTANTE,ID_TAILLE,ID_COULEUR}=req.body
+       var {ID_COULEUR_NEW,ID_TAILLE_NEW,QUANTITE_RESTANTE,ID_TAILLE,ID_COULEUR,COULEUR,TAILLE}=req.body
+if(TAILLE)
+{
+    const { insertId:ID }= await query("INSERT INTO ecommerce_produit_tailles (TAILLE) values (?) " ,[TAILLE])
+    ID_TAILLE=ID
+}
+if(COULEUR)
+{
+    const {insertId:ID }= await query("INSERT INTO ecommerce_produit_couleur (COULEUR) values (?) " ,[COULEUR])
+    ID_COULEUR=ID
+}
        const{ID_PRODUIT_PARTENAIRE}=req.params
        const STOCK= (await query("SELECT ID_PRODUIT_STOCK FROM  ecommerce_produit_stock WHERE ID_PRODUIT_PARTENAIRE=? " ,[ID_PRODUIT_PARTENAIRE]))[0]
+if(COULEUR && TAILLE ){
+    const {insertId:ID }= await query("INSERT INTO ecommerce_produit_details (ID_PRODUIT_STOCK,ID_COULEUR,ID_TAILLE,QUANTITE_TOTAL,QUANTITE_RESTANTE) values (?,?,?,?,?) " ,[STOCK.ID_PRODUIT_STOCK,ID_COULEUR,ID_TAILLE,QUANTITE_RESTANTE,QUANTITE_RESTANTE])
+}
+else if(COULEUR){
+    const {insertId:ID }= await query("INSERT INTO ecommerce_produit_details (ID_PRODUIT_STOCK,ID_COULEUR,ID_TAILLE,QUANTITE_TOTAL,QUANTITE_RESTANTE) values (?,?,?,?,?) " ,[STOCK.ID_PRODUIT_STOCK,ID_COULEUR,ID_TAILLE,QUANTITE_RESTANTE,QUANTITE_RESTANTE])
+}
+else if(TAILLE){
+    const {insertId:ID }= await query("INSERT INTO ecommerce_produit_details (ID_PRODUIT_STOCK,ID_COULEUR,ID_TAILLE,QUANTITE_TOTAL,QUANTITE_RESTANTE) values (?,?,?,?,?) " ,[STOCK.ID_PRODUIT_STOCK,ID_COULEUR,ID_TAILLE,QUANTITE_RESTANTE,QUANTITE_RESTANTE])
+}
 
-       await query("UPDATE   ecommerce_produit_details SET QUANTITE_RESTANTE = ? ,QUANTITE_TOTAL = ? WHERE ID_PRODUIT_STOCK=?  AND ID_COULEUR=? AND ID_TAILLE=?",[QUANTITE_RESTANTE,QUANTITE_RESTANTE,STOCK.ID_PRODUIT_STOCK,ID_COULEUR,ID_TAILLE])
-        const productUpdate = (await productsModel.findQte(STOCK.ID_PRODUIT_STOCK,ID_TAILLE,ID_COULEUR))[0]
-         console.log(productUpdate)
+
+else{
+    if(ID_COULEUR_NEW!='undefined' && ID_TAILLE_NEW=='undefined'){
+        await query("UPDATE   ecommerce_produit_details SET ID_COULEUR=? ,QUANTITE_RESTANTE = ? ,QUANTITE_TOTAL = ? WHERE ID_PRODUIT_STOCK=?  AND ID_COULEUR=? AND ID_TAILLE=?",[ID_COULEUR_NEW ,QUANTITE_RESTANTE,QUANTITE_RESTANTE,STOCK.ID_PRODUIT_STOCK,ID_COULEUR,ID_TAILLE])
+    }
+    else if(ID_COULEUR_NEW=='undefined' && ID_TAILLE_NEW!='undefined'){
+        await query("UPDATE   ecommerce_produit_details SET ID_TAILLE=? , QUANTITE_RESTANTE = ? ,QUANTITE_TOTAL = ? WHERE ID_PRODUIT_STOCK=?  AND ID_COULEUR=? AND ID_TAILLE=?",[ID_TAILLE_NEW,QUANTITE_RESTANTE,QUANTITE_RESTANTE,STOCK.ID_PRODUIT_STOCK,ID_COULEUR,ID_TAILLE])
+    }
+    else if(ID_COULEUR_NEW!='undefined' && ID_TAILLE_NEW!='undefined'){
+        await query("UPDATE   ecommerce_produit_details SET ID_COULEUR=?,ID_TAILLE=? ,QUANTITE_RESTANTE = ? ,QUANTITE_TOTAL = ? WHERE ID_PRODUIT_STOCK=?  AND ID_COULEUR=? AND ID_TAILLE=?",[ID_COULEUR_NEW ,ID_TAILLE_NEW,QUANTITE_RESTANTE,QUANTITE_RESTANTE,STOCK.ID_PRODUIT_STOCK,ID_COULEUR,ID_TAILLE])
+    }
+   
+    else{
+    await query("UPDATE   ecommerce_produit_details SET QUANTITE_RESTANTE = ? ,QUANTITE_TOTAL = ? WHERE ID_PRODUIT_STOCK=?  AND ID_COULEUR=? AND ID_TAILLE=?",[QUANTITE_RESTANTE,QUANTITE_RESTANTE,STOCK.ID_PRODUIT_STOCK,ID_COULEUR,ID_TAILLE])
+}
+}
+       const productUpdate = (await productsModel.findQte(STOCK.ID_PRODUIT_STOCK,ID_TAILLE,ID_COULEUR))[0]
+      
+       const sizes = await productsModel.findSize(ID_PRODUIT_PARTENAIRE)
+       const Quantite_size = await Promise.all(sizes.map(async size => {
+           const quantite=(await query("SELECT SUM(QUANTITE_RESTANTE) AS quantite FROM ecommerce_produit_details WHERE  ID_TAILLE= ? GROUP BY ID_TAILLE",[size.id]))[0]
+               return {
+                   id: size.id,
+                    name: size.name,
+                    quantite:quantite.quantite
+               }
+           }
+       ))
+       const colors = await productsModel.findColor(ID_PRODUIT_PARTENAIRE, ID_TAILLE)
          res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_CODES.OK,
             message: "Update des produits est faites avec succes",
-            result:productUpdate
+            color_update:colors,
+            result:productUpdate,
+            size_update:Quantite_size,
+            
+
         })
 
     }
@@ -654,12 +702,6 @@ const getAllNotes = async (req, res) => {
                 ID_USER: note.ID_USER,
                 NOM: note.NOM,
                 PRENOM: note.PRENOM
-
-
-
-
-
-
             },
 
 
@@ -834,6 +876,37 @@ const getAllColors = async (req, res) => {
         })
     }
 }
+const getAllSizes = async (req, res) => {
+    try {
+
+        const taillesALL = await query("SELECT * FROM ecommerce_produit_tailles")
+        const tailles = await Promise.all(taillesALL.map(async taille => {
+                return {
+                    id: taille.ID_TAILLE,
+                     name: taille.TAILLE,
+                }
+            }
+        ))
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Liste des tailles",
+            result: tailles
+
+
+        })
+
+    }
+catch (error) {
+    console.log(error)
+    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+        statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+        httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+        message: "Erreur interne du serveur, réessayer plus tard",
+
+    })
+}
+}
 const getCategorieByPartenaire = async (req, res) => {
     try {
         const { ID_PARTENAIRE_SERVICE } = req.params
@@ -1004,7 +1077,8 @@ module.exports = {
     getnotes,
     updatePhoto,
     updateNom,
-    getDeatail
+    getDeatail,
+    getAllSizes
 
 
 }
