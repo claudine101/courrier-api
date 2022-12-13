@@ -34,6 +34,36 @@ const findByIdPartenai = async (id) => {
         throw error;
     }
 };
+const findpartenaireOne = async (ID_PARTENAIRE_SERVICE,lat,long,shop, limit = 10, offset = 0) => {
+    try {
+        var binds = []
+        var sqlQuery = "SELECT ps.TELEPHONE, ps.ADRESSE_COMPLETE,ps.OUVERT,ps.PRESENTATION, ps.NOM_ORGANISATION,ps.ID_PARTENAIRE_SERVICE,ps.DATE_INSERTION,u.IMAGE,ps.LOGO,ps.BACKGROUND_IMAGE "
+        if (lat && long) {
+            sqlQuery += `, ( 6371 * acos( cos( radians(${lat}) ) * cos( radians( ps.LATITUDE ) ) * cos( radians(ps.LONGITUDE) - radians(${long})) + sin(radians(${lat})) * sin( radians(ps.LATITUDE)))) AS DISTANCE  `
+          }
+          sqlQuery += "   FROM partenaire_service ps "
+          sqlQuery += " LEFT JOIN partenaires p ON ps.ID_PARTENAIRE=p.ID_PARTENAIRE LEFT JOIN users u ON u.ID_USER=p.ID_USER "
+        if(shop&& shop!="")
+        {
+            sqlQuery += `WHERE ID_PARTENAIRE_SERVICE=${ID_PARTENAIRE_SERVICE} AND ID_TYPE_PARTENAIRE = 2 AND ID_SERVICE = 1 AND ps.NOM_ORGANISATION  LIKE  '%${shop}%' `
+        }
+        else{
+            sqlQuery += ` WHERE ID_PARTENAIRE_SERVICE=${ID_PARTENAIRE_SERVICE} AND ID_TYPE_PARTENAIRE = 2 AND ID_SERVICE = 1 `
+        }
+        if (lat && long) {
+            sqlQuery += " ORDER BY DISTANCE ASC "
+        }
+        else{
+            sqlQuery += ` ORDER BY ps.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
+
+        }
+        return query(sqlQuery);
+    }
+    catch (error) {
+        throw error
+    }
+
+}
 const findpartenaire = async (lat,long,shop, limit = 10, offset = 0) => {
     try {
         var binds = []
@@ -191,5 +221,6 @@ module.exports = {
     createpartenaire,
     CreatePartenaireService,
     createOnePartenaire,
+    findpartenaireOne
     // findpartenaires
 }

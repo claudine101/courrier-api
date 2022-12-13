@@ -39,6 +39,7 @@ const findproduct = async (id,category, subCategory, limit = 10, offset = 0) => 
 
 }
 }
+
 const findproducts = async (q,category, subCategory, limit = 10, offset = 0) => {
 
     try {
@@ -71,6 +72,70 @@ const findproducts = async (q,category, subCategory, limit = 10, offset = 0) => 
         }
         
         sqlQuery += ` ORDER BY eps.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
+        return query(sqlQuery, binds);
+
+    }
+    catch (error) {
+        throw error
+
+    }
+}
+
+const findproductCommande = async (q,category, subCategory, limit = 10, offset = 0) => {
+
+    try {
+        
+        var binds = []
+        var sqlQuery = `SELECT COUNT(ec.ID_PRODUIT_PARTENAIRE) AS nbre,
+        ep.ID_PRODUIT,
+        ep.NOM,
+        ep.IMAGE_1,
+        ep.IMAGE_2,
+        ep.IMAGE_3,
+        ps.NOM_ORGANISATION,
+        ps.ID_TYPE_PARTENAIRE,
+        ps.ID_PARTENAIRE,
+        u.NOM AS NOM_USER,
+        u.PRENOM,
+        ps.ID_PARTENAIRE_SERVICE,
+        epp.ID_PRODUIT_PARTENAIRE,
+        epp.DESCRIPTION,
+        eps.ID_PRODUIT_STOCK,
+        eps.QUANTITE_TOTAL,
+        eps.QUANTITE_VENDUS,
+        eps.QUANTITE_RESTANTE,
+        ep.ID_CATEGORIE_PRODUIT,
+        ep.ID_PRODUIT_SOUS_CATEGORIE
+    FROM ecommerce_produits ep
+        LEFT JOIN partenaire_service ps ON ps.ID_PARTENAIRE_SERVICE = ep.ID_PARTENAIRE_SERVICE
+        LEFT JOIN partenaires par ON par.ID_PARTENAIRE = ps.ID_PARTENAIRE
+        LEFT JOIN users u ON u.ID_USER = par.ID_USER
+        LEFT JOIN ecommerce_produit_partenaire epp ON epp.ID_PRODUIT = ep.ID_PRODUIT
+        LEFT JOIN ecommerce_produit_stock eps ON eps.ID_PRODUIT_PARTENAIRE = epp.ID_PRODUIT_PARTENAIRE
+        LEFT JOIN ecommerce_commandes ec ON ec.ID_PRODUIT_PARTENAIRE = epp.ID_PRODUIT_PARTENAIRE
+    WHERE ps.ID_SERVICE = 1
+        AND epp.ID_PRODUIT_PARTENAIRE IN (
+            SELECT ec.ID_PRODUIT_PARTENAIRE
+            FROM ecommerce_commandes
+        )
+    GROUP BY epp.ID_PRODUIT_PARTENAIRE
+   `
+        if (q && q != "") {
+            sqlQuery +=
+                      "AND  ep.NOM  LIKE ?";
+            binds.push(`%${q}%`);
+        }
+        if (category) 
+        {
+            sqlQuery += " AND ep.ID_CATEGORIE_PRODUIT=? "
+            binds.push(category)
+        }
+         if (subCategory) {
+            sqlQuery += " AND ep.ID_PRODUIT_SOUS_CATEGORIE = ? "
+            binds.push(subCategory)
+        }
+        
+        sqlQuery += ` ORDER BY nbre DESC LIMIT ${offset}, ${limit}`;
         return query(sqlQuery, binds);
 
     }
@@ -388,6 +453,7 @@ const updateImage = async (IMAGES,index,ID_PRODUIT) =>{
    }
 module.exports = {
     findproducts,
+    findproductCommande,
     updateImage,
     findproductByID,
     findproductsResearch,

@@ -349,6 +349,49 @@ const getAllPartenaire = async (req, res) => {
 
     }
 }
+const getOnePartenaire = async (req, res) => {
+
+    try {
+        const getImageUri = (fileName, folder) => {
+            if (!fileName) return null
+            if (fileName.indexOf("http") === 0) return fileName
+            return `${req.protocol}://${req.get("host")}/uploads/${folder}/${fileName}`
+        }
+
+        const { lat, long, shop, limit, offset } = req.query
+        const{ID_PARTENAIRE_SERVICE}=req.params
+        const allPartenaire = await userModel.findpartenaireOne(ID_PARTENAIRE_SERVICE,lat, long, shop, limit, offset)
+
+        const partenaires = await Promise.all(allPartenaire.map(async partenaire => {
+            const categorie = await userModel.findbycategorie(partenaire.ID_PARTENAIRE_SERVICE)
+            const note = (await userModel.findNote(partenaire.ID_PARTENAIRE_SERVICE))[0]
+
+            return {
+                ...partenaire,
+                LOGO: getImageUri(partenaire.LOGO, 'partenaire'),
+                IMAGE: getImageUri(partenaire.IMAGE, 'users'),
+                categories: categorie,
+                note: note
+
+            }
+        }))
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Liste des produits",
+            result: partenaires
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+        })
+
+    }
+}
 // const getAllPartenaires = async (req, res) => {
 
 //     try {
@@ -661,6 +704,7 @@ module.exports = {
     login,
     createUser,
     getAllPartenaire,
+    getOnePartenaire,
     findByIdPartenaire,
     getcategories,
     createPartenaire,

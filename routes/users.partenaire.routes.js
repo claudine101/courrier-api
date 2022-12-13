@@ -6,6 +6,8 @@ userPartenaireRouter.post('/', userPartenairecontroller.createUser)
 userPartenaireRouter.post('/Ajouter',userPartenairecontroller.createPartenaire)
 userPartenaireRouter.get('/categories/:ID_PARTENAIRE', userPartenairecontroller.getcategories)
 userPartenaireRouter.get('/ecommerce', userPartenairecontroller.getAllPartenaire)
+userPartenaireRouter.get('/ecommerce/one/:ID_PARTENAIRE_SERVICE', userPartenairecontroller.getOnePartenaire)
+
 // userPartenaireRouter.get('/ecommerces', userPartenairecontroller.getAllPartenaires)
 userPartenaireRouter.get('/ecommerce/:id', userPartenairecontroller.findByIdPartenaire)
 userPartenaireRouter.get('/', userPartenairecontroller.findAll)
