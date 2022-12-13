@@ -235,6 +235,8 @@ const findByIdPartenaire = async (req, res) => {
                         const prix = (await partenaireProduitModel.findAllPrix(product.ID_PRODUIT_PARTENAIRE))[0]
            const couleurs = (await partenaireProduitModel.findCouleurs(product.ID_PRODUIT_PARTENAIRE))
            const Qte = (await partenaireProduitModel.findQuantite(product.ID_PRODUIT_PARTENAIRE))[0]
+           const NbreCommande = (await query('SELECT COUNT(ID_PRODUIT_PARTENAIRE) AS nbr  FROM ecommerce_commandes WHERE ID_PRODUIT_PARTENAIRE=? GROUP BY  ID_PRODUIT_PARTENAIRE', [product.ID_PRODUIT_PARTENAIRE]))[0]
+           const NbreLike = (await query('SELECT COUNT(ID_PRODUIT_PARTENAIRE) AS nbr  FROM ecommerce_wishlist_produit WHERE ID_PRODUIT_PARTENAIRE=? GROUP BY  ID_PRODUIT_PARTENAIRE', [product.ID_PRODUIT_PARTENAIRE]))[0]
             
            var  taille=[]
                 const taille_couleur = await Promise.all(couleurs.map(async couleur => {
@@ -242,6 +244,8 @@ const findByIdPartenaire = async (req, res) => {
                 }))
                         if (prix) {
                                 return {
+                                        NbreCommande:NbreCommande,
+                                        NbreLike:NbreLike,
                                         Qte:Qte,
                                         taille_couleur:taille,
                                         produit: {

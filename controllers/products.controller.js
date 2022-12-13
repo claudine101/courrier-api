@@ -14,6 +14,7 @@ const getAllProducts = async (req, res) => {
         }
         const { q, category, subCategory, limit, offset } = req.query
         const allProducts = await productsModel.findproducts(q, category, subCategory, limit, offset)
+        
         const products = await Promise.all(allProducts.map(async product => {
             const prix = (await productsModel.getPrix(product.ID_PRODUIT_PARTENAIRE))[0]
             if (prix) {
@@ -61,6 +62,7 @@ const getAllProducts = async (req, res) => {
             }
         }
         ))
+        
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_STATUS.OK,

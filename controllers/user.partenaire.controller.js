@@ -360,7 +360,7 @@ const getOnePartenaire = async (req, res) => {
 
         const { lat, long, shop, limit, offset } = req.query
         const{ID_PARTENAIRE_SERVICE}=req.params
-        const allPartenaire = await userModel.findpartenaireOne(ID_PARTENAIRE_SERVICE,lat, long, shop, limit, offset)
+        const allPartenaire = (await userModel.findpartenaireOne(ID_PARTENAIRE_SERVICE,lat, long, shop, limit, offset))[0]
 
         const partenaires = await Promise.all(allPartenaire.map(async partenaire => {
             const categorie = await userModel.findbycategorie(partenaire.ID_PARTENAIRE_SERVICE)
