@@ -26,6 +26,6 @@ productsRouter.get('/color/:ID_PRODUIT_PARTENAIRE/:ID_TAILLE', productsControlle
 productsRouter.get('/all_sub_categories/', productsController.getAllSubCategories)
 productsRouter.get('/colors', productsController.getAllColors)
 productsRouter.get('/tailles/:ID_CATEGORIE_PRODUIT', productsController.getAllSizes)
-productsRouter.get('/couleurs', productsController.getAllColors)
+productsRouter.get('/couleurs/:ID_CATEGORIE_PRODUIT', productsController.getAllColors)
 
 module.exports = productsRouter

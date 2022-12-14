@@ -930,18 +930,14 @@ const insertNote = async (req, res) => {
 }
 const getAllColors = async (req, res) => {
     try {
-
-        const colors = await query("SELECT * FROM ecommerce_produit_couleur")
-
+const{ID_CATEGORIE_PRODUIT}=req.params
+        const colors = await query("SELECT * FROM ecommerce_produit_couleur WHERE ID_CATEGORIE_PRODUIT=?",[ID_CATEGORIE_PRODUIT])
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_STATUS.OK,
             message: "Liste des colors",
             result: colors
-
-
         })
-
     }
     catch (error) {
         console.log(error)
