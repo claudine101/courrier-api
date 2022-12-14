@@ -292,6 +292,7 @@ const getmenu = async (req, res) => {
 
     try {
         const { ID_PARTENAIRE_SERVICE } = req.params
+        
         // const {ID_USER}=req.userId
         // console.log(ID_USER)
         const getImageUri = (fileName) => {
@@ -302,9 +303,12 @@ const getmenu = async (req, res) => {
         const { partenaire, category } = req.query
         var menu = await restoMenuModel.findmenu(req.userId, ID_PARTENAIRE_SERVICE)
         const menus = await Promise.all(menu.map(async m => {
-            // const categorie = await userModel.findbycategorie(partenaire.ID_PARTENAIRE)
+            const NbreCommande = (await query('SELECT COUNT(ID_RESTAURANT_MENU) AS nbr  FROM restaurant_commandes WHERE ID_RESTAURANT_MENU=? GROUP BY  ID_RESTAURANT_MENU', [m.ID_RESTAURANT_MENU]))[0]
+           const NbreLike = (await query('SELECT COUNT(ID_RESTAURANT_MENU) AS nbr  FROM restaurant_wishlist_menu WHERE ID_RESTAURANT_MENU=? GROUP BY  ID_RESTAURANT_MENU', [m.ID_RESTAURANT_MENU]))[0]
             return {
                 ...m,
+                NbreLike:NbreLike,
+                NbreCommande:NbreCommande,
                 IMAGE: getImageUri(m.IMAGES_1),
                 IMAGE2: getImageUri(m.IMAGES_2),
                 IMAGE3: getImageUri(m.IMAGES_3)

@@ -955,8 +955,8 @@ const getAllColors = async (req, res) => {
 }
 const getAllSizes = async (req, res) => {
     try {
-
-        const taillesALL = await query("SELECT * FROM ecommerce_produit_tailles")
+const {ID_CATEGORIE_PRODUIT}=req.params
+        const taillesALL = await query("SELECT * FROM ecommerce_produit_tailles WHERE ID_CATEGORIE_PRODUIT=?",[ID_CATEGORIE_PRODUIT])
         const tailles = await Promise.all(taillesALL.map(async taille => {
                 return {
                     id: taille.ID_TAILLE,

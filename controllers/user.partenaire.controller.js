@@ -322,7 +322,6 @@ const getAllPartenaire = async (req, res) => {
         const partenaires = await Promise.all(allPartenaire.map(async partenaire => {
             const categorie = await userModel.findbycategorie(partenaire.ID_PARTENAIRE_SERVICE)
             const note = (await userModel.findNote(partenaire.ID_PARTENAIRE_SERVICE))[0]
-
             return {
                 ...partenaire,
                 LOGO: getImageUri(partenaire.LOGO, 'partenaire'),
@@ -627,69 +626,11 @@ const UpdateShop = async (req, res) => {
         const { ID_PARTENAIRE_SERVICE } = req.params
         const partenaires = await query("UPDATE partenaire_service SET NOM_ORGANISATION=?,TELEPHONE=?,ADRESSE_COMPLETE=?,PRESENTATION=?,OUVERT=? WHERE ID_PARTENAIRE_SERVICE=?", [NOM_ORGANISATION, TELEPHONE, ADRESSE, PRESENTATION, OUVERT, ID_PARTENAIRE_SERVICE]);
         const partenireUpdat = (await query("SELECT * FROM partenaire_service WHERE ID_PARTENAIRE_SERVICE=?", [ID_PARTENAIRE_SERVICE]))[0]
-
-
-        const partenaire = (await query('SELECT * FROM partenaires WHERE ID_USER = ?', [req.userId]))[0]
-        const Allproduits = await partenaireProduitModel.findByIdPartenaire(partenaire.ID_PARTENAIRE, ID_PARTENAIRE_SERVICE)
-        const products = await Promise.all(Allproduits.map(async product => {
-            const prix = (await partenaireProduitModel.findAllPrix(product.ID_PRODUIT_PARTENAIRE))[0]
-            const couleurs = (await partenaireProduitModel.findCouleurs(product.ID_PRODUIT_PARTENAIRE))
-            const Qte = (await partenaireProduitModel.findQuantite(product.ID_PRODUIT_PARTENAIRE))[0]
-
-            var taille = []
-            const taille_couleur = await Promise.all(couleurs.map(async couleur => {
-                taille = (await partenaireProduitModel.findTailles(product.ID_PRODUIT_PARTENAIRE, couleur.ID_COULEUR))
-            }))
-            if (prix) {
-                return {
-                    Qte: Qte,
-                    taille_couleur: taille,
-                    produit: {
-                        ID_PRODUIT: product.ID_PRODUIT,
-                        NOM: product.NOM,
-                        IMAGE: product.IMAGE_1
-                    },
-                    partenaire: {
-                        NOM_ORGANISATION: product.NOM_ORGANISATION,
-                        EMAIL: product.EMAIL,
-                    },
-                    produit_partenaire: {
-                        ID_PRODUIT_PARTENAIRE: product.ID_PRODUIT_PARTENAIRE,
-                        IMAGE_1: getImageUri(product.IMAGE_1),
-                        IMAGE_2: getImageUri(product.IMAGE_2),
-                        IMAGE_3: getImageUri(product.IMAGE_3),
-                        PRIX: prix.PRIX,
-                        NOM: product.NOM_ORGANISATION,
-                    },
-                    stock: {
-                        QUANTITE_STOCKE: prix.QUANTITE_TOTAL,
-                        QUANTITE_VENDUE: prix.QUANTITE_VENDUS,
-                        QUANTITE_RESTANTE: prix.QUANTITE_RESTANTE
-                    },
-                    taille: {
-                        ID_TAILLE: prix.ID_TAILLE,
-                        TAILLE: prix.TAILLE
-                    },
-                    couleur: {
-                        ID_COULEUR: prix.ID_COULEUR,
-                        COULEUR: prix.COULEUR
-                    },
-                    categorie: {
-                        ID_CATEGORIE_PRODUIT: product.ID_CATEGORIE_PRODUIT,
-                        NOM_CATEGORIE: product.NOM_CATEGORIE
-                    },
-                    sous_categorie: {
-                        ID_PRODUIT_SOUS_CATEGORIE: product.ID_PRODUIT_SOUS_CATEGORIE,
-                        SOUS_CATEGORIE: product.SOUS_CATEGORIE
-                    },
-                }
-            }
-        }))
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_STATUS.OK,
             message: "Update partenaires",
-            result: products
+            result: partenireUpdat
         })
     } catch (error) {
         console.log(error)
