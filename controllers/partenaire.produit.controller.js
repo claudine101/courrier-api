@@ -233,30 +233,31 @@ const findByIdPartenaire = async (req, res) => {
                 const Allproduits = await partenaireProduitModel.findByIdPartenaire(partenaire.ID_PARTENAIRE, id_partenaire_service)
                 const products = await Promise.all(Allproduits.map(async product => {
                         const prix = (await partenaireProduitModel.findAllPrix(product.ID_PRODUIT_PARTENAIRE))[0]
-           const couleurs = (await partenaireProduitModel.findCouleurs(product.ID_PRODUIT_PARTENAIRE))
-           const Qte = (await partenaireProduitModel.findQuantite(product.ID_PRODUIT_PARTENAIRE))[0]
-           const NbreCommande = (await query('SELECT COUNT(ID_PRODUIT_PARTENAIRE) AS nbr  FROM ecommerce_commandes WHERE ID_PRODUIT_PARTENAIRE=? GROUP BY  ID_PRODUIT_PARTENAIRE', [product.ID_PRODUIT_PARTENAIRE]))[0]
-           const NbreLike = (await query('SELECT COUNT(ID_PRODUIT_PARTENAIRE) AS nbr  FROM ecommerce_wishlist_produit WHERE ID_PRODUIT_PARTENAIRE=? GROUP BY  ID_PRODUIT_PARTENAIRE', [product.ID_PRODUIT_PARTENAIRE]))[0]
-            
-           var  taille=[]
-                const taille_couleur = await Promise.all(couleurs.map(async couleur => {
-               taille = (await partenaireProduitModel.findTailles(product.ID_PRODUIT_PARTENAIRE,couleur.ID_COULEUR))
-                }))
+                        const couleurs = (await partenaireProduitModel.findCouleurs(product.ID_PRODUIT_PARTENAIRE))
+                        const Qte = (await partenaireProduitModel.findQuantite(product.ID_PRODUIT_PARTENAIRE))[0]
+                        const NbreCommande = (await query('SELECT COUNT(ID_PRODUIT_PARTENAIRE) AS nbr  FROM ecommerce_commandes WHERE ID_PRODUIT_PARTENAIRE=? GROUP BY  ID_PRODUIT_PARTENAIRE', [product.ID_PRODUIT_PARTENAIRE]))[0]
+                        const NbreLike = (await query('SELECT COUNT(ID_PRODUIT_PARTENAIRE) AS nbr  FROM ecommerce_wishlist_produit WHERE ID_PRODUIT_PARTENAIRE=? GROUP BY  ID_PRODUIT_PARTENAIRE', [product.ID_PRODUIT_PARTENAIRE]))[0]
+
+                        var taille = []
+                        const taille_couleur = await Promise.all(couleurs.map(async couleur => {
+                                taille = (await partenaireProduitModel.findTailles(product.ID_PRODUIT_PARTENAIRE, couleur.ID_COULEUR))
+                        }))
                         if (prix) {
                                 return {
-                                        NbreCommande:NbreCommande,
-                                        NbreLike:NbreLike,
-                                        Qte:Qte,
-                                        taille_couleur:taille,
+                                        NbreCommande: NbreCommande,
+                                        NbreLike: NbreLike,
+                                        Qte: Qte,
+                                        taille_couleur: taille,
                                         produit: {
                                                 ID_PRODUIT: product.ID_PRODUIT,
                                                 NOM: product.NOM,
-                                                DESCRIPTION:product.DESCRIPTION,
+                                                DESCRIPTION: product.DESCRIPTION,
                                                 IMAGE: product.IMAGE_1
                                         },
                                         partenaire: {
                                                 NOM_ORGANISATION: product.NOM_ORGANISATION,
                                                 EMAIL: product.EMAIL,
+                                                ID_PARTENAIRE_SERVICE:product.ID_PARTENAIRE_SERVICE
                                         },
                                         produit_partenaire: {
                                                 ID_PRODUIT_PARTENAIRE: product.ID_PRODUIT_PARTENAIRE,
@@ -267,10 +268,12 @@ const findByIdPartenaire = async (req, res) => {
                                                 NOM: product.NOM_ORGANISATION,
                                         },
                                         stock: {
+                                                ID_PRODUIT_STOCK:prix.ID_PRODUIT_STOCK,
                                                 QUANTITE_STOCKE: prix.QUANTITE_TOTAL,
                                                 QUANTITE_VENDUE: prix.QUANTITE_VENDUS,
                                                 QUANTITE_RESTANTE: prix.QUANTITE_RESTANTE
                                         },
+                                        
                                         taille: {
                                                 ID_TAILLE: prix.ID_TAILLE,
                                                 TAILLE: prix.TAILLE
@@ -307,7 +310,50 @@ const findByIdPartenaire = async (req, res) => {
                 })
         }
 }
+const deleteProduit = async (req, res) => {
+        try {
+                const { ID_PRODUIT_PARTENAIRE,
+                        ID_PARTENAIRE_SERVICE } = req.params
+                const stock = (await query('SELECT ID_PRODUIT_STOCK FROM ecommerce_produit_stock WHERE ID_PRODUIT_PARTENAIRE = ?', [ID_PRODUIT_PARTENAIRE]))[0]
+                await query('DELETE FROM ecommerce_produit_partenaire WHERE ID_PRODUIT_PARTENAIRE=?', [ID_PRODUIT_PARTENAIRE])
+                await query('DELETE FROM ecommerce_produit_stock WHERE ID_PRODUIT_STOCK=?', [stock.ID_PRODUIT_STOCK])
+                await query('DELETE FROM  ecommerce_commande_details WHERE ID_PRODUIT_STOCK=?', [stock.ID_PRODUIT_PARTENAIRE])
+                await query('DELETE FROM  ecommerce_produit_details WHERE ID_PRODUIT_STOCK=?', [stock.ID_PRODUIT_PARTENAIRE])
+                await query('DELETE FROM  ecommerce_stock_prix WHERE ID_PRODUIT_STOCK=?', [stock.ID_PRODUIT_PARTENAIRE])
+                await query('DELETE FROM  ecommerce_wishlist_produit WHERE ID_PRODUIT_PARTENAIRE=?', [ID_PRODUIT_PARTENAIRE])
 
+        const getImageUri = (fileName) => {
+            if (!fileName) return null
+            if (fileName.indexOf("http") === 0) return fileName
+            return `${req.protocol}://${req.get("host")}/uploads/partenaire/${fileName}`
+        }
+        var sqlQuery = "SELECT ps.*, s.NOM NOM_SERVICE FROM partenaire_service ps "
+        sqlQuery += " LEFT JOIN partenaires p ON p.ID_PARTENAIRE = ps.ID_PARTENAIRE "
+        sqlQuery += " LEFT JOIN services s ON s.ID_SERVICE = ps.ID_SERVICE "
+        sqlQuery += " WHERE ps.ID_PARTENAIRE_SERVICE=?"
+        const svs = await query(sqlQuery, [ID_PARTENAIRE_SERVICE])
+        const services = svs.map(service => ({
+            ...service,
+            LOGO: getImageUri(service.LOGO),
+            BACKGROUND_IMAGE: getImageUri(service.BACKGROUND_IMAGE)
+        }))
+                res.status(RESPONSE_CODES.OK).json({
+                        statusCode: RESPONSE_CODES.OK,
+                        httpStatus: RESPONSE_STATUS.OK,
+                        message: "succès",
+                        result: services
+                })
+        }
+        catch (error) {
+                console.log(error)
+                res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                        statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                        httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                        message: "echoue",
+
+                })
+        }
+}
 const findDetailsProduit = async (req, res) => {
         try {
                 const { id_produit_partenaire } = req.params
@@ -365,36 +411,36 @@ const findDetailsProduit = async (req, res) => {
                 const produits = Detailsproduits.map(produit => ({
                         detail: {
                                 ID_DETAIL: produit.ID_DETAIL,
-                                ID_PRODUIT_PARTENAIRE:produit.ID_PRODUIT_PARTENAIRE,
-                                ID_PARTENAIRE_SERVICE:produit.ID_PARTENAIRE_SERVICE,
+                                ID_PRODUIT_PARTENAIRE: produit.ID_PRODUIT_PARTENAIRE,
+                                ID_PARTENAIRE_SERVICE: produit.ID_PARTENAIRE_SERVICE,
                         },
                         produit: {
                                 ID_PRODUIT: produit.ID_PRODUIT,
-                                NOM:produit.NOM,
+                                NOM: produit.NOM,
                                 IMAGE_1: getImageUri(produit.IMAGE_1),
                                 IMAGE_2: getImageUri(produit.IMAGE_2),
                                 IMAGE_3: getImageUri(produit.IMAGE_3),
                         },
                         stock: {
                                 QUANTITE_TOTAL: produit.QUANTITE_TOTAL,
-                                QUANTITE_VENDUS:produit.QUANTITE_VENDUS,
-                                QUANTITE_RESTANTE:produit.QUANTITE_RESTANTE,
+                                QUANTITE_VENDUS: produit.QUANTITE_VENDUS,
+                                QUANTITE_RESTANTE: produit.QUANTITE_RESTANTE,
                         },
                         categorie: {
                                 ID_CATEGORIE_PRODUIT: produit.ID_CATEGORIE_PRODUIT,
-                                NOM_CATEGORIE:produit.NOM_CATEGORIE,
+                                NOM_CATEGORIE: produit.NOM_CATEGORIE,
                         },
                         sous_categorie: {
                                 ID_PRODUIT_SOUS_CATEGORIE: produit.ID_PRODUIT_SOUS_CATEGORIE,
-                                SOUS_CATEGORIE:produit.SOUS_CATEGORIE,
+                                SOUS_CATEGORIE: produit.SOUS_CATEGORIE,
                         },
                         taille: {
                                 ID_TAILLE: produit.ID_TAILLE,
-                                TAILLE:produit.TAILLE,
+                                TAILLE: produit.TAILLE,
                         },
                         couleur: {
                                 ID_COULEUR: produit.ID_COULEUR,
-                                COULEUR:produit.COULEUR,
+                                COULEUR: produit.COULEUR,
                         },
                 }))
                 res.status(RESPONSE_CODES.OK).json({
@@ -439,6 +485,7 @@ const findByIdProduit = async (req, res) => {
 module.exports = {
         createProduit,
         findByIdPartenaire,
+        deleteProduit,
         findByIdProduit,
         findDetailsProduit
 }

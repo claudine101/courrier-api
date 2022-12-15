@@ -14,11 +14,11 @@ const getAllProducts = async (req, res) => {
         }
         const { q, category, subCategory, limit, offset } = req.query
         const allProducts = await productsModel.findproducts(q, category, subCategory, limit, offset)
-        
+
         const products = await Promise.all(allProducts.map(async product => {
             const prix = (await productsModel.getPrix(product.ID_PRODUIT_PARTENAIRE))[0]
             if (prix) {
-                return { 
+                return {
                     produit: {
                         ID_PRODUIT: product.ID_PRODUIT,
                         NOM: product.NOM,
@@ -62,7 +62,7 @@ const getAllProducts = async (req, res) => {
             }
         }
         ))
-        
+
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_STATUS.OK,
@@ -93,7 +93,7 @@ const getAllProductCommandes = async (req, res) => {
         const products = await Promise.all(allProducts.map(async product => {
             const prix = (await productsModel.getPrix(product.ID_PRODUIT_PARTENAIRE))[0]
             if (prix) {
-                return { 
+                return {
                     produit: {
                         ID_PRODUIT: product.ID_PRODUIT,
                         NOM: product.NOM,
@@ -157,21 +157,21 @@ const getAllProductCommandes = async (req, res) => {
 
 const updatePhoto = async (req, res) => {
     try {
-        const { ID_PRODUIT,index } = req.params
+        const { ID_PRODUIT, index } = req.params
         const { IMAGE } = req.files || {}
         const getImageUri = (fileName) => {
             if (!fileName) return null
             if (fileName.indexOf("http") === 0) return fileName
             return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
         }
-        const productUpload = new ProductUpload ()
+        const productUpload = new ProductUpload()
         const { fileInfo, thumbInfo } = await productUpload.upload(IMAGE, false)
         const { insertId: insertMenu } = await productsModel.updateImage(
             fileInfo.fileName,
             index,
             ID_PRODUIT,
         )
-        const productUpdate = await query("SELECT IMAGE_1 ,IMAGE_2,IMAGE_3 FROM ecommerce_produits WHERE ID_PRODUIT=? ",[ID_PRODUIT])
+        const productUpdate = await query("SELECT IMAGE_1 ,IMAGE_2,IMAGE_3 FROM ecommerce_produits WHERE ID_PRODUIT=? ", [ID_PRODUIT])
         const imageUpdate = productUpdate.map(product => ({
             IMAGE_1: getImageUri(product.IMAGE_1),
             IMAGE_2: getImageUri(product.IMAGE_2),
@@ -181,7 +181,7 @@ const updatePhoto = async (req, res) => {
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_CODES.OK,
             message: "Update des menu est faites avec succes",
-            result:imageUpdate
+            result: imageUpdate
         })
 
     }
@@ -197,15 +197,15 @@ const updatePhoto = async (req, res) => {
 }
 const updateNom = async (req, res) => {
     try {
-       const{NOM}=req.body
-       const{ID_PRODUIT}=req.params
-         await query("UPDATE   ecommerce_produits SET NOM = ? WHERE ID_PRODUIT=? ",[NOM,ID_PRODUIT])
-         const productUpdate = (await query("SELECT NOM FROM  ecommerce_produits WHERE ID_PRODUIT=? " ,[ID_PRODUIT]))[0]
+        const { NOM } = req.body
+        const { ID_PRODUIT } = req.params
+        await query("UPDATE   ecommerce_produits SET NOM = ? WHERE ID_PRODUIT=? ", [NOM, ID_PRODUIT])
+        const productUpdate = (await query("SELECT NOM FROM  ecommerce_produits WHERE ID_PRODUIT=? ", [ID_PRODUIT]))[0]
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_CODES.OK,
             message: "Update des produits est faites avec succes",
-            result:productUpdate
+            result: productUpdate
         })
 
     }
@@ -219,17 +219,17 @@ const updateNom = async (req, res) => {
         })
     }
 }
-const updateDescription= async (req, res) => {
+const updateDescription = async (req, res) => {
     try {
-       const{DESCRIPTION}=req.body
-       const{ID_PRODUIT_PARTENAIRE}=req.params
-         await query("UPDATE   ecommerce_produit_partenaire SET DESCRIPTION = ? WHERE ID_PRODUIT_PARTENAIRE=? ",[DESCRIPTION,ID_PRODUIT_PARTENAIRE])
-         const productUpdate = (await query("SELECT DESCRIPTION FROM  ecommerce_produit_partenaire WHERE ID_PRODUIT_PARTENAIRE=? " ,[ID_PRODUIT_PARTENAIRE]))[0]
+        const { DESCRIPTION } = req.body
+        const { ID_PRODUIT_PARTENAIRE } = req.params
+        await query("UPDATE   ecommerce_produit_partenaire SET DESCRIPTION = ? WHERE ID_PRODUIT_PARTENAIRE=? ", [DESCRIPTION, ID_PRODUIT_PARTENAIRE])
+        const productUpdate = (await query("SELECT DESCRIPTION FROM  ecommerce_produit_partenaire WHERE ID_PRODUIT_PARTENAIRE=? ", [ID_PRODUIT_PARTENAIRE]))[0]
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_CODES.OK,
             message: "Update des produits est faites avec succes",
-            result:productUpdate
+            result: productUpdate
         })
 
     }
@@ -243,68 +243,66 @@ const updateDescription= async (req, res) => {
         })
     }
 }
-const updateApprovisionner= async (req, res) => {
+const updateApprovisionner = async (req, res) => {
     try {
-       var {ID_COULEUR_NEW,ID_TAILLE_NEW,QUANTITE_RESTANTE,ID_TAILLE,ID_COULEUR,COULEUR,TAILLE}=req.body
-if(TAILLE)
-{
-    const { insertId:ID }= await query("INSERT INTO ecommerce_produit_tailles (TAILLE) values (?) " ,[TAILLE])
-    ID_TAILLE=ID
-}
-if(COULEUR)
-{
-    const {insertId:ID }= await query("INSERT INTO ecommerce_produit_couleur (COULEUR) values (?) " ,[COULEUR])
-    ID_COULEUR=ID
-}
-       const{ID_PRODUIT_PARTENAIRE}=req.params
-       const STOCK= (await query("SELECT ID_PRODUIT_STOCK FROM  ecommerce_produit_stock WHERE ID_PRODUIT_PARTENAIRE=? " ,[ID_PRODUIT_PARTENAIRE]))[0]
-if(COULEUR && TAILLE ){
-    const {insertId:ID }= await query("INSERT INTO ecommerce_produit_details (ID_PRODUIT_STOCK,ID_COULEUR,ID_TAILLE,QUANTITE_TOTAL,QUANTITE_RESTANTE) values (?,?,?,?,?) " ,[STOCK.ID_PRODUIT_STOCK,ID_COULEUR,ID_TAILLE,QUANTITE_RESTANTE,QUANTITE_RESTANTE])
-}
-else if(COULEUR){
-    const {insertId:ID }= await query("INSERT INTO ecommerce_produit_details (ID_PRODUIT_STOCK,ID_COULEUR,ID_TAILLE,QUANTITE_TOTAL,QUANTITE_RESTANTE) values (?,?,?,?,?) " ,[STOCK.ID_PRODUIT_STOCK,ID_COULEUR,ID_TAILLE,QUANTITE_RESTANTE,QUANTITE_RESTANTE])
-}
-else if(TAILLE){
-    const {insertId:ID }= await query("INSERT INTO ecommerce_produit_details (ID_PRODUIT_STOCK,ID_COULEUR,ID_TAILLE,QUANTITE_TOTAL,QUANTITE_RESTANTE) values (?,?,?,?,?) " ,[STOCK.ID_PRODUIT_STOCK,ID_COULEUR,ID_TAILLE,QUANTITE_RESTANTE,QUANTITE_RESTANTE])
-}
+        var { ID_COULEUR_NEW, ID_TAILLE_NEW, QUANTITE_RESTANTE, ID_TAILLE, ID_COULEUR, COULEUR, TAILLE } = req.body
+        if (TAILLE) {
+            const { insertId: ID } = await query("INSERT INTO ecommerce_produit_tailles (TAILLE) values (?) ", [TAILLE])
+            ID_TAILLE = ID
+        }
+        if (COULEUR) {
+            const { insertId: ID } = await query("INSERT INTO ecommerce_produit_couleur (COULEUR) values (?) ", [COULEUR])
+            ID_COULEUR = ID
+        }
+        const { ID_PRODUIT_PARTENAIRE } = req.params
+        const STOCK = (await query("SELECT ID_PRODUIT_STOCK FROM  ecommerce_produit_stock WHERE ID_PRODUIT_PARTENAIRE=? ", [ID_PRODUIT_PARTENAIRE]))[0]
+        if (COULEUR && TAILLE) {
+            const { insertId: ID } = await query("INSERT INTO ecommerce_produit_details (ID_PRODUIT_STOCK,ID_COULEUR,ID_TAILLE,QUANTITE_TOTAL,QUANTITE_RESTANTE) values (?,?,?,?,?) ", [STOCK.ID_PRODUIT_STOCK, ID_COULEUR, ID_TAILLE, QUANTITE_RESTANTE, QUANTITE_RESTANTE])
+        }
+        else if (COULEUR) {
+            const { insertId: ID } = await query("INSERT INTO ecommerce_produit_details (ID_PRODUIT_STOCK,ID_COULEUR,ID_TAILLE,QUANTITE_TOTAL,QUANTITE_RESTANTE) values (?,?,?,?,?) ", [STOCK.ID_PRODUIT_STOCK, ID_COULEUR, ID_TAILLE, QUANTITE_RESTANTE, QUANTITE_RESTANTE])
+        }
+        else if (TAILLE) {
+            const { insertId: ID } = await query("INSERT INTO ecommerce_produit_details (ID_PRODUIT_STOCK,ID_COULEUR,ID_TAILLE,QUANTITE_TOTAL,QUANTITE_RESTANTE) values (?,?,?,?,?) ", [STOCK.ID_PRODUIT_STOCK, ID_COULEUR, ID_TAILLE, QUANTITE_RESTANTE, QUANTITE_RESTANTE])
+        }
 
 
-else{
-    if(ID_COULEUR_NEW!='undefined' && ID_TAILLE_NEW=='undefined'){
-        await query("UPDATE   ecommerce_produit_details SET ID_COULEUR=? ,QUANTITE_RESTANTE = ? ,QUANTITE_TOTAL = ? WHERE ID_PRODUIT_STOCK=?  AND ID_COULEUR=? AND ID_TAILLE=?",[ID_COULEUR_NEW ,QUANTITE_RESTANTE,QUANTITE_RESTANTE,STOCK.ID_PRODUIT_STOCK,ID_COULEUR,ID_TAILLE])
-    }
-    else if(ID_COULEUR_NEW=='undefined' && ID_TAILLE_NEW!='undefined'){
-        await query("UPDATE   ecommerce_produit_details SET ID_TAILLE=? , QUANTITE_RESTANTE = ? ,QUANTITE_TOTAL = ? WHERE ID_PRODUIT_STOCK=?  AND ID_COULEUR=? AND ID_TAILLE=?",[ID_TAILLE_NEW,QUANTITE_RESTANTE,QUANTITE_RESTANTE,STOCK.ID_PRODUIT_STOCK,ID_COULEUR,ID_TAILLE])
-    }
-    else if(ID_COULEUR_NEW!='undefined' && ID_TAILLE_NEW!='undefined'){
-        await query("UPDATE   ecommerce_produit_details SET ID_COULEUR=?,ID_TAILLE=? ,QUANTITE_RESTANTE = ? ,QUANTITE_TOTAL = ? WHERE ID_PRODUIT_STOCK=?  AND ID_COULEUR=? AND ID_TAILLE=?",[ID_COULEUR_NEW ,ID_TAILLE_NEW,QUANTITE_RESTANTE,QUANTITE_RESTANTE,STOCK.ID_PRODUIT_STOCK,ID_COULEUR,ID_TAILLE])
-    }
-   
-    else{
-    await query("UPDATE   ecommerce_produit_details SET QUANTITE_RESTANTE = ? ,QUANTITE_TOTAL = ? WHERE ID_PRODUIT_STOCK=?  AND ID_COULEUR=? AND ID_TAILLE=?",[QUANTITE_RESTANTE,QUANTITE_RESTANTE,STOCK.ID_PRODUIT_STOCK,ID_COULEUR,ID_TAILLE])
-}
-}
-       const productUpdate = (await productsModel.findQte(STOCK.ID_PRODUIT_STOCK,ID_TAILLE,ID_COULEUR))[0]
-      
-       const sizes = await productsModel.findSize(ID_PRODUIT_PARTENAIRE)
-       const Quantite_size = await Promise.all(sizes.map(async size => {
-           const quantite=(await query("SELECT SUM(QUANTITE_RESTANTE) AS quantite FROM ecommerce_produit_details WHERE  ID_TAILLE= ? GROUP BY ID_TAILLE",[size.id]))[0]
-               return {
-                   id: size.id,
-                    name: size.name,
-                    quantite:quantite.quantite
-               }
-           }
-       ))
-       const colors = await productsModel.findColor(ID_PRODUIT_PARTENAIRE, ID_TAILLE)
-         res.status(RESPONSE_CODES.OK).json({
+        else {
+            if (ID_COULEUR_NEW != 'undefined' && ID_TAILLE_NEW == 'undefined') {
+                await query("UPDATE   ecommerce_produit_details SET ID_COULEUR=? ,QUANTITE_RESTANTE = ? ,QUANTITE_TOTAL = ? WHERE ID_PRODUIT_STOCK=?  AND ID_COULEUR=? AND ID_TAILLE=?", [ID_COULEUR_NEW, QUANTITE_RESTANTE, QUANTITE_RESTANTE, STOCK.ID_PRODUIT_STOCK, ID_COULEUR, ID_TAILLE])
+            }
+            else if (ID_COULEUR_NEW == 'undefined' && ID_TAILLE_NEW != 'undefined') {
+                await query("UPDATE   ecommerce_produit_details SET ID_TAILLE=? , QUANTITE_RESTANTE = ? ,QUANTITE_TOTAL = ? WHERE ID_PRODUIT_STOCK=?  AND ID_COULEUR=? AND ID_TAILLE=?", [ID_TAILLE_NEW, QUANTITE_RESTANTE, QUANTITE_RESTANTE, STOCK.ID_PRODUIT_STOCK, ID_COULEUR, ID_TAILLE])
+            }
+            else if (ID_COULEUR_NEW != 'undefined' && ID_TAILLE_NEW != 'undefined') {
+                await query("UPDATE   ecommerce_produit_details SET ID_COULEUR=?,ID_TAILLE=? ,QUANTITE_RESTANTE = ? ,QUANTITE_TOTAL = ? WHERE ID_PRODUIT_STOCK=?  AND ID_COULEUR=? AND ID_TAILLE=?", [ID_COULEUR_NEW, ID_TAILLE_NEW, QUANTITE_RESTANTE, QUANTITE_RESTANTE, STOCK.ID_PRODUIT_STOCK, ID_COULEUR, ID_TAILLE])
+            }
+
+            else {
+                await query("UPDATE   ecommerce_produit_details SET QUANTITE_RESTANTE = ? ,QUANTITE_TOTAL = ? WHERE ID_PRODUIT_STOCK=?  AND ID_COULEUR=? AND ID_TAILLE=?", [QUANTITE_RESTANTE, QUANTITE_RESTANTE, STOCK.ID_PRODUIT_STOCK, ID_COULEUR, ID_TAILLE])
+            }
+        }
+        const productUpdate = (await productsModel.findQte(STOCK.ID_PRODUIT_STOCK, ID_TAILLE, ID_COULEUR))[0]
+
+        const sizes = await productsModel.findSize(ID_PRODUIT_PARTENAIRE)
+        const Quantite_size = await Promise.all(sizes.map(async size => {
+            const quantite = (await query("SELECT SUM(QUANTITE_RESTANTE) AS quantite FROM ecommerce_produit_details WHERE  ID_TAILLE= ? GROUP BY ID_TAILLE", [size.id]))[0]
+            return {
+                id: size.id,
+                name: size.name,
+                quantite: quantite.quantite
+            }
+        }
+        ))
+        const colors = await productsModel.findColor(ID_PRODUIT_PARTENAIRE, ID_TAILLE)
+        res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_CODES.OK,
             message: "Update des produits est faites avec succes",
-            color_update:colors,
-            result:productUpdate,
-            size_update:Quantite_size,
-            
+            color_update: colors,
+            result: productUpdate,
+            size_update: Quantite_size,
+
 
         })
 
@@ -319,19 +317,19 @@ else{
         })
     }
 }
-const updatePrice= async (req, res) => {
+const updatePrice = async (req, res) => {
     try {
-       const{PRIX}=req.body
-       const{ID_PRODUIT_PARTENAIRE}=req.params
-       const STOCK= (await query("SELECT ID_PRODUIT_STOCK FROM  ecommerce_produit_stock WHERE ID_PRODUIT_PARTENAIRE=? " ,[ID_PRODUIT_PARTENAIRE]))[0]
+        const { PRIX } = req.body
+        const { ID_PRODUIT_PARTENAIRE } = req.params
+        const STOCK = (await query("SELECT ID_PRODUIT_STOCK FROM  ecommerce_produit_stock WHERE ID_PRODUIT_PARTENAIRE=? ", [ID_PRODUIT_PARTENAIRE]))[0]
 
-       await query("UPDATE   ecommerce_stock_prix SET PRIX = ?  WHERE ID_PRODUIT_STOCK=? ",[PRIX,STOCK.ID_PRODUIT_STOCK])
-         const prixUpdate = (await query("SELECT PRIX FROM  ecommerce_stock_prix WHERE ID_PRODUIT_STOCK=? ",[STOCK.ID_PRODUIT_STOCK]))[0]
+        await query("UPDATE   ecommerce_stock_prix SET PRIX = ?  WHERE ID_PRODUIT_STOCK=? ", [PRIX, STOCK.ID_PRODUIT_STOCK])
+        const prixUpdate = (await query("SELECT PRIX FROM  ecommerce_stock_prix WHERE ID_PRODUIT_STOCK=? ", [STOCK.ID_PRODUIT_STOCK]))[0]
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_CODES.OK,
             message: "Update des produits est faites avec succes",
-            result:prixUpdate
+            result: prixUpdate
         })
 
     }
@@ -429,52 +427,52 @@ const getAllProduct = async (req, res) => {
 
         const allProducts = await productsModel.findproduct(req.userId, category, subCategory, limit, offset)
         const products = await Promise.all(allProducts.map(async product => {
-             const prix = (await productsModel.getPrix(product.ID_PRODUIT_PARTENAIRE))[0]
-             //if (prix) 
-             {
-            return {
-                produit: {
-                    ID_PRODUIT: product.ID_PRODUIT,
-                    NOM: product.NOM,
-                    ID_PRODUIT_PARTENAIRE: product.ID_PRODUIT_PARTENAIRE,
+            const prix = (await productsModel.getPrix(product.ID_PRODUIT_PARTENAIRE))[0]
+            //if (prix) 
+            {
+                return {
+                    produit: {
+                        ID_PRODUIT: product.ID_PRODUIT,
+                        NOM: product.NOM,
+                        ID_PRODUIT_PARTENAIRE: product.ID_PRODUIT_PARTENAIRE,
 
-                    IMAGE: getImageUri(product.IMAGE_1),
-                },
-                partenaire: {
-                    NOM_ORGANISATION: product.NOM_ORGANISATION,
-                    ID_PARTENAIRE: product.ID_PARTENAIRE,
-                    ID_TYPE_PARTENAIRE: product.ID_TYPE_PARTENAIRE,
-                    NOM: product.NOM_USER,
-                    PRENOM: product.PRENOM
-                },
-                produit_partenaire: {
-                    ID_PARTENAIRE_SERVICE: product.ID_PARTENAIRE_SERVICE,
-                    NOM_ORGANISATION: product.NOM_ORGANISATION,
-                    NOM: product.NOM_PRODUIT_PARTENAIRE,
-                    DESCRIPTION: product.DESCRIPTION,
-                    IMAGE_1: getImageUri(product.IMAGE_1),
-                    IMAGE_2: getImageUri(product.IMAGE_2),
-                    IMAGE_3: getImageUri(product.IMAGE_3),
-                    TAILLE: product.NOM_TAILLE,
-                    PRIX: prix.PRIX
-                },
-                categorie: {
-                    ID_CATEGORIE_PRODUIT: product.ID_CATEGORIE_PRODUIT,
-                    NOM: product.NOM_CATEGORIE
-                },
-                sous_categorie: {
-                    ID_PRODUIT_SOUS_CATEGORIE: product.ID_PRODUIT_SOUS_CATEGORIE,
-                    NOM: product.NOM_SOUS_CATEGORIE
-                },
-                stock: {
-                    ID_PRODUIT_STOCK: product.ID_PRODUIT_STOCK,
-                    QUANTITE_STOCKE: product.QUANTITE_TOTAL,
-                    QUANTITE_RESTANTE: product.QUANTITE_RESTANTE,
-                    QUANTITE_VENDUE: product.QUANTITE_VENDUS
+                        IMAGE: getImageUri(product.IMAGE_1),
+                    },
+                    partenaire: {
+                        NOM_ORGANISATION: product.NOM_ORGANISATION,
+                        ID_PARTENAIRE: product.ID_PARTENAIRE,
+                        ID_TYPE_PARTENAIRE: product.ID_TYPE_PARTENAIRE,
+                        NOM: product.NOM_USER,
+                        PRENOM: product.PRENOM
+                    },
+                    produit_partenaire: {
+                        ID_PARTENAIRE_SERVICE: product.ID_PARTENAIRE_SERVICE,
+                        NOM_ORGANISATION: product.NOM_ORGANISATION,
+                        NOM: product.NOM_PRODUIT_PARTENAIRE,
+                        DESCRIPTION: product.DESCRIPTION,
+                        IMAGE_1: getImageUri(product.IMAGE_1),
+                        IMAGE_2: getImageUri(product.IMAGE_2),
+                        IMAGE_3: getImageUri(product.IMAGE_3),
+                        TAILLE: product.NOM_TAILLE,
+                        PRIX: prix.PRIX
+                    },
+                    categorie: {
+                        ID_CATEGORIE_PRODUIT: product.ID_CATEGORIE_PRODUIT,
+                        NOM: product.NOM_CATEGORIE
+                    },
+                    sous_categorie: {
+                        ID_PRODUIT_SOUS_CATEGORIE: product.ID_PRODUIT_SOUS_CATEGORIE,
+                        NOM: product.NOM_SOUS_CATEGORIE
+                    },
+                    stock: {
+                        ID_PRODUIT_STOCK: product.ID_PRODUIT_STOCK,
+                        QUANTITE_STOCKE: product.QUANTITE_TOTAL,
+                        QUANTITE_RESTANTE: product.QUANTITE_RESTANTE,
+                        QUANTITE_VENDUE: product.QUANTITE_VENDUS
+                    }
                 }
             }
         }
-            }
         ))
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
@@ -564,9 +562,9 @@ const getbyIDOL = async (req, res) => {
         const { ID_PARTENAIRE_SERVICE, limit, offset } = req.params
 
         const oneProduct = await productsModel.findBYidPartenaire(ID_PARTENAIRE_SERVICE, limit, offset)
-        const details = await Promise.all(oneProduct.map( async product => { 
+        const details = await Promise.all(oneProduct.map(async product => {
             const detail = (await productsModel.getdetail(product.ID_PRODUIT_PARTENAIRE))
-              
+
             return {
                 produit: {
                     ID_PRODUIT: product.ID_PRODUIT,
@@ -592,21 +590,21 @@ const getbyIDOL = async (req, res) => {
                 },
                 categorie: {
                     ID_CATEGORIE_PRODUIT: product.ID_CATEGORIE_PRODUIT,
-                    NOM:product.NOM_CATEGORIE
+                    NOM: product.NOM_CATEGORIE
                 },
                 sous_categorie: {
                     ID_PRODUIT_SOUS_CATEGORIE: product.ID_PRODUIT_SOUS_CATEGORIE,
-                    NOM:product.NOM_SOUS_CATEGORIE
+                    NOM: product.NOM_SOUS_CATEGORIE
                 },
                 detail: {
                     ID_PRODUIT_STOCK: product.ID_PRODUIT_STOCK,
-                    QUANTITE_STOCKE:detail.QUANTITE_TOTAL,
-                    QUANTITE_RESTANTE:detail.QUANTITE_RESTANTE,
-                    QUANTITE_VENDUE:detail.QUANTITE_VENDUS
+                    QUANTITE_STOCKE: detail.QUANTITE_TOTAL,
+                    QUANTITE_RESTANTE: detail.QUANTITE_RESTANTE,
+                    QUANTITE_VENDUE: detail.QUANTITE_VENDUS
                 }
             }
-        
-            
+
+
         }))
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
@@ -703,7 +701,7 @@ const getbyID = async (req, res) => {
 const getAllCategorie = async (req, res) => {
     try {
 
-        const {q}= req.query
+        const { q } = req.query
         const categories = await productsModel.findCategories(q)
 
         res.status(RESPONSE_CODES.OK).json({
@@ -930,8 +928,8 @@ const insertNote = async (req, res) => {
 }
 const getAllColors = async (req, res) => {
     try {
-const{ID_CATEGORIE_PRODUIT}=req.params
-        const colors = await query("SELECT * FROM ecommerce_produit_couleur WHERE ID_CATEGORIE_PRODUIT=?",[ID_CATEGORIE_PRODUIT])
+        const { ID_CATEGORIE_PRODUIT } = req.params
+        const colors = await query("SELECT * FROM ecommerce_produit_couleur WHERE ID_CATEGORIE_PRODUIT=?", [ID_CATEGORIE_PRODUIT])
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_STATUS.OK,
@@ -949,16 +947,36 @@ const{ID_CATEGORIE_PRODUIT}=req.params
         })
     }
 }
+const DeleteColor = async (req, res) => {
+    try {
+        const { ID_COULEUR,ID_PRODUIT_STOCK } = req.params
+        const colors = await query("SELECT * FROM ecommerce_produit_couleur WHERE ID_COULEUR=? AND ID_PRODUIT_STOCK=?", [ID_COULEUR,ID_PRODUIT_STOCK])
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Suppression reussi",
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
 const getAllSizes = async (req, res) => {
     try {
-const {ID_CATEGORIE_PRODUIT}=req.params
-        const taillesALL = await query("SELECT * FROM ecommerce_produit_tailles WHERE ID_CATEGORIE_PRODUIT=?",[ID_CATEGORIE_PRODUIT])
+        const { ID_CATEGORIE_PRODUIT } = req.params
+        const taillesALL = await query("SELECT * FROM ecommerce_produit_tailles WHERE ID_CATEGORIE_PRODUIT=?", [ID_CATEGORIE_PRODUIT])
         const tailles = await Promise.all(taillesALL.map(async taille => {
-                return {
-                    id: taille.ID_TAILLE,
-                     name: taille.TAILLE,
-                }
+            return {
+                id: taille.ID_TAILLE,
+                name: taille.TAILLE,
             }
+        }
         ))
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
@@ -970,15 +988,37 @@ const {ID_CATEGORIE_PRODUIT}=req.params
         })
 
     }
-catch (error) {
-    console.log(error)
-    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-        statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-        httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-        message: "Erreur interne du serveur, réessayer plus tard",
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
 
-    })
+        })
+    }
 }
+
+const DeleteSize = async (req, res) => {
+    try {
+        const { ID_TAILLE ,ID_PRODUIT_STOCK} = req.params
+        await query("DELETE FROM ecommerce_produit_details WHERE ID_TAILLE=? AND ID_PRODUIT_STOCK=?", [ID_TAILLE,ID_PRODUIT_STOCK])
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "suppression reussi",
+        })
+
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
 }
 const getCategorieByPartenaire = async (req, res) => {
     try {
@@ -1081,13 +1121,13 @@ const getSize = async (req, res) => {
         const { ID_PRODUIT_PARTENAIRE } = req.params
         const sizes = await productsModel.findSize(ID_PRODUIT_PARTENAIRE)
         const Quantite_size = await Promise.all(sizes.map(async size => {
-            const quantite=(await query("SELECT SUM(QUANTITE_RESTANTE) AS quantite FROM ecommerce_produit_details WHERE  ID_TAILLE= ? GROUP BY ID_TAILLE",[size.id]))[0]
-                return {
-                    id: size.id,
-                     name: size.name,
-                     quantite:quantite.quantite
-                }
+            const quantite = (await query("SELECT SUM(QUANTITE_RESTANTE) AS quantite FROM ecommerce_produit_details WHERE  ID_TAILLE= ? GROUP BY ID_TAILLE", [size.id]))[0]
+            return {
+                id: size.id,
+                name: size.name,
+                quantite: quantite.quantite
             }
+        }
         ))
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
@@ -1137,6 +1177,8 @@ module.exports = {
     getSousCategoriesBy,
     getAllProductCommandes,
     getSizes,
+    DeleteSize,
+    DeleteColor,
     getSize,
     getAllSubCategories,
     getOne,
