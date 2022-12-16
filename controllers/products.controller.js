@@ -1128,7 +1128,10 @@ const getSize = async (req, res) => {
                 quantite: quantite.quantite
             }
         }
+        
         ))
+        console.log(Quantite_size)
+
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_STATUS.OK,
