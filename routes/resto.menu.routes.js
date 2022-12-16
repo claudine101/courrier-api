@@ -8,6 +8,8 @@ restoMenuRouter.get('/sous_categories/:ID_CATEGORIE_MENU', restoMenuController.g
 restoMenuRouter.get('/note/liste/:ID_RESTAURANT_MENU', restoMenuController.getAllNotes)
 restoMenuRouter.get('/note/:ID_RESTAURANT_MENU', restoMenuController.getnote)
 restoMenuRouter.get('/:ID_PARTENAIRE_SERVICE', restoMenuController.getmenu)
+restoMenuRouter.put('/update/:ID_RESTAURANT_MENU', restoMenuController.updateMenu)
+restoMenuRouter.delete('/delete/:ID_RESTAURANT_MENU', restoMenuController.DeleteMenu)
 restoMenuRouter.get('/restaurant/:ID_PARTENAIRE_SERVICE', restoMenuController.getByIdmenu)
 restoMenuRouter.get('/', restoMenuController.getAllmenu)
 restoMenuRouter.get('/menu/research', restoMenuController.getmenuResearch)

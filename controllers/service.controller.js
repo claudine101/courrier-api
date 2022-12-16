@@ -100,6 +100,44 @@ const findService = async (req, res) => {
         })
     }
 }
+const UpdateImage = async (req, res) => {
+    try {
+        const { ID_PARTENAIRE_SERVICE} = req.params
+        const { IMAGE } = req.files || {}
+        const getImageUri = (fileName) => {
+            if (!fileName) return null
+            if (fileName.indexOf("http") === 0) return fileName
+            return `${req.protocol}://${req.get("host")}/uploads/partenaire/${fileName}`
+        }
+        const partenaireUpload = new PartenaireUpload()
+        const { fileInfo, thumbInfo } = await partenaireUpload.upload(IMAGE, false)
+        const { insertId: insertMenu } = await serviceModel.updateImage(
+            fileInfo.fileName,
+            ID_PARTENAIRE_SERVICE
+        )
+        const partenaireUpdate = await query("SELECT LOGO FROM partenaire_service WHERE ID_PARTENAIRE_SERVICE=? ", [ID_PARTENAIRE_SERVICE])
+        const imageUpdate = partenaireUpdate.map(update => ({
+            LOGO: getImageUri(update.LOGO),
+        }))
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_CODES.OK,
+            message: "Update des menu est faites avec succes",
+            result: imageUpdate
+        })
+    
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+
+        })
+    }
+}
 
 const paye = async (req, res) => {
     try {
@@ -129,6 +167,7 @@ module.exports = {
     paye,
     findAllService,
     findOne,
+    UpdateImage,
     findService
 }
 
