@@ -14,17 +14,17 @@ const createProduitStock = (ID_PRODUIT_PARTENAIRE, QUANTITE_TOTAL, QUANTITE_VEND
 }
 
 const createProduitPrix = (ID_PRODUIT_STOCK, PRIX, ID_STATUT
-        ) => {
-                try {
-                        var sqlQuery = "INSERT INTO  ecommerce_stock_prix(ID_PRODUIT_STOCK, PRIX, ID_STATUT)";
-                        sqlQuery += "values (?,?,?)";
-                        return query(sqlQuery, [ID_PRODUIT_STOCK, PRIX, ID_STATUT])
-                }
-                catch (error) {
-        
-                        throw error
-                }
+) => {
+        try {
+                var sqlQuery = "INSERT INTO  ecommerce_stock_prix(ID_PRODUIT_STOCK, PRIX, ID_STATUT)";
+                sqlQuery += "values (?,?,?)";
+                return query(sqlQuery, [ID_PRODUIT_STOCK, PRIX, ID_STATUT])
         }
+        catch (error) {
+
+                throw error
+        }
+}
 
 const createProduit = (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, NOM, IMAGE_1, IMAGE_2, IMAGE_3, IS_AUTRE, ID_PARTENAIRE_SERVICE
 ) => {
@@ -40,26 +40,26 @@ const createProduit = (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, NOM, IMA
 }
 
 const createProduitPartenaire = (ID_PARTENAIRE_SERVICE, ID_PRODUIT, DESCRIPTION
-        ) => {
-                try {
-                        var sqlQuery = "INSERT INTO  ecommerce_produit_partenaire(ID_PARTENAIRE_SERVICE, ID_PRODUIT, DESCRIPTION)";
-                        sqlQuery += "values (?,?,?)";
-                        return query(sqlQuery, [ID_PARTENAIRE_SERVICE, ID_PRODUIT, DESCRIPTION])
-                }
-                catch (error) {
-        
-                        throw error
-                }
+) => {
+        try {
+                var sqlQuery = "INSERT INTO  ecommerce_produit_partenaire(ID_PARTENAIRE_SERVICE, ID_PRODUIT, DESCRIPTION)";
+                sqlQuery += "values (?,?,?)";
+                return query(sqlQuery, [ID_PARTENAIRE_SERVICE, ID_PRODUIT, DESCRIPTION])
         }
+        catch (error) {
+
+                throw error
+        }
+}
 
 
 const createProduitTaille = async (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, TAILLE, IS_AUTRE, ID_PARTENAIRE_SERVICE) => {
         try {
-                  var sqlQuery = "INSERT INTO ecommerce_produit_tailles(ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, TAILLE, IS_AUTRE, ID_PARTENAIRE_SERVICE)";
-                  sqlQuery += "VALUES (?,?,?,?,?)"
-                  return query(sqlQuery, [ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, TAILLE, IS_AUTRE, ID_PARTENAIRE_SERVICE]);
+                var sqlQuery = "INSERT INTO ecommerce_produit_tailles(ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, TAILLE, IS_AUTRE, ID_PARTENAIRE_SERVICE)";
+                sqlQuery += "VALUES (?,?,?,?,?)"
+                return query(sqlQuery, [ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, TAILLE, IS_AUTRE, ID_PARTENAIRE_SERVICE]);
         } catch (error) {
-                  throw error
+                throw error
         }
 
 }
@@ -67,27 +67,27 @@ const createProduitTaille = async (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGOR
 
 const createProduitCouleur = async (COULEUR, ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, IS_AUTRE, ID_PARTENAIRE_SERVICE) => {
         try {
-                  var sqlQuery = "INSERT INTO ecommerce_produit_couleur(COULEUR, ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, IS_AUTRE, ID_PARTENAIRE_SERVICE)";
-                  sqlQuery += "VALUES (?,?,?,?,?)"
-                  return query(sqlQuery, [COULEUR, ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, IS_AUTRE, ID_PARTENAIRE_SERVICE]);
+                var sqlQuery = "INSERT INTO ecommerce_produit_couleur(COULEUR, ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, IS_AUTRE, ID_PARTENAIRE_SERVICE)";
+                sqlQuery += "VALUES (?,?,?,?,?)"
+                return query(sqlQuery, [COULEUR, ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, IS_AUTRE, ID_PARTENAIRE_SERVICE]);
         } catch (error) {
-                  throw error
+                throw error
         }
 
 }
 
-const createProduitDetailStock = (ID_PRODUIT_STOCK, ID_COULEUR,	ID_TAILLE, ID_MARQUE, QUANTITE_TOTAL, QUANTITE_VENDUS, QUANTITE_RESTANTE
-        ) => {
-                try {
-                        var sqlQuery = "INSERT INTO ecommerce_produit_details (ID_PRODUIT_STOCK, ID_COULEUR,ID_TAILLE, ID_MARQUE, QUANTITE_TOTAL, QUANTITE_VENDUS, QUANTITE_RESTANTE)";
-                        sqlQuery += "values (?,?,?,?,?,?,?)";
-                        return query(sqlQuery, [ID_PRODUIT_STOCK, ID_COULEUR,ID_TAILLE, ID_MARQUE, QUANTITE_TOTAL, QUANTITE_VENDUS, QUANTITE_RESTANTE])
-                }
-                catch (error) {
-        
-                        throw error
-                }
+const createProduitDetailStock = (ID_PRODUIT_STOCK, ID_COULEUR, ID_TAILLE, ID_MARQUE, QUANTITE_TOTAL, QUANTITE_VENDUS, QUANTITE_RESTANTE
+) => {
+        try {
+                var sqlQuery = "INSERT INTO ecommerce_produit_details (ID_PRODUIT_STOCK, ID_COULEUR,ID_TAILLE, ID_MARQUE, QUANTITE_TOTAL, QUANTITE_VENDUS, QUANTITE_RESTANTE)";
+                sqlQuery += "values (?,?,?,?,?,?,?)";
+                return query(sqlQuery, [ID_PRODUIT_STOCK, ID_COULEUR, ID_TAILLE, ID_MARQUE, QUANTITE_TOTAL, QUANTITE_VENDUS, QUANTITE_RESTANTE])
         }
+        catch (error) {
+
+                throw error
+        }
+}
 
 
 
@@ -113,64 +113,79 @@ const findproduits = async (limit = 10, offset = 0) => {
         }
 }
 
-const findCategories = async () => {
+const findCategories = async (q) => {
         try {
-                return query("SELECT * FROM ecommerce_produit_categorie WHERE 1");
+                var sqlQuery = `SELECT *
+                FROM ecommerce_produit_categorie
+                WHERE 1`
+                if (q && q != "") {
+                        sqlQuery += ` AND NOM LIKE '%${q}%'`
+
+                }
+                return query(sqlQuery);
         }
         catch (error) {
                 throw error
         }
 }
 
-const findSousCategories = async (id_categorie) => {
+const findSousCategories = async (id_categorie,q) => {
         try {
-            var sqlQuery ="SELECT ec_s_c.ID_PRODUIT_SOUS_CATEGORIE,ec_s_c.ID_CATEGORIE_PRODUIT,ec_s_c.NOM FROM ecommerce_produit_sous_categorie ec_s_c LEFT JOIN ecommerce_produit_categorie ec ON ec_s_c.ID_CATEGORIE_PRODUIT=ec.ID_CATEGORIE_PRODUIT WHERE ec.ID_CATEGORIE_PRODUIT=?";
-            return query(sqlQuery, [id_categorie]);
-       
+                var sqlQuery = `SELECT ec_s_c.ID_PRODUIT_SOUS_CATEGORIE,
+                                    ec_s_c.ID_CATEGORIE_PRODUIT,ec_s_c.NOM
+                               FROM ecommerce_produit_sous_categorie ec_s_c
+                               LEFT JOIN ecommerce_produit_categorie ec ON ec_s_c.ID_CATEGORIE_PRODUIT = ec.ID_CATEGORIE_PRODUIT
+                             WHERE ec.ID_CATEGORIE_PRODUIT = ?`
+                if (q && q != "") {
+                        sqlQuery += ` AND ec_s_c.NOM LIKE '%${q}%'`
+
+                }
+                return query(sqlQuery,[id_categorie]);
+
         }
         catch (error) {
-            throw error
+                throw error
         }
-    }
+}
 
 
 const findCouleurs = async (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE) => {
         try {
-        
-            var binds = [ID_CATEGORIE_PRODUIT]
-            var sqlQuery = "SELECT * FROM ecommerce_produit_couleur WHERE ID_CATEGORIE_PRODUIT = ?"
-        
-            if(ID_PRODUIT_SOUS_CATEGORIE){
-                sqlQuery += " AND ID_PRODUIT_SOUS_CATEGORIE=? "
-                binds.push(ID_PRODUIT_SOUS_CATEGORIE)
-            }
-            // sqlQuery += `LIMIT ${offset}, ${limit}`;
-                  return query(sqlQuery, binds);
-        }
-        catch (error) {
-            throw error
-    
-        }
-    }
 
-    const findTailles = async (ID_CATEGORIE_PRODUIT,ID_PRODUIT_SOUS_CATEGORIE) => {
-        try {
-        
-            var binds = [ID_CATEGORIE_PRODUIT]
-            var sqlQuery = "SELECT * FROM ecommerce_produit_tailles WHERE ID_CATEGORIE_PRODUIT=?"
-            
-            if(ID_PRODUIT_SOUS_CATEGORIE){
-                sqlQuery += " AND ID_PRODUIT_SOUS_CATEGORIE=? "
-                binds.push(ID_PRODUIT_SOUS_CATEGORIE)
-            }
-            // sqlQuery += `LIMIT ${offset}, ${limit}`;
-                  return query(sqlQuery, binds);
+                var binds = [ID_CATEGORIE_PRODUIT]
+                var sqlQuery = "SELECT * FROM ecommerce_produit_couleur WHERE ID_CATEGORIE_PRODUIT = ?"
+
+                if (ID_PRODUIT_SOUS_CATEGORIE) {
+                        sqlQuery += " AND ID_PRODUIT_SOUS_CATEGORIE=? "
+                        binds.push(ID_PRODUIT_SOUS_CATEGORIE)
+                }
+                // sqlQuery += `LIMIT ${offset}, ${limit}`;
+                return query(sqlQuery, binds);
         }
         catch (error) {
-            throw error
-    
+                throw error
+
         }
-    }
+}
+
+const findTailles = async (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE) => {
+        try {
+
+                var binds = [ID_CATEGORIE_PRODUIT]
+                var sqlQuery = "SELECT * FROM ecommerce_produit_tailles WHERE ID_CATEGORIE_PRODUIT=?"
+
+                if (ID_PRODUIT_SOUS_CATEGORIE) {
+                        sqlQuery += " AND ID_PRODUIT_SOUS_CATEGORIE=? "
+                        binds.push(ID_PRODUIT_SOUS_CATEGORIE)
+                }
+                // sqlQuery += `LIMIT ${offset}, ${limit}`;
+                return query(sqlQuery, binds);
+        }
+        catch (error) {
+                throw error
+
+        }
+}
 
 
 module.exports = {
