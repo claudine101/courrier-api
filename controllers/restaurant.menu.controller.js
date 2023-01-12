@@ -16,13 +16,13 @@ const createMenu = async (req, res) => {
             ID_SOUS_CATEGORIE_MENU,
             ID_PARTENAIRE_SERVICE,
             NOM_MENU,
+            TEMPS_PREPARATION,
             PRIX,
             DESCRIPT,
             DESCRIPTIONrepas,
-            TEMPS_PREPARATION
+            DESCRIPTIONmenu,
         } = req.body
-        console.log(req.body)
-
+console.log(req.body)
         const { IMAGE_1, IMAGE_2, IMAGE_3 } = req.files || {}
         const validation = new Validation(
             { ...req.body, ...req.files },
@@ -104,7 +104,7 @@ const createMenu = async (req, res) => {
                 ID_PARTENAIRE_SERVICE,
                 PRIX,
                 TEMPS_PREPARATION,
-                DESCRIPT,
+                DESCRIPTIONmenu,
                 filename_1 ? filename_1 : null,
                 filename_2 ? filename_2 : null,
                 filename_3 ? filename_3 : null,
@@ -138,7 +138,7 @@ const createMenu = async (req, res) => {
                 ID_PARTENAIRE_SERVICE,
                 PRIX,
                 TEMPS_PREPARATION,
-                DESCRIPT,
+                DESCRIPTIONmenu,
                 filename_1 ? filename_1 : null,
                 filename_2 ? filename_2 : null,
                 filename_3 ? filename_3 : null,

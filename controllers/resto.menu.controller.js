@@ -292,7 +292,7 @@ const getmenu = async (req, res) => {
 
     try {
         const { ID_PARTENAIRE_SERVICE } = req.params
-        
+
         // const {ID_USER}=req.userId
         // console.log(ID_USER)
         const getImageUri = (fileName) => {
@@ -304,11 +304,11 @@ const getmenu = async (req, res) => {
         var menu = await restoMenuModel.findmenu(req.userId, ID_PARTENAIRE_SERVICE)
         const menus = await Promise.all(menu.map(async m => {
             const NbreCommande = (await query('SELECT COUNT(ID_RESTAURANT_MENU) AS nbr  FROM restaurant_commandes WHERE ID_RESTAURANT_MENU=? GROUP BY  ID_RESTAURANT_MENU', [m.ID_RESTAURANT_MENU]))[0]
-           const NbreLike = (await query('SELECT COUNT(ID_RESTAURANT_MENU) AS nbr  FROM restaurant_wishlist_menu WHERE ID_RESTAURANT_MENU=? GROUP BY  ID_RESTAURANT_MENU', [m.ID_RESTAURANT_MENU]))[0]
+            const NbreLike = (await query('SELECT COUNT(ID_RESTAURANT_MENU) AS nbr  FROM restaurant_wishlist_menu WHERE ID_RESTAURANT_MENU=? GROUP BY  ID_RESTAURANT_MENU', [m.ID_RESTAURANT_MENU]))[0]
             return {
                 ...m,
-                NbreLike:NbreLike,
-                NbreCommande:NbreCommande,
+                NbreLike: NbreLike,
+                NbreCommande: NbreCommande,
                 IMAGE: getImageUri(m.IMAGES_1),
                 IMAGE2: getImageUri(m.IMAGES_2),
                 IMAGE3: getImageUri(m.IMAGES_3)
@@ -333,28 +333,66 @@ const getmenu = async (req, res) => {
         })
     }
 };
+const updateMenu = async (req, res) => {
+
+    try {
+        const { ID_RESTAURANT_MENU } = req.params
+        const {
+            REPAS, CATEGORIE, PRIX, TEMPS, DESCRIPTION
+        } = req.body
+        const partenaires = await query("UPDATE restaurant_menus SET ID_REPAS=?,ID_CATEGORIE_MENU=?,PRIX=?,TEMPS_PREPARATION=?,DESCRIPTION=? WHERE ID_RESTAURANT_MENU=?", [REPAS, CATEGORIE, PRIX, TEMPS, DESCRIPTION, ID_RESTAURANT_MENU]);
+        const menuUpdate = (await query("SELECT  rm.*,rr.ID_REPAS,rr.NOM as repas,rcm.ID_CATEGORIE_MENU,rcm.NOM as categorie FROM restaurant_menus rm LEFT JOIN restaurant_repas rr ON rr.ID_REPAS=rm.ID_REPAS LEFT JOIN restaurant_categorie_menu rcm ON rcm.ID_CATEGORIE_MENU=rm.ID_CATEGORIE_MENU WHERE ID_RESTAURANT_MENU=?", [ID_RESTAURANT_MENU]))[0]
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_CODES.OK,
+            message: "Liste des  menu restaurants",
+            result: menuUpdate
+
+        })
+
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+};
+const DeleteMenu = async (req, res) => {
+
+    try {
+        const { ID_RESTAURANT_MENU } = req.params
+        const deleteRow = (await query('DELETE FROM  restaurant_menus WHERE ID_RESTAURANT_MENU=? ', [ID_RESTAURANT_MENU]))
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_CODES.OK,
+            message: "Suppression reussi",
+            // result: menus
+
+        })
+
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+};
 const getByIdmenu = async (req, res) => {
 
     try {
-        const { ID_PARTENAIRE_SERVICE } = req.params
+        const { ID_RESTAURANT_MENU } = req.params
 
-        const getImageUri = (fileName, folder) => {
-            if (!fileName) return null
-            if (fileName.indexOf("http") === 0) return fileName
-            return `${req.protocol}://${req.get("host")}/uploads/${folder}/${fileName}`
-        }
-        const { category, limit, offset } = req.query
-        var menu = await restoMenuModel.findByIDmenu(ID_PARTENAIRE_SERVICE, category, limit, offset)
-        const menus = await Promise.all(menu.map(async m => {
-            return {
-                ...m,
-                LOGO: getImageUri(m.LOGO, "partenaire"),
-                IMAGE: getImageUri(m.IMAGES_1, "menu"),
-                IMAGE2: getImageUri(m.IMAGES_2, "menu"),
-                IMAGE3: getImageUri(m.IMAGES_3, "menu")
-            }
+        const NbreCommande = (await query('SELECT COUNT(ID_RESTAURANT_MENU) AS nbr  FROM restaurant_commandes WHERE ID_RESTAURANT_MENU=? GROUP BY  ID_RESTAURANT_MENU', [m.ID_RESTAURANT_MENU]))[0]
 
-        }))
+
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_CODES.OK,
@@ -381,8 +419,8 @@ const getAllmenu = async (req, res) => {
             if (fileName.indexOf("http") === 0) return fileName
             return `${req.protocol}://${req.get("host")}/uploads/menu/${fileName}`
         }
-        const { q,category, limit, offset } = req.query
-        var menu = await restoMenuModel.findAllmenu(q,category, limit, offset)
+        const { q, category, limit, offset } = req.query
+        var menu = await restoMenuModel.findAllmenu(q, category, limit, offset)
         const menus = await Promise.all(menu.map(async m => {
             // const categorie = await userModel.findbycategorie(partenaire.ID_PARTENAIRE)
             return {
@@ -413,14 +451,14 @@ const getAllmenu = async (req, res) => {
 };
 const getmenuResearch = async (req, res) => {
     try {
-        const{ID_RESTAURANT_MENU}=req.params
+        const { ID_RESTAURANT_MENU } = req.params
         const getImageUri = (fileName) => {
             if (!fileName) return null
             if (fileName.indexOf("http") === 0) return fileName
             return `${req.protocol}://${req.get("host")}/uploads/menu/${fileName}`
         }
         const { q, limit, offset } = req.query
-        var menu = await restoMenuModel.findmenuResearch(q, limit, offset,ID_RESTAURANT_MENU)
+        var menu = await restoMenuModel.findmenuResearch(q, limit, offset, ID_RESTAURANT_MENU)
         const menus = await Promise.all(menu.map(async m => {
             return {
                 ...m,
@@ -525,7 +563,7 @@ const upadtePhotoMenu = async (req, res) => {
             fileInfo.fileName,
             ID_RESTAURANT_MENU,
         )
-        const menuUpdate = await query("SELECT * FROM restaurant_menus WHERE ID_RESTAURANT_MENU=? ",[ID_RESTAURANT_MENU])
+        const menuUpdate = await query("SELECT * FROM restaurant_menus WHERE ID_RESTAURANT_MENU=? ", [ID_RESTAURANT_MENU])
         const menus = menuUpdate.map(menu => ({
             ...menu,
             IMAGE: getImageUri(menu.IMAGES_1),
@@ -534,7 +572,7 @@ const upadtePhotoMenu = async (req, res) => {
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_CODES.OK,
             message: "Update des menu est faites avec succes",
-            result:menus
+            result: menus
         })
 
     }
@@ -556,7 +594,7 @@ const upadteAllDescription = async (req, res) => {
             fileInfo.fileName,
             ID_RESTAURANT_MENU,
         )
-        const menuUpdate = await query("SELECT * FROM restaurant_menus WHERE ID_RESTAURANT_MENU=? ",[ID_RESTAURANT_MENU])
+        const menuUpdate = await query("SELECT * FROM restaurant_menus WHERE ID_RESTAURANT_MENU=? ", [ID_RESTAURANT_MENU])
         const menus = menuUpdate.map(menu => ({
             ...menu,
             IMAGE: getImageUri(menu.IMAGES_1),
@@ -565,7 +603,7 @@ const upadteAllDescription = async (req, res) => {
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_CODES.OK,
             message: "Update des menu est faites avec succes",
-            result:menus
+            result: menus
         })
 
     }
@@ -595,5 +633,7 @@ module.exports = {
     getAllNotes,
     getnote,
     upadtePhotoMenu,
+    updateMenu,
+    DeleteMenu,
     upadteAllDescription
 }

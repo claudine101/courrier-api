@@ -286,6 +286,40 @@ const getAllPartenaireServices = async (req, res) => {
         })
     }
 }
+const getOneServices = async (req, res) => {
+    try {
+        const {ID_PARTENAIRE_SERVICE}=req.params
+        const getImageUri = (fileName) => {
+            if (!fileName) return null
+            if (fileName.indexOf("http") === 0) return fileName
+            return `${req.protocol}://${req.get("host")}/uploads/partenaire/${fileName}`
+        }
+        var sqlQuery = "SELECT ps.*, s.NOM NOM_SERVICE FROM partenaire_service ps "
+        sqlQuery += " LEFT JOIN partenaires p ON p.ID_PARTENAIRE = ps.ID_PARTENAIRE "
+        sqlQuery += " LEFT JOIN services s ON s.ID_SERVICE = ps.ID_SERVICE "
+        sqlQuery += " WHERE p.ID_USER  = ? AND  ps.ID_SERVICE =2  AND ID_PARTENAIRE_SERVICE=?"
+        const svs = await query(sqlQuery, [req.userId])
+        const services = svs.map(service => ({
+            ...service,
+            LOGO: getImageUri(service.LOGO),
+            BACKGROUND_IMAGE: getImageUri(service.BACKGROUND_IMAGE)
+        }))
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Liste des services du partenaire",
+            result: services
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "echoue",
+
+        })
+    }
+}
 const getAllPartenaire = async (req, res) => {
     try {
         const getImageUri = (fileName) => {
@@ -359,5 +393,6 @@ module.exports = {
     createPartenaire,
     findByService,
     getAllPartenaireServices,
+    getOneServices,
     getAllPartenaire
 }
