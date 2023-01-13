@@ -13,6 +13,18 @@ const findAll = async (value) => {
           }
 
 }
+const updateImage = async (IMAGE,ID_PARTENAIRE_SERVICE) =>{
+    try {
+      var sqlQuery = `UPDATE  partenaire_service SET LOGO = ? ,BACKGROUND_IMAGE=? WHERE ID_PARTENAIRE_SERVICE = ?`;
+      return query(sqlQuery, [
+        IMAGE,
+        IMAGE,
+        ID_PARTENAIRE_SERVICE
+      ]);
+    } catch (error) {
+      throw error;
+    }
+   }
 const findById = async (ID_USER, ID_SERVICE) => {
           try {
 

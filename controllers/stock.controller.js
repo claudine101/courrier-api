@@ -269,12 +269,12 @@ const getAllProduit = async (req, res) => {
 const getAllCategorie = async (req, res) => {
         try {
 
-                const categories = await stockmodel.findCategories()
-
+                const {q}=req.query
+                const categories = await stockmodel.findCategories(q)
                 res.status(RESPONSE_CODES.OK).json({
                         statusCode: RESPONSE_CODES.OK,
                         httpStatus: RESPONSE_STATUS.OK,
-                        message: "Liste des categories",
+                        message: "Liste deS categories",
                         result: categories
 
 
@@ -295,16 +295,14 @@ const getAllCategorie = async (req, res) => {
 const getAllSousCategorie = async (req, res) => {
         try {
                 const { id_categorie } = req.params
-
-                const categories = await stockmodel.findSousCategories(id_categorie)
-
+                const {q}=req.query
+                console.log(q)
+                const categories = await stockmodel.findSousCategories(id_categorie,q)
                 res.status(RESPONSE_CODES.OK).json({
                         statusCode: RESPONSE_CODES.OK,
                         httpStatus: RESPONSE_STATUS.OK,
                         message: "Liste des sous categories",
                         result: categories
-
-
                 })
 
         }
@@ -318,9 +316,6 @@ const getAllSousCategorie = async (req, res) => {
                 })
         }
 }
-
-
-
 const getAllCouleur = async (req, res) => {
         try {
                 const { ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE } = req.query

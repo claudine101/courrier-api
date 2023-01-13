@@ -27,5 +27,7 @@ productsRouter.get('/all_sub_categories/', productsController.getAllSubCategorie
 productsRouter.get('/colors', productsController.getAllColors)
 productsRouter.get('/tailles/:ID_CATEGORIE_PRODUIT', productsController.getAllSizes)
 productsRouter.get('/couleurs/:ID_CATEGORIE_PRODUIT', productsController.getAllColors)
+productsRouter.delete('/tailles/:ID_TAILLE/:ID_PRODUIT_STOCK', productsController.DeleteSize)
+productsRouter.delete('/couleurs/:ID_COULEUR/:ID_PRODUIT_STOCK', productsController.DeleteColor)
 
 module.exports = productsRouter

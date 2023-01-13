@@ -78,7 +78,7 @@ const findByIdPartenaire = async (idPartenaire,id_partenaire_service, category, 
                               sqlQuery += " AND eco_p_s_c.ID_PRODUIT_SOUS_CATEGORIE = ? "
                               binds.push(subCategory)
                     }
-                    // sqlQuery += " ORDER BY pp.DATE_INSERTION DESC "
+                    sqlQuery += " ORDER BY eco_p_part.ID_PRODUIT_PARTENAIRE DESC "
                     sqlQuery += `LIMIT ${offset}, ${limit}`;
                     return query(sqlQuery, binds);
           }
@@ -90,7 +90,7 @@ const findByIdPartenaire = async (idPartenaire,id_partenaire_service, category, 
 
     const findAllPrix = async (id) => {
         try {
-            var sqlQuery = " SELECT eco_s_pr.PRIX,eco_p_st.QUANTITE_TOTAL,eco_p_st.QUANTITE_VENDUS,eco_p_st.QUANTITE_RESTANTE, "
+            var sqlQuery = " SELECT eco_p_st.ID_PRODUIT_STOCK,eco_s_pr.PRIX,eco_p_st.QUANTITE_TOTAL,eco_p_st.QUANTITE_VENDUS,eco_p_st.QUANTITE_RESTANTE, "
             sqlQuery += " eco_p_cou.COULEUR,eco_p_cou.ID_COULEUR, eco_p_tai.TAILLE,eco_p_tai.ID_TAILLE FROM ecommerce_stock_prix eco_s_pr "
             sqlQuery += " LEFT JOIN ecommerce_statut_prix eco_s_p ON eco_s_p.ID_STATUT=eco_s_pr.ID_STATUT "
             sqlQuery += " LEFT JOIN ecommerce_produit_stock eco_p_st ON eco_p_st.ID_PRODUIT_STOCK=eco_s_pr.ID_PRODUIT_STOCK "
