@@ -6,6 +6,7 @@ const commandeRouter = express.Router()
 commandeRouter.post('/clients', commandeController.createAllCommandes)
 commandeRouter.post('/clients/restaurant', commandeController.createRestoCommandes)
 commandeRouter.get('/', commandeController.getCommandes)
+commandeRouter.get('/count', commandeController.getCountCommandes)
 // commandeRouter.get('/:ID_SERVICE', commandeController.getCommandes)
 
 commandeRouter.get('/restaurant', commandeController.getAllRestoCommandes)
