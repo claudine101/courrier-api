@@ -108,7 +108,7 @@ const getPartenaireCommandes = async (idPartenaire, q, limit = 10, offset = 0) =
 const getOneCommande = async (ID_COMMANDE) => {
           try {
                     var binds = [ID_COMMANDE]
-                    var sqlQuery = "SELECT co.ID_STATUT, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, ecs.DESCRIPTION STATUT_DESCRIPTION FROM ecommerce_commandes co "
+                    var sqlQuery = "SELECT co.ID_STATUT, co.ID_COMMANDE, co.DATE_COMMANDE, co.DATE_LIVRAISON, co.CODE_UNIQUE, co.DATE_COMMANDE, ecs.DESCRIPTION STATUT_DESCRIPTION FROM ecommerce_commandes co "
                     sqlQuery += " LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT "
                     sqlQuery += " WHERE ID_COMMANDE = ? LIMIT 1"
 
