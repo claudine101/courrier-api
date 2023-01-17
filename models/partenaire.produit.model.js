@@ -1,14 +1,24 @@
 const { query } = require("../utils/db");
 
-const createProduit = (ID_PRODUIT, ID_PARTENAIRE, ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, ID_TAILLE, NOM, DESCRIPTION, IMAGE_1, IMAGE_2, IMAGE_3
-) => {
+const createProduit = async (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE = null, NOM, PRIX, DESCRIPTION, ID_PARTENAIRE_SERVICE, IMAGE_1, IMAGE_2, IMAGE_3) => {
           try {
-                    var sqlQuery = "INSERT INTO ecommerce_produit_partenaire (ID_PRODUIT,ID_PARTENAIRE,ID_CATEGORIE_PRODUIT,ID_PRODUIT_SOUS_CATEGORIE,ID_TAILLE,NOM,DESCRIPTION,IMAGE_1,IMAGE_2,IMAGE_3)";
-                    sqlQuery += "values (?,?,?,?,?,?,?,?,?,?)";
-                    return query(sqlQuery, [ID_PRODUIT, ID_PARTENAIRE, ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, ID_TAILLE, NOM, DESCRIPTION, IMAGE_1, IMAGE_2, IMAGE_3])
+                    var sqlQuery = `
+                    INSERT INTO ecommerce_produits(
+                              ID_CATEGORIE_PRODUIT,
+                              ID_PRODUIT_SOUS_CATEGORIE,
+                              NOM,
+                              PRIX,
+                              DESCRIPTION,
+                              ID_PARTENAIRE_SERVICE,
+                              IMAGE_1,
+                              IMAGE_2,
+                              IMAGE_3
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    `
+                    return query(sqlQuery, [ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE = null, NOM, PRIX, DESCRIPTION, ID_PARTENAIRE_SERVICE, IMAGE_1, IMAGE_2, IMAGE_3])
           }
           catch (error) {
-
                     throw error
           }
 }
