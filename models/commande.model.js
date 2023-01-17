@@ -113,6 +113,7 @@ const getOneCommande = async (ID_COMMANDE) => {
                     sqlQuery += " WHERE ID_COMMANDE = ? LIMIT 1"
 
 
+
                 //     var sqlQuery = "SELECT co.ID_STATUT, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, "
                 //     sqlQuery += "  ecs.DESCRIPTION STATUT_DESCRIPTION FROM restaurant_commandes co "
                 //     sqlQuery += " LEFT JOIN restaurant_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT "
@@ -371,6 +372,20 @@ const getUserCountCommandes = async (ID_USER,ID_SERVICE, q, limit = 10, offset =
         }
 };
 
+const getLivraisons = async (CODE) => {
+        try {
+                  var binds = [CODE]
+                  var sqlQuery = "SELECT driverD.*, driverC.ADDRESSE_PICKER, driverC.ADRESSE_DEST, "
+                  sqlQuery += " driverC.DISTANCE,driverC.TEMPS,driverC.MONTANT, driverCC.CATEGORIE_DESCRIPTION FROM driver_details_livraison driverD "
+                  sqlQuery += " LEFT JOIN driver_course driverC ON driverD.CODE_UNIQUE=driverC.CODE_UNIQUE "
+                  sqlQuery += " LEFT JOIN driver_course_catego driverCC ON driverCC.ID_CATEGORIE_COURSE=driverC.ID_CATEGORIE_COURSE "
+                  sqlQuery += " WHERE driverD.CODE_UNIQUE=? "
+                  return query(sqlQuery, binds)
+        }
+        catch (error) {
+                  throw error;
+        }
+}
 
 
 module.exports = {
@@ -400,5 +415,6 @@ module.exports = {
           getManyCommandesDetailsResto,
           getOneCommandeResto,
           getCommandeDetailsRsto,
-          getUserCountCommandes
+          getUserCountCommandes,
+          getLivraisons
 }

@@ -842,11 +842,13 @@ const findDetail = async (req, res) => {
         const { ID_COMMANDE } = req.params
         const pureCommande = (await commandeModel.getOneCommande(ID_COMMANDE))[0]
         if(pureCommande){
+            const detailLivraison = (await commandeModel.getLivraisons(pureCommande.CODE_UNIQUE))[0]
             const details = await commandeModel.getCommandeDetails(pureCommande.ID_COMMANDE, req.userId)
             var TOTAL_COMMANDE = 0
             details.forEach(detail => TOTAL_COMMANDE += detail.QUANTITE * detail.PRIX)
             const commande = {
                 ...pureCommande,
+                ...detailLivraison,
                 ITEMS: details.length,
                 TOTAL: TOTAL_COMMANDE,
                 details: details.map(detail => ({
