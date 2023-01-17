@@ -839,22 +839,64 @@ const findDetail = async (req, res) => {
             if (fileName.indexOf("http") === 0) return fileName
             return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
         }
+        const {category, subCategory} = req.query
         const { ID_COMMANDE } = req.params
         const pureCommande = (await commandeModel.getOneCommande(ID_COMMANDE))[0]
         if(pureCommande){
             const detailLivraison = (await commandeModel.getLivraisons(pureCommande.CODE_UNIQUE))[0]
-            const details = await commandeModel.getCommandeDetails(pureCommande.ID_COMMANDE, req.userId)
+            const details = await commandeModel.getCommandeDetails(pureCommande.ID_COMMANDE, req.userId, category, subCategory)
+            
+            // const detailsProduits = (await commandeModel.getDetailsProduits(pureCommande.CODE_UNIQUE,category, subCategory, req.userId))[0]
+
             var TOTAL_COMMANDE = 0
             details.forEach(detail => TOTAL_COMMANDE += detail.QUANTITE * detail.PRIX)
             const commande = {
                 ...pureCommande,
-                ...detailLivraison,
+                ...detailLivraison, 
                 ITEMS: details.length,
                 TOTAL: TOTAL_COMMANDE,
                 details: details.map(detail => ({
                     ...detail,
-                    IMAGE_1: getImageUri(detail.IMAGE_1)
-                }))
+                    IMAGE_1: getImageUri(detail.IMAGE_1),
+                    produit: {
+                        ID_PRODUIT: detail.ID_PRODUIT,
+                        NOM: detail.NOM,
+                        ID_PRODUIT_PARTENAIRE: detail.ID_PRODUIT_PARTENAIRE,
+                        IMAGE: getImageUri(detail.IMAGE_1),
+                    },
+                    partenaire: {
+                        NOM_ORGANISATION: detail.NOM_ORGANISATION,
+                        ID_PARTENAIRE: detail.ID_PARTENAIRE,
+                        ID_TYPE_PARTENAIRE: detail.ID_TYPE_PARTENAIRE,
+                        NOM: detail.NOM_USER,
+                        PRENOM: detail.PRENOM
+                    },
+                    produit_partenaire: {
+                        ID_PARTENAIRE_SERVICE: detail.ID_PARTENAIRE_SERVICE,
+                        NOM_ORGANISATION: detail.NOM_ORGANISATION,
+                        NOM: detail.NOM_PRODUIT_PARTENAIRE,
+                        DESCRIPTION: detail.DESCRIPTION,
+                        IMAGE_1: getImageUri(detail.IMAGE_1),
+                        IMAGE_2: getImageUri(detail.IMAGE_2),
+                        IMAGE_3: getImageUri(detail.IMAGE_3),
+                        TAILLE: detail.NOM_TAILLE,
+                        PRIX: detail.PRIX
+                    },
+                    categorie: {
+                        ID_CATEGORIE_PRODUIT: detail.ID_CATEGORIE_PRODUIT,
+                        NOM: detail.NOM_CATEGORIE
+                    },
+                    sous_categorie: {
+                        ID_PRODUIT_SOUS_CATEGORIE: detail.ID_PRODUIT_SOUS_CATEGORIE,
+                        NOM: detail.NOM_SOUS_CATEGORIE
+                    },
+                    stock: {
+                        ID_PRODUIT_STOCK: detail.ID_PRODUIT_STOCK,
+                        QUANTITE_STOCKE: detail.QUANTITE_TOTAL,
+                        QUANTITE_RESTANTE: detail.QUANTITE_RESTANTE,
+                        QUANTITE_VENDUE: detail.QUANTITE_VENDUS
+                    }
+                })), 
             }
             res.status(RESPONSE_CODES.OK).json({
                 statusCode: RESPONSE_CODES.OK,
