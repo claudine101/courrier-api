@@ -124,7 +124,7 @@ const createProduit = async (req, res) => {
                                         variant.options.forEach(option => {
                                                   ecommerce_variant_values.push([
                                                             ID_PRODUIT,
-                                                            ID_PRODUIT,
+                                                            ID_VARIANT,
                                                             option.id,
                                                             option.name
                                                   ])
@@ -185,75 +185,17 @@ const createProduit = async (req, res) => {
 const findByIdPartenaire = async (req, res) => {
           try {
                     const { id_partenaire_service } = req.params
-                    const getImageUri = (fileName) => {
-                              if (!fileName) return null
-                              if (fileName.indexOf("http") === 0) return fileName
-                              return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
-                    }
-                    const partenaire = (await query('SELECT * FROM partenaires WHERE ID_USER = ?', [req.userId]))[0]
-                    const Allproduits = await partenaireProduitModel.findByIdPartenaire(partenaire.ID_PARTENAIRE, id_partenaire_service)
-                    const products = await Promise.all(Allproduits.map(async product => {
-                              const prix = (await partenaireProduitModel.findAllPrix(product.ID_PRODUIT_PARTENAIRE))[0]
-                              const couleurs = (await partenaireProduitModel.findCouleurs(product.ID_PRODUIT_PARTENAIRE))
-                              const Qte = (await partenaireProduitModel.findQuantite(product.ID_PRODUIT_PARTENAIRE))[0]
-                              const NbreCommande = (await query('SELECT COUNT(ID_PRODUIT_PARTENAIRE) AS nbr  FROM ecommerce_commandes WHERE ID_PRODUIT_PARTENAIRE=? GROUP BY  ID_PRODUIT_PARTENAIRE', [product.ID_PRODUIT_PARTENAIRE]))[0]
-                              const NbreLike = (await query('SELECT COUNT(ID_PRODUIT_PARTENAIRE) AS nbr  FROM ecommerce_wishlist_produit WHERE ID_PRODUIT_PARTENAIRE=? GROUP BY  ID_PRODUIT_PARTENAIRE', [product.ID_PRODUIT_PARTENAIRE]))[0]
-
-                              var taille = []
-                              const taille_couleur = await Promise.all(couleurs.map(async couleur => {
-                                        taille = (await partenaireProduitModel.findTailles(product.ID_PRODUIT_PARTENAIRE, couleur.ID_COULEUR))
-                              }))
-                              if (prix) {
-                                        return {
-                                                  NbreCommande: NbreCommande,
-                                                  NbreLike: NbreLike,
-                                                  Qte: Qte,
-                                                  taille_couleur: taille,
-                                                  produit: {
-                                                            ID_PRODUIT: product.ID_PRODUIT,
-                                                            NOM: product.NOM,
-                                                            DESCRIPTION: product.DESCRIPTION,
-                                                            IMAGE: product.IMAGE_1
-                                                  },
-                                                  partenaire: {
-                                                            NOM_ORGANISATION: product.NOM_ORGANISATION,
-                                                            EMAIL: product.EMAIL,
-                                                            ID_PARTENAIRE_SERVICE: product.ID_PARTENAIRE_SERVICE
-                                                  },
-                                                  produit_partenaire: {
-                                                            ID_PRODUIT_PARTENAIRE: product.ID_PRODUIT_PARTENAIRE,
-                                                            IMAGE_1: getImageUri(product.IMAGE_1),
-                                                            IMAGE_2: getImageUri(product.IMAGE_2),
-                                                            IMAGE_3: getImageUri(product.IMAGE_3),
-                                                            PRIX: prix.PRIX,
-                                                            NOM: product.NOM_ORGANISATION,
-                                                  },
-                                                  stock: {
-                                                            ID_PRODUIT_STOCK: prix.ID_PRODUIT_STOCK,
-                                                            QUANTITE_STOCKE: prix.QUANTITE_TOTAL,
-                                                            QUANTITE_VENDUE: prix.QUANTITE_VENDUS,
-                                                            QUANTITE_RESTANTE: prix.QUANTITE_RESTANTE
-                                                  },
-
-                                                  taille: {
-                                                            ID_TAILLE: prix.ID_TAILLE,
-                                                            TAILLE: prix.TAILLE
-                                                  },
-                                                  couleur: {
-                                                            ID_COULEUR: prix.ID_COULEUR,
-                                                            COULEUR: prix.COULEUR
-                                                  },
-                                                  categorie: {
-                                                            ID_CATEGORIE_PRODUIT: product.ID_CATEGORIE_PRODUIT,
-                                                            NOM_CATEGORIE: product.NOM_CATEGORIE
-                                                  },
-                                                  sous_categorie: {
-                                                            ID_PRODUIT_SOUS_CATEGORIE: product.ID_PRODUIT_SOUS_CATEGORIE,
-                                                            SOUS_CATEGORIE: product.SOUS_CATEGORIE
-                                                  },
-                                        }
+                    const { limit, offset } = req.query
+                    const pureProducts = await partenaireProduitModel.findByIdPartenaire(id_partenaire_service, limit, offset)
+                    const productsIds = pureProducts.map(product => product.ID_PRODUIT)
+                    const quantities = await query('SELECT SUM(QUANTITE) quantity, ID_PRODUIT FROM ecommerce_variant_combination WHERE ID_PRODUIT IN (2, 1) GROUP BY ID_PRODUIT', [productsIds])
+                    const products = pureProducts.map(product => {
+                              const quantity = quantities.find(q => q.ID_PRODUIT == product.ID_PRODUIT)
+                              return {
+                                        ...product,
+                                        quantity: quantity ? parseInt(quantity.quantity) : 1
                               }
-                    }))
+                    })
                     res.status(RESPONSE_CODES.OK).json({
                               statusCode: RESPONSE_CODES.OK,
                               httpStatus: RESPONSE_STATUS.OK,

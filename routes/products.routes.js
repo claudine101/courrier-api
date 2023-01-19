@@ -29,5 +29,6 @@ productsRouter.get('/tailles/:ID_CATEGORIE_PRODUIT', productsController.getAllSi
 productsRouter.get('/couleurs/:ID_CATEGORIE_PRODUIT', productsController.getAllColors)
 productsRouter.delete('/tailles/:ID_TAILLE/:ID_PRODUIT_STOCK', productsController.DeleteSize)
 productsRouter.delete('/couleurs/:ID_COULEUR/:ID_PRODUIT_STOCK', productsController.DeleteColor)
+productsRouter.get('/variants/:ID_PRODUIT', productsController.getProductVariants)
 
 module.exports = productsRouter
