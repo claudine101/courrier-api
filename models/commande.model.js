@@ -9,11 +9,11 @@ const findAll = async () => {
           }
 };
 
-const createCommandes = async (ID_USER, DATE_LIVRAISON, CODE_UNIQUE, ID_STATUT = 1) => {
+const createCommandes = async (PAYEMENT_ID, ID_PARTENAIRE_SERVICE, ID_USER, DATE_LIVRAISON, CODE_UNIQUE, TOTAL, ID_DETAILS_LIVRAISON, ID_STATUT = 1) => {
         try {
-                var sqlQuery = "INSERT INTO ecommerce_commandes(ID_USER,DATE_LIVRAISON,CODE_UNIQUE, ID_STATUT)";
-                sqlQuery += "VALUES(?,?,?, ?)"
-                return query(sqlQuery, [ID_USER, DATE_LIVRAISON, CODE_UNIQUE, ID_STATUT]);
+                var sqlQuery = "INSERT INTO ecommerce_commandes(PAYEMENT_ID, ID_PARTENAIRE_SERVICE, ID_USER, DATE_LIVRAISON, CODE_UNIQUE, TOTAL, ID_DETAILS_LIVRAISON, ID_STATUT)";
+                sqlQuery += "VALUES(?, ?, ?, ?, ?, ?, ?, ?)"
+                return query(sqlQuery, [PAYEMENT_ID, ID_PARTENAIRE_SERVICE, ID_USER, DATE_LIVRAISON, CODE_UNIQUE, TOTAL, ID_DETAILS_LIVRAISON, ID_STATUT]);
         } catch (error) {
                 throw error
         }
@@ -21,9 +21,9 @@ const createCommandes = async (ID_USER, DATE_LIVRAISON, CODE_UNIQUE, ID_STATUT =
 }
 const createDetailLivraison = async (CODE_UNIQUE, N0M, PRENOM, ADRESSE, TELEPHONE, AVENUE, ID_COUNTRY) => {
           try {
-                    var sqlQuery = "INSERT  INTO driver_details_livraison(CODE_UNIQUE,N0M,PRENOM,ADRESSE,TELEPHONE,AVENUE,ID_COUNTRY)";
-                    sqlQuery += "VALUES(?,?,?,?,?,?,?)"
-                    return query(sqlQuery, [CODE_UNIQUE, N0M, PRENOM, ADRESSE, TELEPHONE, AVENUE, ID_COUNTRY]);
+                    var sqlQuery = "INSERT  INTO driver_details_livraison(NOM,PRENOM,ADRESSE,TELEPHONE,AVENUE,ID_COUNTRY)";
+                    sqlQuery += "VALUES(?,?,?,?,?,?)"
+                    return query(sqlQuery, [N0M, PRENOM, ADRESSE, TELEPHONE, AVENUE, ID_COUNTRY]);
           } catch (error) {
                     throw error
           }
@@ -32,7 +32,7 @@ const createDetailLivraison = async (CODE_UNIQUE, N0M, PRENOM, ADRESSE, TELEPHON
 
 const createCommandeDetails = async (ecommerce_commande_details) => {
           try {
-                    var sqlQuery = "INSERT INTO ecommerce_commande_details(ID_COMMANDE, ID_PRODUIT_STOCK, QUANTITE, PRIX, SOMME)";
+                    var sqlQuery = "INSERT INTO ecommerce_commande_details(ID_COMMANDE, ID_PRODUIT, QUANTITE, PRIX, SOMME)";
                     sqlQuery += "VALUES ?"
                     return query(sqlQuery, [ecommerce_commande_details]);
           } catch (error) {

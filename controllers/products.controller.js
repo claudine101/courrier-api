@@ -1185,7 +1185,7 @@ const getProductVariants = async (req, res) => {
                     res.status(RESPONSE_CODES.OK).json({
                               statusCode: RESPONSE_CODES.OK,
                               httpStatus: RESPONSE_STATUS.OK,
-                              message: "Les variantes d'un prioduit",
+                              message: "Les variantes d'un produit",
                               result: {
                                         variants,
                                         combinaisons
