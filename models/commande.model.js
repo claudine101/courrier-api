@@ -437,6 +437,35 @@ const getLivraisons = async (CODE) => {
         }
 }
 
+const getUserCountByPartenaire = async (ID_PARTENAIRE_SERVICE) => {
+        try {
+                  var binds = [ID_PARTENAIRE_SERVICE]
+                  var sqlQuery = "SELECT co.ID_STATUT,COUNT(co.ID_COMMANDE) AS NBRE, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, ecs.DESCRIPTION STATUT_DESCRIPTION, ecs.NEXT_STATUS FROM ecommerce_commandes co "
+                  sqlQuery += " LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT "
+                  sqlQuery += " LEFT JOIN ecommerce_produit_partenaire ecp ON ecp.ID_PRODUIT_PARTENAIRE=co.ID_PRODUIT_PARTENAIRE "
+                  sqlQuery += " WHERE co.ID_PARTENAIRE_SERVICE = ? AND co.ID_STATUT != 4 ORDER BY co.DATE_COMMANDE DESC "
+                  return query(sqlQuery, binds)
+        }
+        catch (error) {
+                  throw error;
+        }
+};
+
+const getUserCommandesPartenaire = async (ID_PARTENAIRE_SERVICE,q, limit = 10, offset = 0) => {
+        try {
+                  var binds = [ID_PARTENAIRE_SERVICE]
+                  var sqlQuery = "SELECT co.ID_STATUT, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, ecs.DESCRIPTION STATUT_DESCRIPTION, ecs.NEXT_STATUS FROM ecommerce_commandes co "
+                  sqlQuery += " LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT "
+                  sqlQuery += " LEFT JOIN ecommerce_produit_partenaire ecp ON ecp.ID_PRODUIT_PARTENAIRE=co.ID_PRODUIT_PARTENAIRE "
+                  sqlQuery += " WHERE co.ID_PARTENAIRE_SERVICE = ? AND co.ID_STATUT != 1 ORDER BY co.DATE_COMMANDE DESC "
+                  sqlQuery += `LIMIT ${offset}, ${limit}`
+                  return query(sqlQuery, binds)
+        }
+        catch (error) {
+                  throw error;
+        }
+};
+
 module.exports = {
           findAll,
           createCommandes,
@@ -465,5 +494,7 @@ module.exports = {
           getOneCommandeResto,
           getCommandeDetailsRsto,
           getUserCountCommandes,
-          getLivraisons
+          getLivraisons,
+          getUserCountByPartenaire,
+          getUserCommandesPartenaire
 }
