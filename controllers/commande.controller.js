@@ -247,7 +247,6 @@ const getCommandes = async (req, res) => {
             return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
         }
         // const service = (await query('SELECT ID_SERVICE FROM  partenaire_service WHERE ID_PARTENAIRE_SERVICE=?', [ID_PARTENAIRE_SERVICE]))[0]
-      
             var commandesIds = []
             const commandes = await commandeModel.getUserCommandes(req.userId)
             commandes.forEach(commande => commandesIds.push(commande.ID_COMMANDE))
@@ -738,6 +737,101 @@ const getStatusResto = async (req, res) => {
         })
     }
 }
+// const findDetail = async (req, res) => {
+//     try {
+//         const getImageUri = (fileName) => {
+//             if (!fileName) return null
+//             if (fileName.indexOf("http") === 0) return fileName
+//             return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+//         }
+//         const { ID_COMMANDE } = req.params
+//         const service = (await query('SELECT ID_SERVICE FROM commandes_payement WHERE ID_COMMANDE=?', [ID_COMMANDE]))[0]
+//  if(service.ID_SERVICE==1)
+//  {
+//     const pureCommande = (await commandeModel.getOneCommande(ID_COMMANDE))[0]
+//     console.log(pureCommande)
+//     const details = await commandeModel.getCommandeDetails(ID_COMMANDE, req.userId)
+//     var TOTAL_COMMANDE = 0
+//     details.forEach(detail => TOTAL_COMMANDE += detail.QUANTITE * detail.PRIX)
+//     const commande = {
+//         ...pureCommande,
+//         ITEMS: details.length,
+//         TOTAL: TOTAL_COMMANDE,
+//         details: details.map(detail => ({
+//             ...detail,
+//             IMAGE_1: getImageUri(detail.IMAGE_1)
+//         }))
+//     }
+//     res.status(RESPONSE_CODES.OK).json({
+//         statusCode: RESPONSE_CODES.OK,
+//         httpStatus: RESPONSE_STATUS.OK,
+//         message: "Une commande",
+//         result: commande
+//     })
+
+//  }
+//  else if(service.ID_SERVICE==2)
+//  {
+//     const pureCommande = (await commandeModel.getOneCommandeResto(ID_COMMANDE))[0]
+//     console.log(pureCommande)
+//     const details = await commandeModel.getCommandeDetailsRsto(ID_COMMANDE, req.userId)
+//     var TOTAL_COMMANDE = 0
+//     details.forEach(detail => TOTAL_COMMANDE += detail.QUANTITE * detail.PRIX)
+//     const commande = {
+//         ...pureCommande,
+//         ITEMS: details.length,
+//         TOTAL: TOTAL_COMMANDE,
+//         details: details.map(detail => ({
+//             ...detail,
+//             IMAGE_1: getImageUri(detail.IMAGES_1)
+//         }))
+//     }
+//     console.log(commande)
+//     res.status(RESPONSE_CODES.OK).json({
+//         statusCode: RESPONSE_CODES.OK,
+//         httpStatus: RESPONSE_STATUS.OK,
+//         message: "Une commande",
+//         result: commande
+//     })
+
+//  }
+       
+//     } catch (error) {
+//         console.log(error)
+//         res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+//             statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+//             httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+//             message: "Erreur interne du serveur, réessayer plus tard",
+
+//         })
+//     }
+// }
+
+const getCountCommandes = async (req, res) => {
+    try {
+        const getImageUri = (fileName) => {
+            if (!fileName) return null
+            if (fileName.indexOf("http") === 0) return fileName
+            return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+        }
+            const commandes = await commandeModel.getUserCountCommandes(req.userId)
+            res.status(RESPONSE_CODES.OK).json({
+                statusCode: RESPONSE_CODES.OK,
+                httpStatus: RESPONSE_STATUS.OK,
+                message: "succès",
+                result: commandes
+            })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
 const findDetail = async (req, res) => {
     try {
         const getImageUri = (fileName) => {
@@ -745,57 +839,72 @@ const findDetail = async (req, res) => {
             if (fileName.indexOf("http") === 0) return fileName
             return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
         }
+        const {category, subCategory} = req.query
         const { ID_COMMANDE } = req.params
-        const service = (await query('SELECT ID_SERVICE FROM commandes_payement WHERE ID_COMMANDE=?', [ID_COMMANDE]))[0]
- if(service.ID_SERVICE==1)
- {
-    const pureCommande = (await commandeModel.getOneCommande(ID_COMMANDE))[0]
-    console.log(pureCommande)
-    const details = await commandeModel.getCommandeDetails(ID_COMMANDE, req.userId)
-    var TOTAL_COMMANDE = 0
-    details.forEach(detail => TOTAL_COMMANDE += detail.QUANTITE * detail.PRIX)
-    const commande = {
-        ...pureCommande,
-        ITEMS: details.length,
-        TOTAL: TOTAL_COMMANDE,
-        details: details.map(detail => ({
-            ...detail,
-            IMAGE_1: getImageUri(detail.IMAGE_1)
-        }))
-    }
-    res.status(RESPONSE_CODES.OK).json({
-        statusCode: RESPONSE_CODES.OK,
-        httpStatus: RESPONSE_STATUS.OK,
-        message: "Une commande",
-        result: commande
-    })
+        const pureCommande = (await commandeModel.getOneCommande(ID_COMMANDE))[0]
+        if(pureCommande){
+            const detailLivraison = (await commandeModel.getLivraisons(pureCommande.CODE_UNIQUE))[0]
+            const details = await commandeModel.getCommandeDetails(pureCommande.ID_COMMANDE, req.userId, category, subCategory)
+            
+            // const detailsProduits = (await commandeModel.getDetailsProduits(pureCommande.CODE_UNIQUE,category, subCategory, req.userId))[0]
 
- }
- else if(service.ID_SERVICE==2)
- {
-    const pureCommande = (await commandeModel.getOneCommandeResto(ID_COMMANDE))[0]
-    console.log(pureCommande)
-    const details = await commandeModel.getCommandeDetailsRsto(ID_COMMANDE, req.userId)
-    var TOTAL_COMMANDE = 0
-    details.forEach(detail => TOTAL_COMMANDE += detail.QUANTITE * detail.PRIX)
-    const commande = {
-        ...pureCommande,
-        ITEMS: details.length,
-        TOTAL: TOTAL_COMMANDE,
-        details: details.map(detail => ({
-            ...detail,
-            IMAGE_1: getImageUri(detail.IMAGES_1)
-        }))
-    }
-    console.log(commande)
-    res.status(RESPONSE_CODES.OK).json({
-        statusCode: RESPONSE_CODES.OK,
-        httpStatus: RESPONSE_STATUS.OK,
-        message: "Une commande",
-        result: commande
-    })
-
- }
+            var TOTAL_COMMANDE = 0
+            details.forEach(detail => TOTAL_COMMANDE += detail.QUANTITE * detail.PRIX)
+            const commande = {
+                ...pureCommande,
+                ...detailLivraison, 
+                ITEMS: details.length,
+                TOTAL: TOTAL_COMMANDE,
+                details: details.map(detail => ({
+                    ...detail,
+                    IMAGE_1: getImageUri(detail.IMAGE_1),
+                    produit: {
+                        ID_PRODUIT: detail.ID_PRODUIT,
+                        NOM: detail.NOM,
+                        ID_PRODUIT_PARTENAIRE: detail.ID_PRODUIT_PARTENAIRE,
+                        IMAGE: getImageUri(detail.IMAGE_1),
+                    },
+                    partenaire: {
+                        NOM_ORGANISATION: detail.NOM_ORGANISATION,
+                        ID_PARTENAIRE: detail.ID_PARTENAIRE,
+                        ID_TYPE_PARTENAIRE: detail.ID_TYPE_PARTENAIRE,
+                        NOM: detail.NOM_USER,
+                        PRENOM: detail.PRENOM
+                    },
+                    produit_partenaire: {
+                        ID_PARTENAIRE_SERVICE: detail.ID_PARTENAIRE_SERVICE,
+                        NOM_ORGANISATION: detail.NOM_ORGANISATION,
+                        NOM: detail.NOM_PRODUIT_PARTENAIRE,
+                        DESCRIPTION: detail.DESCRIPTION,
+                        IMAGE_1: getImageUri(detail.IMAGE_1),
+                        IMAGE_2: getImageUri(detail.IMAGE_2),
+                        IMAGE_3: getImageUri(detail.IMAGE_3),
+                        TAILLE: detail.NOM_TAILLE,
+                        PRIX: detail.PRIX
+                    },
+                    categorie: {
+                        ID_CATEGORIE_PRODUIT: detail.ID_CATEGORIE_PRODUIT,
+                        NOM: detail.NOM_CATEGORIE
+                    },
+                    sous_categorie: {
+                        ID_PRODUIT_SOUS_CATEGORIE: detail.ID_PRODUIT_SOUS_CATEGORIE,
+                        NOM: detail.NOM_SOUS_CATEGORIE
+                    },
+                    stock: {
+                        ID_PRODUIT_STOCK: detail.ID_PRODUIT_STOCK,
+                        QUANTITE_STOCKE: detail.QUANTITE_TOTAL,
+                        QUANTITE_RESTANTE: detail.QUANTITE_RESTANTE,
+                        QUANTITE_VENDUE: detail.QUANTITE_VENDUS
+                    }
+                })), 
+            }
+            res.status(RESPONSE_CODES.OK).json({
+                statusCode: RESPONSE_CODES.OK,
+                httpStatus: RESPONSE_STATUS.OK,
+                message: "Une commande",
+                result: commande
+            })
+        }
        
     } catch (error) {
         console.log(error)
@@ -820,5 +929,6 @@ module.exports = {
     getAllRestoCommandes,
     getPartenaireCommandes,
     getStatusResto,
-    findDetail
+    findDetail,
+    getCountCommandes
 }

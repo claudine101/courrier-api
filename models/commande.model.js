@@ -53,7 +53,7 @@ const getUserCommandes = async (ID_USER,ID_SERVICE, q, limit = 10, offset = 0) =
                     var binds = [ID_USER,ID_SERVICE]
                     var sqlQuery = "SELECT co.ID_STATUT, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, ecs.DESCRIPTION STATUT_DESCRIPTION, ecs.NEXT_STATUS FROM ecommerce_commandes co "
                     sqlQuery += " LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT "
-                    sqlQuery += " LEFT JOIN ecommerce_produit_partenaire ecp ON ecp.ID_PRODUIT_PARTENAIRE=co.ID_PRODUIT_PARTENAIRE   "
+                    sqlQuery += " LEFT JOIN ecommerce_produit_partenaire ecp ON ecp.ID_PRODUIT_PARTENAIRE=co.ID_PRODUIT_PARTENAIRE "
                     sqlQuery += " WHERE co.ID_USER = ? AND co.ID_STATUT != 1 ORDER BY co.DATE_COMMANDE DESC "
                     sqlQuery += `LIMIT ${offset}, ${limit}`
                     return query(sqlQuery, binds)
@@ -108,15 +108,16 @@ const getPartenaireCommandes = async (idPartenaire, q, limit = 10, offset = 0) =
 const getOneCommande = async (ID_COMMANDE) => {
           try {
                     var binds = [ID_COMMANDE]
-                    var sqlQuery = "SELECT co.ID_STATUT, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, ecs.DESCRIPTION STATUT_DESCRIPTION FROM ecommerce_commandes co "
+                    var sqlQuery = "SELECT co.ID_STATUT, co.ID_COMMANDE, co.DATE_COMMANDE, co.DATE_LIVRAISON, co.CODE_UNIQUE, co.DATE_COMMANDE, ecs.DESCRIPTION STATUT_DESCRIPTION FROM ecommerce_commandes co "
                     sqlQuery += " LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT "
                     sqlQuery += " WHERE ID_COMMANDE = ? LIMIT 1"
 
 
-                    var sqlQuery = "SELECT co.ID_STATUT, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, "
-                    sqlQuery += "  ecs.DESCRIPTION STATUT_DESCRIPTION FROM restaurant_commandes co "
-                    sqlQuery += " LEFT JOIN restaurant_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT "
-                    sqlQuery += "  WHERE ID_COMMANDE = ? LIMIT 1  "
+
+                //     var sqlQuery = "SELECT co.ID_STATUT, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, "
+                //     sqlQuery += "  ecs.DESCRIPTION STATUT_DESCRIPTION FROM restaurant_commandes co "
+                //     sqlQuery += " LEFT JOIN restaurant_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT "
+                //     sqlQuery += "  WHERE ID_COMMANDE = ? LIMIT 1  "
                     return query(sqlQuery, binds)
           }
           catch (error) {
@@ -136,22 +137,7 @@ const getOneCommandeResto = async (ID_COMMANDE) => {
                   throw error;
         }
 }
-const getCommandeDetails = async (ID_COMMANDE ,ID_USERS) => {
-        try {
-                  var binds = [ID_COMMANDE ,ID_USERS]
-                  var sqlQuery = " SELECT ec.CODE_UNIQUE,ep.ID_PRODUIT,ec.ID_COMMANDE, ecd.ID_COMMANDE_DETAIL,eps.ID_PRODUIT_STOCK,"
-                  sqlQuery += "epp.ID_PRODUIT_PARTENAIRE,ep.IMAGE_1,ep.NOM, "
-                  sqlQuery += " ecd.PRIX,ecd.QUANTITE,ecd.SOMME FROM  ecommerce_commandes ec "
-                  sqlQuery += "LEFT JOIN  ecommerce_commande_details ecd ON ecd.ID_COMMANDE=ec.ID_COMMANDE "
-                  sqlQuery += "LEFT JOIN ecommerce_produit_stock eps ON eps.ID_PRODUIT_STOCK=ecd.ID_PRODUIT_STOCK "
-                  sqlQuery += "LEFT JOIN ecommerce_produit_partenaire epp ON epp.ID_PRODUIT_PARTENAIRE=eps.ID_PRODUIT_PARTENAIRE "
-                  sqlQuery += " LEFT JOIN ecommerce_produits ep ON ep.ID_PRODUIT=epp.ID_PRODUIT WHERE  ec.ID_COMMANDE=? AND ec.ID_USER=? "
-                  return query(sqlQuery, binds)
-        }
-        catch (error) {
-                  throw error;
-        }
-}
+
 const getCommandeDetailsRsto = async (ID_COMMANDE ,ID_USERS) => {
         try {
                   var binds = [ID_COMMANDE ,ID_USERS]
@@ -356,7 +342,99 @@ const saveStatusResto = async (ID_COMMANDE, ID_USER, ID_STATUT) => {
         }
 }
 
+const getUserCountCommandes = async (ID_USER,ID_SERVICE, q, limit = 10, offset = 0) => {
+        try {
+                  var binds = [ID_USER,ID_SERVICE]
+                  var sqlQuery = "SELECT co.ID_STATUT,COUNT(co.ID_COMMANDE) AS NBRE, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, ecs.DESCRIPTION STATUT_DESCRIPTION, ecs.NEXT_STATUS FROM ecommerce_commandes co "
+                  sqlQuery += " LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT "
+                  sqlQuery += " LEFT JOIN ecommerce_produit_partenaire ecp ON ecp.ID_PRODUIT_PARTENAIRE=co.ID_PRODUIT_PARTENAIRE "
+                  sqlQuery += " WHERE co.ID_USER = ? AND co.ID_STATUT != 4 ORDER BY co.DATE_COMMANDE DESC "
+                  sqlQuery += `LIMIT ${offset}, ${limit}`
+                  return query(sqlQuery, binds)
+        }
+        catch (error) {
+                  throw error;
+        }
+};
 
+const getLivraisons = async (CODE) => {
+        try {
+                  var binds = [CODE]
+                  var sqlQuery = "SELECT driverD.*, driverC.ADDRESSE_PICKER, driverC.ADRESSE_DEST, "
+                  sqlQuery += " driverC.DISTANCE,driverC.TEMPS,driverC.MONTANT, driverCC.CATEGORIE_DESCRIPTION FROM driver_details_livraison driverD "
+                  sqlQuery += " LEFT JOIN driver_course driverC ON driverD.CODE_UNIQUE=driverC.CODE_UNIQUE "
+                  sqlQuery += " LEFT JOIN driver_course_catego driverCC ON driverCC.ID_CATEGORIE_COURSE=driverC.ID_CATEGORIE_COURSE "
+                  sqlQuery += " WHERE driverD.CODE_UNIQUE=? "
+                  return query(sqlQuery, binds)
+        }
+        catch (error) {
+                  throw error;
+        }
+}
+
+// const getDetailsProduits = async (code,category, subCategory) => {
+
+//         try {
+            
+//             var binds = []
+//             var sqlQuery = " SELECT eco.*, eco_S.ID_PRODUIT_PARTENAIRE, eco_S.QUANTITE_TOTAL,eco_S.QUANTITE_VENDUS,eco_S.QUANTITE_RESTANTE, "
+//             sqlQuery += " eco_p_p.ID_PARTENAIRE_SERVICE,eco_p_p.ID_PRODUIT,eco_p_p.DESCRIPTION, "
+//             sqlQuery += "ep.ID_PRODUIT,ep.NOM,ep.IMAGE_1,ep.IMAGE_2,ep.IMAGE_3,ep.ID_CATEGORIE_PRODUIT,ep.ID_PRODUIT_SOUS_CATEGORIE, "
+//             sqlQuery += " ps.NOM_ORGANISATION,ps.ID_TYPE_PARTENAIRE,ps.ID_PARTENAIRE,u.NOM AS NOM_USER, u.PRENOM,prix.PRIX "
+//             sqlQuery += " FROM ecommerce_commandes eco "
+//             sqlQuery += " LEFT JOIN ecommerce_commande_details ecoD ON ecoD.ID_COMMANDE=eco.ID_COMMANDE"
+//             sqlQuery += " LEFT JOIN ecommerce_produit_stock eco_S ON ecoD.ID_PRODUIT_STOCK=eco_S.ID_PRODUIT_STOCK"
+//             sqlQuery += " LEFT JOIN ecommerce_produit_partenaire eco_p_p ON eco_S.ID_PRODUIT_PARTENAIRE=eco_p_p.ID_PRODUIT_PARTENAIRE "
+//             sqlQuery += " LEFT JOIN  ecommerce_produits ep ON eco_p_p.ID_PRODUIT=ep.ID_PRODUIT "
+//             sqlQuery += " LEFT JOIN partenaire_service ps ON ps.ID_PARTENAIRE_SERVICE=ep.ID_PARTENAIRE_SERVICE "
+//             sqlQuery += " LEFT JOIN  partenaires par ON par.ID_PARTENAIRE=ps.ID_PARTENAIRE "
+//             sqlQuery += " LEFT JOIN users u ON u.ID_USER=par.ID_USER  "
+//             sqlQuery += " LEFT JOIN ecommerce_stock_prix prix ON eco_S.ID_PRODUIT_STOCK=prix.ID_PRODUIT_STOCK  "
+//             sqlQuery += " WHERE eco.CODE_UNIQUE= ?"
+//             if (category) 
+//             {
+//                 sqlQuery += " AND ep.ID_CATEGORIE_PRODUIT=? "
+//                 binds.push(category)
+//             }
+//              if (subCategory) {
+//                 sqlQuery += " AND ep.ID_PRODUIT_SOUS_CATEGORIE = ? "
+//                 binds.push(subCategory)
+//             }
+//             return query(sqlQuery, [code]);
+    
+//         }
+//         catch (error) {
+//             throw error
+    
+//         }
+//     }
+
+
+
+    const getCommandeDetails = async (ID_COMMANDE ,ID_USERS, category, subCategory) => {
+        try {
+                  var binds = [ID_COMMANDE ,ID_USERS]
+                  var sqlQuery = " SELECT ec.CODE_UNIQUE,ep.ID_PRODUIT,ec.ID_COMMANDE, ecd.ID_COMMANDE_DETAIL,eps.ID_PRODUIT_STOCK,"
+                  sqlQuery += " eps.QUANTITE_TOTAL,eps.QUANTITE_VENDUS,eps.QUANTITE_RESTANTE,  "
+                  sqlQuery += " epp.ID_PARTENAIRE_SERVICE,epp.DESCRIPTION,"
+                  sqlQuery += " ep.NOM,ep.IMAGE_1,ep.IMAGE_2,ep.IMAGE_3,ep.ID_CATEGORIE_PRODUIT,ep.ID_PRODUIT_SOUS_CATEGORIE,"
+                  sqlQuery += " ps.NOM_ORGANISATION,ps.ID_TYPE_PARTENAIRE,ps.ID_PARTENAIRE, u.NOM AS NOM_USER, u.PRENOM,prix.PRIX, "
+                  sqlQuery += "epp.ID_PRODUIT_PARTENAIRE,ep.IMAGE_1,ep.NOM, "
+                  sqlQuery += " ecd.PRIX,ecd.QUANTITE,ecd.SOMME FROM  ecommerce_commandes ec "
+                  sqlQuery += "LEFT JOIN  ecommerce_commande_details ecd ON ecd.ID_COMMANDE=ec.ID_COMMANDE "
+                  sqlQuery += "LEFT JOIN ecommerce_produit_stock eps ON eps.ID_PRODUIT_STOCK=ecd.ID_PRODUIT_STOCK "
+                  sqlQuery += "LEFT JOIN ecommerce_produit_partenaire epp ON epp.ID_PRODUIT_PARTENAIRE=eps.ID_PRODUIT_PARTENAIRE "
+                  sqlQuery += "LEFT JOIN partenaire_service ps ON ps.ID_PARTENAIRE_SERVICE=epp.ID_PARTENAIRE_SERVICE "
+                  sqlQuery += "LEFT JOIN  partenaires par ON par.ID_PARTENAIRE=ps.ID_PARTENAIRE "
+                  sqlQuery += " LEFT JOIN users u ON u.ID_USER=par.ID_USER "
+                  sqlQuery += "LEFT JOIN ecommerce_stock_prix prix ON eps.ID_PRODUIT_STOCK=prix.ID_PRODUIT_STOCK "
+                  sqlQuery += " LEFT JOIN ecommerce_produits ep ON ep.ID_PRODUIT=epp.ID_PRODUIT WHERE  ec.ID_COMMANDE=? AND ec.ID_USER=? "
+                  return query(sqlQuery, binds)
+        }
+        catch (error) {
+                  throw error;
+        }
+}
 
 module.exports = {
           findAll,
@@ -384,5 +462,7 @@ module.exports = {
           getUserCommandesResto,
           getManyCommandesDetailsResto,
           getOneCommandeResto,
-          getCommandeDetailsRsto
+          getCommandeDetailsRsto,
+          getUserCountCommandes,
+          getLivraisons
 }

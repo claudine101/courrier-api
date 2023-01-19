@@ -270,7 +270,6 @@ const createPartenaire = async (req, res) => {
           }
 }
 const getAllPartenaire = async (req, res) => {
-
           try {
                     const getImageUri = (fileName, folder) => {
                               if (!fileName) return null
