@@ -1,14 +1,24 @@
 const { query } = require("../utils/db");
 
-const createProduit = (ID_PRODUIT, ID_PARTENAIRE, ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, ID_TAILLE, NOM, DESCRIPTION, IMAGE_1, IMAGE_2, IMAGE_3
-) => {
+const createProduit = async (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE = null, NOM, PRIX, DESCRIPTION, ID_PARTENAIRE_SERVICE, IMAGE_1, IMAGE_2, IMAGE_3) => {
           try {
-                    var sqlQuery = "INSERT INTO ecommerce_produit_partenaire (ID_PRODUIT,ID_PARTENAIRE,ID_CATEGORIE_PRODUIT,ID_PRODUIT_SOUS_CATEGORIE,ID_TAILLE,NOM,DESCRIPTION,IMAGE_1,IMAGE_2,IMAGE_3)";
-                    sqlQuery += "values (?,?,?,?,?,?,?,?,?,?)";
-                    return query(sqlQuery, [ID_PRODUIT, ID_PARTENAIRE, ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, ID_TAILLE, NOM, DESCRIPTION, IMAGE_1, IMAGE_2, IMAGE_3])
+                    var sqlQuery = `
+                    INSERT INTO ecommerce_produits(
+                              ID_CATEGORIE_PRODUIT,
+                              ID_PRODUIT_SOUS_CATEGORIE,
+                              NOM,
+                              PRIX,
+                              DESCRIPTION,
+                              ID_PARTENAIRE_SERVICE,
+                              IMAGE_1,
+                              IMAGE_2,
+                              IMAGE_3
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    `
+                    return query(sqlQuery, [ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE = null, NOM, PRIX, DESCRIPTION, ID_PARTENAIRE_SERVICE, IMAGE_1, IMAGE_2, IMAGE_3])
           }
           catch (error) {
-
                     throw error
           }
 }
@@ -56,36 +66,37 @@ const findById = async (id) => {
           }
 };
 
-const findByIdPartenaire = async (idPartenaire,id_partenaire_service, category, subCategory, limit = 10, offset = 0) => {
+const findByIdPartenaire = async (id_partenaire_service, limit = 10, offset = 0, category, subCategory) => {
           try {
-                    var binds = [idPartenaire,id_partenaire_service]
-                    var sqlQuery = "SELECT eco_p_part.ID_PRODUIT_PARTENAIRE,eco_p_part.ID_PARTENAIRE_SERVICE,eco_p_part.ID_PRODUIT,eco_p_part.DESCRIPTION,"
-                    sqlQuery += " eco_p.NOM, eco_p.IMAGE_1, eco_p.IMAGE_2, eco_p.IMAGE_3,part_s.NOM_ORGANISATION, part_s.TELEPHONE,part_s.EMAIL,part_s.LOGO, "
-                    sqlQuery += " eco_p_c.ID_CATEGORIE_PRODUIT,eco_p_c.NOM AS NOM_CATEGORIE, eco_p_s_c.ID_PRODUIT_SOUS_CATEGORIE, eco_p_s_c.NOM AS SOUS_CATEGORIE  FROM ecommerce_produit_partenaire eco_p_part"
- 
-                    sqlQuery += " LEFT JOIN ecommerce_produits eco_p ON eco_p.ID_PRODUIT=eco_p_part.ID_PRODUIT "
-                    sqlQuery += " LEFT JOIN partenaire_service part_s ON part_s.ID_PARTENAIRE_SERVICE=eco_p_part.ID_PARTENAIRE_SERVICE"
-                    sqlQuery += " LEFT JOIN partenaires part ON part.ID_PARTENAIRE=part_s.ID_PARTENAIRE "
-                    sqlQuery += " LEFT JOIN  users us ON us.ID_USER=part.ID_USER "
-                    sqlQuery += " LEFT JOIN ecommerce_produit_categorie eco_p_c ON eco_p_c.ID_CATEGORIE_PRODUIT=eco_p.ID_CATEGORIE_PRODUIT "
-                    sqlQuery += " LEFT JOIN ecommerce_produit_sous_categorie eco_p_s_c ON eco_p_s_c.ID_PRODUIT_SOUS_CATEGORIE=eco_p.ID_PRODUIT_SOUS_CATEGORIE "
-                    sqlQuery += " WHERE part.ID_PARTENAIRE=? AND part_s.ID_PARTENAIRE_SERVICE=? "
+                    var binds = [id_partenaire_service]
+                    var sqlQuery = `
+                    SELECT ep.*,
+                              part_s.NOM_ORGANISATION,
+                              part_s.TELEPHONE,
+                              part_s.EMAIL,
+                              part_s.LOGO,
+                              eco_p_c.NOM AS NOM_CATEGORIE,
+                              eco_p_s_c.NOM AS SOUS_CATEGORIE
+                    FROM ecommerce_produits ep
+                              LEFT JOIN partenaire_service part_s ON part_s.ID_PARTENAIRE_SERVICE = ep.ID_PARTENAIRE_SERVICE
+                              LEFT JOIN ecommerce_produit_categorie eco_p_c ON eco_p_c.ID_CATEGORIE_PRODUIT = ep.ID_CATEGORIE_PRODUIT
+                              LEFT JOIN ecommerce_produit_sous_categorie eco_p_s_c ON eco_p_s_c.ID_PRODUIT_SOUS_CATEGORIE = ep.ID_PRODUIT_SOUS_CATEGORIE
+                    WHERE ep.ID_PARTENAIRE_SERVICE = ?
+                    `
                     if(category) {
-                              sqlQuery += " AND eco_p_c.ID_CATEGORIE_PRODUIT = ? "
+                              sqlQuery += " AND ep.ID_CATEGORIE_PRODUIT = ? "
                               binds.push(category)
                     }
                     if(subCategory) {
-                              sqlQuery += " AND eco_p_s_c.ID_PRODUIT_SOUS_CATEGORIE = ? "
+                              sqlQuery += " AND ep.ID_PRODUIT_SOUS_CATEGORIE = ? "
                               binds.push(subCategory)
                     }
-                    sqlQuery += " ORDER BY eco_p_part.ID_PRODUIT_PARTENAIRE DESC "
+                    sqlQuery += " ORDER BY ep.DATE_INSERTION DESC "
                     sqlQuery += `LIMIT ${offset}, ${limit}`;
                     return query(sqlQuery, binds);
-          }
-          catch (error) {
+          } catch (error) {
                     throw error
           }
-
     }
 
     const findAllPrix = async (id) => {
