@@ -20,4 +20,6 @@ commandeRouter.get('/status/resto/:ID_COMMANDE', commandeController.getStatusRes
 commandeRouter.get('/status/:ID_COMMANDE', commandeController.getCommandeStatus)
 commandeRouter.get('/get/partenaire', commandeController.getPartenaireCommandes)
 
+commandeRouter.put('/status/update/:ID_COMMANDE', commandeController.getUpdateStatus)
+
 module.exports = commandeRouter

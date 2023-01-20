@@ -978,6 +978,29 @@ const getCommandesPartenaire = async (req, res) => {
         })
     }
 }
+
+const getUpdateStatus = async (req, res) => {
+    try {
+              const {ID_COMMANDE} = req.params
+              const updateStatus = await query("UPDATE ecommerce_commandes SET ID_STATUT = 3 WHERE ID_COMMANDE=?", [ID_COMMANDE]);
+              const status = (await commandeModel.getNewStatusUpdate(ID_COMMANDE))[0]
+              res.status(RESPONSE_CODES.OK).json({
+                        statusCode: RESPONSE_CODES.OK,
+                        httpStatus: RESPONSE_STATUS.OK,
+                        message: "succès",
+                        result: status
+              })
+    }
+    catch (error) {
+              console.log(error)
+              res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                        statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                        httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                        message: "Erreur interne du serveur, réessayer plus tard",
+
+              })
+    }
+}
 module.exports = {
     createAllCommandes,
     getCommandes,
@@ -994,5 +1017,6 @@ module.exports = {
     findDetail,
     getCountCommandes,
     getCountCommandesByPartenaire,
-    getCommandesPartenaire
+    getCommandesPartenaire,
+    getUpdateStatus
 }

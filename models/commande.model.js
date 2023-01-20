@@ -438,7 +438,6 @@ const getUserCountByPartenaire = async (ID_PARTENAIRE_SERVICE) => {
                   var binds = [ID_PARTENAIRE_SERVICE]
                   var sqlQuery = "SELECT co.ID_STATUT,COUNT(co.ID_COMMANDE) AS NBRE, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, ecs.DESCRIPTION STATUT_DESCRIPTION, ecs.NEXT_STATUS FROM ecommerce_commandes co "
                   sqlQuery += " LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT "
-                  sqlQuery += " LEFT JOIN ecommerce_produit_partenaire ecp ON ecp.ID_PRODUIT_PARTENAIRE=co.ID_PRODUIT_PARTENAIRE "
                   sqlQuery += " WHERE co.ID_PARTENAIRE_SERVICE = ? AND co.ID_STATUT != 4 ORDER BY co.DATE_COMMANDE DESC "
                   return query(sqlQuery, binds)
         }
@@ -452,9 +451,21 @@ const getUserCommandesPartenaire = async (ID_PARTENAIRE_SERVICE,q, limit = 10, o
                   var binds = [ID_PARTENAIRE_SERVICE]
                   var sqlQuery = "SELECT co.ID_STATUT, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, ecs.DESCRIPTION STATUT_DESCRIPTION, ecs.NEXT_STATUS FROM ecommerce_commandes co "
                   sqlQuery += " LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT "
-                  sqlQuery += " LEFT JOIN ecommerce_produit_partenaire ecp ON ecp.ID_PRODUIT_PARTENAIRE=co.ID_PRODUIT_PARTENAIRE "
                   sqlQuery += " WHERE co.ID_PARTENAIRE_SERVICE = ? AND co.ID_STATUT != 1 ORDER BY co.DATE_COMMANDE DESC "
                   sqlQuery += `LIMIT ${offset}, ${limit}`
+                  return query(sqlQuery, binds)
+        }
+        catch (error) {
+                  throw error;
+        }
+};
+
+const getNewStatusUpdate = async (ID_COMMANDE) => {
+        try {
+                  var binds = [ID_COMMANDE]
+                  var sqlQuery = "SELECT eco.*, eco_c.DESCRIPTION, eco_c.NEXT_STATUS FROM ecommerce_commandes eco"
+                  sqlQuery += " LEFT JOIN ecommerce_commande_statut eco_c ON eco.ID_STATUT=eco_c.ID_STATUT "
+                  sqlQuery += " WHERE eco.ID_STATUT=3 AND eco.ID_COMMANDE=?"
                   return query(sqlQuery, binds)
         }
         catch (error) {
@@ -492,5 +503,6 @@ module.exports = {
           getUserCountCommandes,
           getLivraisons,
           getUserCountByPartenaire,
-          getUserCommandesPartenaire
+          getUserCommandesPartenaire,
+          getNewStatusUpdate
 }
