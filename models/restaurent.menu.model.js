@@ -1,17 +1,18 @@
 const { query } = require("../utils/db");
 
-const createMenu = (ID_REPAS, ID_CATEGORIE_MENU, ID_SOUS_CATEGORIE_MENU, ID_PARTENAIRE_SERVICE, PRIX, TEMPS_PREPARATION, DESCRIPTION, IMAGES_1, IMAGES_2, IMAGES_3
-) => {
-    try {
-        var sqlQuery = "INSERT INTO restaurant_menus (ID_REPAS,ID_CATEGORIE_MENU,ID_SOUS_CATEGORIE_MENU,ID_PARTENAIRE_SERVICE,PRIX,TEMPS_PREPARATION, DESCRIPTION,IMAGES_1,IMAGES_2,IMAGES_3)";
-        sqlQuery += "values (?,?,?,?,?,?,?,?,?,?)";
-        return query(sqlQuery, [ID_REPAS, ID_CATEGORIE_MENU, ID_SOUS_CATEGORIE_MENU, ID_PARTENAIRE_SERVICE, PRIX, TEMPS_PREPARATION, DESCRIPTION, IMAGES_1, IMAGES_2, IMAGES_3])
-    }
-    catch (error) {
 
-        throw error
-    }
-};
+const createProduit = (ID_REPAS,ID_CATEGORIE_MENU, ID_PARTENAIRE_SERVICE,PRIX,DESCRIPTION,IMAGE_1,IMAGE_2,IMAGE_3
+    ) => {
+        try {
+            var sqlQuery = "INSERT INTO restaurant_menus (ID_REPAS,ID_CATEGORIE_MENU, ID_PARTENAIRE_SERVICE,PRIX,DESCRIPTION,IMAGE_1,IMAGE_2,IMAGE_3)";
+            sqlQuery += "values (?,?,?,?,?,?,?,?)";
+            return query(sqlQuery, [ID_REPAS,ID_CATEGORIE_MENU, ID_PARTENAIRE_SERVICE,PRIX,DESCRIPTION,IMAGE_1,IMAGE_2,IMAGE_3])
+        }
+        catch (error) {
+    
+            throw error
+        }
+    };
 const createMenuTaille = (ID_RESTAURANT_MENU, ID_CATEGORIE_MENU, QUANTITE, DESCRIPTION, ID_UNITE
 ) => {
     try {
@@ -186,7 +187,7 @@ const updateMenuRestaurant = (ID_RESTAURANT_MENU, ID_REPAS, ID_CATEGORIE_MENU, I
 
 
 module.exports = {
-    createMenu,
+    //createMenu,
     findById,
     findAllRepas,
     findAllCategories,
@@ -199,6 +200,7 @@ module.exports = {
     findAllTypesRepas,
     createMenuUpdate,
     updateMenuRestaurant,
+    createProduit
     // findMenuById
 
 }

@@ -1,7 +1,7 @@
 const express = require('express')
 const menucontroller = require('../controllers/restaurant.menu.controller')
 const menuRouter = express.Router()
-menuRouter.post('/create', menucontroller.createMenu)
+menuRouter.post('/create', menucontroller.createProduit)
 menuRouter.get('/repas/:ID_TYPE_REPAS', menucontroller.getRepas)
 menuRouter.get('/categories', menucontroller.getCategories)
 menuRouter.get('/categories/:ID_PARTENAIRE_SERVICE', menucontroller.getCategoriesById)
