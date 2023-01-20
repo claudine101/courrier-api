@@ -419,7 +419,7 @@ const getLivraisons = async (CODE) => {
                   sqlQuery += " epp.ID_PARTENAIRE_SERVICE,epp.DESCRIPTION,"
                   sqlQuery += " ep.NOM,ep.IMAGE_1,ep.IMAGE_2,ep.IMAGE_3,ep.ID_CATEGORIE_PRODUIT,ep.ID_PRODUIT_SOUS_CATEGORIE,"
                   sqlQuery += " ps.NOM_ORGANISATION,ps.ID_TYPE_PARTENAIRE,ps.ID_PARTENAIRE, u.NOM AS NOM_USER, u.PRENOM,prix.PRIX, "
-                  sqlQuery += "epp.ID_PRODUIT_PARTENAIRE,ep.IMAGE_1,ep.NOM, "
+                  sqlQuery += "epp.ID_PRODUIT_PARTENAIRE,ep.IMAGE_1,ep.NOM, eco_c.NOM as NOM_CATEGORIE, "
                   sqlQuery += " ecd.PRIX,ecd.QUANTITE,ecd.SOMME FROM  ecommerce_commandes ec "
                   sqlQuery += "LEFT JOIN  ecommerce_commande_details ecd ON ecd.ID_COMMANDE=ec.ID_COMMANDE "
                   sqlQuery += "LEFT JOIN ecommerce_produit_stock eps ON eps.ID_PRODUIT_STOCK=ecd.ID_PRODUIT_STOCK "
@@ -428,13 +428,43 @@ const getLivraisons = async (CODE) => {
                   sqlQuery += "LEFT JOIN  partenaires par ON par.ID_PARTENAIRE=ps.ID_PARTENAIRE "
                   sqlQuery += " LEFT JOIN users u ON u.ID_USER=par.ID_USER "
                   sqlQuery += "LEFT JOIN ecommerce_stock_prix prix ON eps.ID_PRODUIT_STOCK=prix.ID_PRODUIT_STOCK "
-                  sqlQuery += " LEFT JOIN ecommerce_produits ep ON ep.ID_PRODUIT=epp.ID_PRODUIT WHERE  ec.ID_COMMANDE=? AND ec.ID_USER=? "
+                  sqlQuery += " LEFT JOIN ecommerce_produits ep ON ep.ID_PRODUIT=epp.ID_PRODUIT  "
+                  sqlQuery += "LEFT JOIN ecommerce_produit_categorie eco_c ON ep.ID_CATEGORIE_PRODUIT=eco_c.ID_CATEGORIE_PRODUIT WHERE  ec.ID_COMMANDE=? AND ec.ID_USER=? "
                   return query(sqlQuery, binds)
         }
         catch (error) {
                   throw error;
         }
 }
+
+const getUserCountByPartenaire = async (ID_PARTENAIRE_SERVICE) => {
+        try {
+                  var binds = [ID_PARTENAIRE_SERVICE]
+                  var sqlQuery = "SELECT co.ID_STATUT,COUNT(co.ID_COMMANDE) AS NBRE, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, ecs.DESCRIPTION STATUT_DESCRIPTION, ecs.NEXT_STATUS FROM ecommerce_commandes co "
+                  sqlQuery += " LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT "
+                  sqlQuery += " LEFT JOIN ecommerce_produit_partenaire ecp ON ecp.ID_PRODUIT_PARTENAIRE=co.ID_PRODUIT_PARTENAIRE "
+                  sqlQuery += " WHERE co.ID_PARTENAIRE_SERVICE = ? AND co.ID_STATUT != 4 ORDER BY co.DATE_COMMANDE DESC "
+                  return query(sqlQuery, binds)
+        }
+        catch (error) {
+                  throw error;
+        }
+};
+
+const getUserCommandesPartenaire = async (ID_PARTENAIRE_SERVICE,q, limit = 10, offset = 0) => {
+        try {
+                  var binds = [ID_PARTENAIRE_SERVICE]
+                  var sqlQuery = "SELECT co.ID_STATUT, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, ecs.DESCRIPTION STATUT_DESCRIPTION, ecs.NEXT_STATUS FROM ecommerce_commandes co "
+                  sqlQuery += " LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT "
+                  sqlQuery += " LEFT JOIN ecommerce_produit_partenaire ecp ON ecp.ID_PRODUIT_PARTENAIRE=co.ID_PRODUIT_PARTENAIRE "
+                  sqlQuery += " WHERE co.ID_PARTENAIRE_SERVICE = ? AND co.ID_STATUT != 1 ORDER BY co.DATE_COMMANDE DESC "
+                  sqlQuery += `LIMIT ${offset}, ${limit}`
+                  return query(sqlQuery, binds)
+        }
+        catch (error) {
+                  throw error;
+        }
+};
 
 module.exports = {
           findAll,
@@ -464,5 +494,7 @@ module.exports = {
           getOneCommandeResto,
           getCommandeDetailsRsto,
           getUserCountCommandes,
-          getLivraisons
+          getLivraisons,
+          getUserCountByPartenaire,
+          getUserCommandesPartenaire
 }
