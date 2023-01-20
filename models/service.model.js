@@ -63,11 +63,24 @@ const createOne = async (ID_PARTENAIRE_SERVICE, ID_SERVICE, MODE_ID = 1, NUMERO,
                     throw error
           }
 }
+
+const findbycategorie = async (id) => {
+  try {
+
+            var sqlQuery = "SELECT epc.NOM,COUNT(epc.ID_CATEGORIE_PRODUIT) NOMBRE_PRODUITS  FROM `ecommerce_produits` epp  LEFT JOIN ecommerce_produit_categorie epc  ON epc.ID_CATEGORIE_PRODUIT = epp.ID_CATEGORIE_PRODUIT  WHERE epp.ID_PARTENAIRE_SERVICE=? GROUP BY epc.ID_CATEGORIE_PRODUIT  ORDER BY NOMBRE_PRODUITS "
+
+            return query(sqlQuery, [id]);
+  }
+  catch (error) {
+            throw error
+  }
+}
 module.exports = {
           createOne,
           findAll,
           findById,
-          findPartenaireServices
+          findPartenaireServices,
+          findbycategorie
 }
 
 

@@ -1201,6 +1201,33 @@ const getProductVariants = async (req, res) => {
           }
 }
 
+const getProduitsByService = async (req, res) => {
+        try {
+                  const getImageUri = (fileName) => {
+                            if (!fileName) return null
+                            if (fileName.indexOf("http") === 0) return fileName
+                            return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+                  }
+                  const { ID_PARTENAIRE_SERVICE } = req.params
+                  const allProduits = await productsModel.findByServiceProduits(ID_PARTENAIRE_SERVICE)
+                  res.status(RESPONSE_CODES.OK).json({
+                            statusCode: RESPONSE_CODES.OK,
+                            httpStatus: RESPONSE_STATUS.OK,
+                            message: "Liste des produits",
+                            result: allProduits
+                  })
+        }
+        catch (error) {
+                  console.log(error)
+                  res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                            message: "Erreur interne du serveur, réessayer plus tard",
+
+                  })
+        }
+}
+
 module.exports = {
           getColor,
           getAllProducts,
@@ -1228,5 +1255,6 @@ module.exports = {
           updateNom,
           getDeatail,
           getAllSizes,
-          getProductVariants
+          getProductVariants,
+          getProduitsByService
 }

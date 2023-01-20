@@ -9,6 +9,7 @@ const PartenaireUpload = require("../class/uploads/PartenaireUpload");
 const path = require("path");
 const { query } = require('../utils/db');
 const getReferenceCode = require('../utils/getReferenceCode');
+const UserUpload = require("../class/uploads/UserUpload");
 const express = require('express')
 
 const findAllService = async (req, res) => {
@@ -63,13 +64,28 @@ const findOne = async (req, res) => {
  */
 const findPartenaireServices = async (req, res) => {
           try {
+                const getImageUri = (fileName, folder) => {
+                if (!fileName) return null
+                if (fileName.indexOf("http") === 0) return fileName
+                return `${req.protocol}://${req.get("host")}/uploads/${folder}/${fileName}`
+      }
                     const { ID_PARTENAIRE } = req.params
                     const services = await serviceModel.findPartenaireServices(ID_PARTENAIRE)
+                    const partenaires = await Promise.all(services.map(async service =>{
+                        const categories = await serviceModel.findbycategorie(service.ID_PARTENAIRE_SERVICE)
+                        return{
+                            ...service,
+                            LOGO: getImageUri(service.LOGO, 'partenaire'),
+                            IMAGE: getImageUri(service.IMAGE, 'users'),
+                            categories: categories
+                        }
+
+                    }))
                     res.status(RESPONSE_CODES.OK).json({
                               statusCode: RESPONSE_CODES.OK,
                               httpStatus: RESPONSE_STATUS.OK,
                               message: "succès",
-                              result: services
+                              result: partenaires
                     })
           }
           catch (error) {
