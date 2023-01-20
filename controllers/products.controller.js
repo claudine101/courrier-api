@@ -7,8 +7,8 @@ const ProductUpload = require('../class/uploads/ProductUpload');
 
 const getAllProducts = async (req, res) => {
           try {
-                    const { q, category, subCategory, limit, offset } = req.query
-                    const allProducts = await productsModel.findproducts(q, category, subCategory, limit, offset)
+                    const { q, category, subCategory, partenaireService, limit, offset } = req.query
+                    const allProducts = await productsModel.findproducts(q, category, subCategory, partenaireService, limit, offset)
                     const products = allProducts.map(product => {
                               return {
                                         produit: {
