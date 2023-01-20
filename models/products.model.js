@@ -40,7 +40,7 @@ const findproduct = async (id, category, subCategory, limit = 10, offset = 0) =>
           }
 }
 
-const findproducts = async (q, category, subCategory, limit = 10, offset = 0) => {
+const findproducts = async (q, category, subCategory, partenaireService, limit = 10, offset = 0) => {
 
           try {
                     var binds = []
@@ -70,6 +70,10 @@ const findproducts = async (q, category, subCategory, limit = 10, offset = 0) =>
                     if (subCategory) {
                               sqlQuery += " AND ep.ID_PRODUIT_SOUS_CATEGORIE = ? "
                               binds.push(subCategory)
+                    }
+                    if(partenaireService) {
+                              sqlQuery += " AND ep.ID_PARTENAIRE_SERVICE = ? "
+                              binds.push(partenaireService)
                     }
                     sqlQuery += ` ORDER BY ep.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
                     return query(sqlQuery, binds);
