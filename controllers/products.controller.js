@@ -22,7 +22,8 @@ const getAllProducts = async (req, res) => {
                                                   ID_PARTENAIRE: product.ID_PARTENAIRE,
                                                   ID_TYPE_PARTENAIRE: product.ID_TYPE_PARTENAIRE,
                                                   NOM: product.NOM_USER,
-                                                  PRENOM: product.PRENOM
+                                                  PRENOM: product.PRENOM,
+                                                  ADRESSE_COMPLETE: product.ADRESSE_COMPLETE
                                         },
                                         produit_partenaire: {
                                                   ID_PARTENAIRE_SERVICE: product.ID_PARTENAIRE_SERVICE,
