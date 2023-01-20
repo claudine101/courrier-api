@@ -53,7 +53,6 @@ const getUserCommandes = async (ID_USER,ID_SERVICE, q, limit = 10, offset = 0) =
                     var binds = [ID_USER,ID_SERVICE]
                     var sqlQuery = "SELECT co.ID_STATUT, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, ecs.DESCRIPTION STATUT_DESCRIPTION, ecs.NEXT_STATUS FROM ecommerce_commandes co "
                     sqlQuery += " LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT "
-                    sqlQuery += " LEFT JOIN ecommerce_produit_partenaire ecp ON ecp.ID_PRODUIT_PARTENAIRE=co.ID_PRODUIT_PARTENAIRE "
                     sqlQuery += " WHERE co.ID_USER = ? AND co.ID_STATUT != 1 ORDER BY co.DATE_COMMANDE DESC "
                     sqlQuery += `LIMIT ${offset}, ${limit}`
                     return query(sqlQuery, binds)
@@ -173,10 +172,8 @@ const getCommandeDetailsRsto = async (ID_COMMANDE ,ID_USERS) => {
 const getManyCommandesDetails = async (commandesIds) => {
           try {
                     var binds = [commandesIds]
-                    var sqlQuery = "SELECT cd.ID_COMMANDE, cd.ID_COMMANDE_DETAIL, cd.QUANTITE, cd.PRIX, cd.SOMME, ep.NOM, ep.IMAGE_1 FROM ecommerce_commande_details cd "
-                    sqlQuery += " LEFT JOIN ecommerce_produit_stock eps ON eps.ID_PRODUIT_STOCK = cd.ID_PRODUIT_STOCK "
-                    sqlQuery += " LEFT JOIN ecommerce_produit_partenaire epp ON epp.ID_PRODUIT_PARTENAIRE = eps.ID_PRODUIT_PARTENAIRE "
-                    sqlQuery += "  LEFT JOIN ecommerce_produits ep ON ep.ID_PRODUIT=epp.ID_PRODUIT WHERE ID_COMMANDE IN (?)"
+                    var sqlQuery = " SELECT cd.ID_COMMANDE, cd.ID_COMMANDE_DETAIL, cd.QUANTITE, cd.PRIX, cd.SOMME, ep.NOM, ep.IMAGE_1 FROM ecommerce_commande_details cd"
+                    sqlQuery += "  LEFT JOIN ecommerce_produits ep ON ep.ID_PRODUIT=cd.ID_PRODUIT WHERE ID_COMMANDE IN (?)"
                     return query(sqlQuery, binds)
     
           }catch (error) {
@@ -347,7 +344,6 @@ const getUserCountCommandes = async (ID_USER,ID_SERVICE, q, limit = 10, offset =
                   var binds = [ID_USER,ID_SERVICE]
                   var sqlQuery = "SELECT co.ID_STATUT,COUNT(co.ID_COMMANDE) AS NBRE, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, ecs.DESCRIPTION STATUT_DESCRIPTION, ecs.NEXT_STATUS FROM ecommerce_commandes co "
                   sqlQuery += " LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT "
-                  sqlQuery += " LEFT JOIN ecommerce_produit_partenaire ecp ON ecp.ID_PRODUIT_PARTENAIRE=co.ID_PRODUIT_PARTENAIRE "
                   sqlQuery += " WHERE co.ID_USER = ? AND co.ID_STATUT != 4 ORDER BY co.DATE_COMMANDE DESC "
                   sqlQuery += `LIMIT ${offset}, ${limit}`
                   return query(sqlQuery, binds)

@@ -827,6 +827,7 @@ const findDetail = async (req, res) => {
                     const { category, subCategory } = req.query
                     const { ID_COMMANDE } = req.params
                     const pureCommande = (await commandeModel.getOneCommande(ID_COMMANDE))[0]
+                    console.log(pureCommande)
                     if (pureCommande) {
                               const detailLivraison = (await commandeModel.getLivraisons(pureCommande.CODE_UNIQUE))[0]
                               const details = await commandeModel.getCommandeDetails(pureCommande.ID_COMMANDE, req.userId, category, subCategory)
