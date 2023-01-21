@@ -252,6 +252,33 @@ const updateMenu = async (IMAGES_1, ID_RESTAURANT_MENU) => {
     }
 }
 
+const findMenuPartenaire = async (ID_PARTENAIRE_SERVICE, limit = 10, offset = 0, category, subCategory) => {
+    try {
+              var binds = [ID_PARTENAIRE_SERVICE]
+              var sqlQuery = `
+              SELECT res.*,
+                        part_s.NOM_ORGANISATION,
+                        part_s.TELEPHONE,
+                        part_s.EMAIL,
+                        part_s.LOGO,
+                        res_menu.NOM AS CATEGORIE
+                FROM restaurant_menus res
+                        LEFT JOIN partenaire_service part_s ON part_s.ID_PARTENAIRE_SERVICE = res.ID_PARTENAIRE_SERVICE
+                        LEFT JOIN restaurant_categorie_menu res_menu ON res_menu.ID_CATEGORIE_MENU = res.ID_CATEGORIE_MENU
+                WHERE res.ID_PARTENAIRE_SERVICE = 2
+                            `
+              if(category) {
+                        sqlQuery += " AND res.ID_CATEGORIE_MENU = ? "
+                        binds.push(category)
+              }
+              sqlQuery += " ORDER BY res.DATE_INSERTION DESC "
+              sqlQuery += `LIMIT ${offset}, ${limit}`;
+              return query(sqlQuery, binds);
+    } catch (error) {
+              throw error
+    }
+}
+
 
 module.exports = {
     findmenucategories,
@@ -268,6 +295,7 @@ module.exports = {
     findBYidProduitPartenaire,
     findnotemenu,
     updateMenu,
+    findMenuPartenaire
 
 
 }

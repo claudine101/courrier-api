@@ -618,6 +618,38 @@ const upadteAllDescription = async (req, res) => {
     }
 }
 
+const getAllMenuByPartenaire = async (req, res) => {
+    try {
+              const { ID_PARTENAIRE_SERVICE } = req.params
+              const { limit, offset } = req.query
+              const pureMenus = await restoMenuModel.findMenuPartenaire(ID_PARTENAIRE_SERVICE, limit, offset)
+              const menuIds = pureMenus.map(menu => menu.ID_RESTAURANT_MENU)
+              const quantities = await query('SELECT SUM(QUANTITE) quantity, ID_RESTAURANT_MENU FROM restaurant_variant_combination WHERE ID_RESTAURANT_MENU IN (62, 1) GROUP BY ID_RESTAURANT_MENU', [menuIds])
+              const menus = pureMenus.map(menu => {
+                        const quantity = quantities.find(q => q.ID_RESTAURANT_MENU == menu.ID_RESTAURANT_MENU)
+                        return {
+                                  ...menu,
+                                  quantity: quantity ? parseInt(quantity.quantity) : 1
+                        }
+              })
+              res.status(RESPONSE_CODES.OK).json({
+                        statusCode: RESPONSE_CODES.OK,
+                        httpStatus: RESPONSE_STATUS.OK,
+                        message: "succès",
+                        result: menus
+              })
+    }
+    catch (error) {
+              console.log(error)
+              res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                        statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                        httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                        message: "echoue",
+
+              })
+    }
+}
+
 
 module.exports = {
     getAllCategories,
@@ -635,5 +667,6 @@ module.exports = {
     upadtePhotoMenu,
     updateMenu,
     DeleteMenu,
-    upadteAllDescription
+    upadteAllDescription,
+    getAllMenuByPartenaire
 }

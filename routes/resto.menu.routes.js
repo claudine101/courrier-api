@@ -21,6 +21,9 @@ restoMenuRouter.get('/wishlist', restoMenuController.getWishlist)
 restoMenuRouter.put('/:ID_RESTAURANT_MENU', restoMenuController.upadtePhotoMenu)
 restoMenuRouter.put('/description/:ID_RESTAURANT_MENU', restoMenuController.upadteAllDescription)
 
+//nouveau route pour afficher les menus cote partenaire
+restoMenuRouter.get('/resto/:ID_PARTENAIRE_SERVICE', restoMenuController.getAllMenuByPartenaire)
+
 //restoMenuRouter.get('/', restoMenuController.getmenu)
 //restoMenuRouter.post('/note',restoMenuController.insertNote)
 
