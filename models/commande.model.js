@@ -9,11 +9,11 @@ const findAll = async () => {
           }
 };
 
-const createCommandes = async (ID_USER, DATE_LIVRAISON, CODE_UNIQUE, ID_STATUT = 1) => {
+const createCommandes = async (PAYEMENT_ID, ID_PARTENAIRE_SERVICE, ID_USER, DATE_LIVRAISON, CODE_UNIQUE, TOTAL, ID_DETAILS_LIVRAISON, ID_STATUT = 1) => {
         try {
-                var sqlQuery = "INSERT INTO ecommerce_commandes(ID_USER,DATE_LIVRAISON,CODE_UNIQUE, ID_STATUT)";
-                sqlQuery += "VALUES(?,?,?, ?)"
-                return query(sqlQuery, [ID_USER, DATE_LIVRAISON, CODE_UNIQUE, ID_STATUT]);
+                var sqlQuery = "INSERT INTO ecommerce_commandes(PAYEMENT_ID, ID_PARTENAIRE_SERVICE, ID_USER, DATE_LIVRAISON, CODE_UNIQUE, TOTAL, ID_DETAILS_LIVRAISON, ID_STATUT)";
+                sqlQuery += "VALUES(?, ?, ?, ?, ?, ?, ?, ?)"
+                return query(sqlQuery, [PAYEMENT_ID, ID_PARTENAIRE_SERVICE, ID_USER, DATE_LIVRAISON, CODE_UNIQUE, TOTAL, ID_DETAILS_LIVRAISON, ID_STATUT]);
         } catch (error) {
                 throw error
         }
@@ -21,9 +21,9 @@ const createCommandes = async (ID_USER, DATE_LIVRAISON, CODE_UNIQUE, ID_STATUT =
 }
 const createDetailLivraison = async (CODE_UNIQUE, N0M, PRENOM, ADRESSE, TELEPHONE, AVENUE, ID_COUNTRY) => {
           try {
-                    var sqlQuery = "INSERT  INTO driver_details_livraison(CODE_UNIQUE,N0M,PRENOM,ADRESSE,TELEPHONE,AVENUE,ID_COUNTRY)";
-                    sqlQuery += "VALUES(?,?,?,?,?,?,?)"
-                    return query(sqlQuery, [CODE_UNIQUE, N0M, PRENOM, ADRESSE, TELEPHONE, AVENUE, ID_COUNTRY]);
+                    var sqlQuery = "INSERT  INTO driver_details_livraison(NOM,PRENOM,ADRESSE,TELEPHONE,AVENUE,ID_COUNTRY)";
+                    sqlQuery += "VALUES(?,?,?,?,?,?)"
+                    return query(sqlQuery, [N0M, PRENOM, ADRESSE, TELEPHONE, AVENUE, ID_COUNTRY]);
           } catch (error) {
                     throw error
           }
@@ -32,7 +32,7 @@ const createDetailLivraison = async (CODE_UNIQUE, N0M, PRENOM, ADRESSE, TELEPHON
 
 const createCommandeDetails = async (ecommerce_commande_details) => {
           try {
-                    var sqlQuery = "INSERT INTO ecommerce_commande_details(ID_COMMANDE, ID_PRODUIT_STOCK, QUANTITE, PRIX, SOMME)";
+                    var sqlQuery = "INSERT INTO ecommerce_commande_details(ID_COMMANDE, ID_PRODUIT, QUANTITE, PRIX, SOMME)";
                     sqlQuery += "VALUES ?"
                     return query(sqlQuery, [ecommerce_commande_details]);
           } catch (error) {
@@ -53,7 +53,6 @@ const getUserCommandes = async (ID_USER,ID_SERVICE, q, limit = 10, offset = 0) =
                     var binds = [ID_USER,ID_SERVICE]
                     var sqlQuery = "SELECT co.ID_STATUT, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, ecs.DESCRIPTION STATUT_DESCRIPTION, ecs.NEXT_STATUS FROM ecommerce_commandes co "
                     sqlQuery += " LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT "
-                    sqlQuery += " LEFT JOIN ecommerce_produit_partenaire ecp ON ecp.ID_PRODUIT_PARTENAIRE=co.ID_PRODUIT_PARTENAIRE "
                     sqlQuery += " WHERE co.ID_USER = ? AND co.ID_STATUT != 1 ORDER BY co.DATE_COMMANDE DESC "
                     sqlQuery += `LIMIT ${offset}, ${limit}`
                     return query(sqlQuery, binds)
@@ -173,10 +172,8 @@ const getCommandeDetailsRsto = async (ID_COMMANDE ,ID_USERS) => {
 const getManyCommandesDetails = async (commandesIds) => {
           try {
                     var binds = [commandesIds]
-                    var sqlQuery = "SELECT cd.ID_COMMANDE, cd.ID_COMMANDE_DETAIL, cd.QUANTITE, cd.PRIX, cd.SOMME, ep.NOM, ep.IMAGE_1 FROM ecommerce_commande_details cd "
-                    sqlQuery += " LEFT JOIN ecommerce_produit_stock eps ON eps.ID_PRODUIT_STOCK = cd.ID_PRODUIT_STOCK "
-                    sqlQuery += " LEFT JOIN ecommerce_produit_partenaire epp ON epp.ID_PRODUIT_PARTENAIRE = eps.ID_PRODUIT_PARTENAIRE "
-                    sqlQuery += "  LEFT JOIN ecommerce_produits ep ON ep.ID_PRODUIT=epp.ID_PRODUIT WHERE ID_COMMANDE IN (?)"
+                    var sqlQuery = " SELECT cd.ID_COMMANDE, cd.ID_COMMANDE_DETAIL, cd.QUANTITE, cd.PRIX, cd.SOMME, ep.NOM, ep.IMAGE_1 FROM ecommerce_commande_details cd"
+                    sqlQuery += "  LEFT JOIN ecommerce_produits ep ON ep.ID_PRODUIT=cd.ID_PRODUIT WHERE ID_COMMANDE IN (?)"
                     return query(sqlQuery, binds)
     
           }catch (error) {
@@ -347,7 +344,6 @@ const getUserCountCommandes = async (ID_USER,ID_SERVICE, q, limit = 10, offset =
                   var binds = [ID_USER,ID_SERVICE]
                   var sqlQuery = "SELECT co.ID_STATUT,COUNT(co.ID_COMMANDE) AS NBRE, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, ecs.DESCRIPTION STATUT_DESCRIPTION, ecs.NEXT_STATUS FROM ecommerce_commandes co "
                   sqlQuery += " LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT "
-                  sqlQuery += " LEFT JOIN ecommerce_produit_partenaire ecp ON ecp.ID_PRODUIT_PARTENAIRE=co.ID_PRODUIT_PARTENAIRE "
                   sqlQuery += " WHERE co.ID_USER = ? AND co.ID_STATUT != 4 ORDER BY co.DATE_COMMANDE DESC "
                   sqlQuery += `LIMIT ${offset}, ${limit}`
                   return query(sqlQuery, binds)
@@ -442,7 +438,6 @@ const getUserCountByPartenaire = async (ID_PARTENAIRE_SERVICE) => {
                   var binds = [ID_PARTENAIRE_SERVICE]
                   var sqlQuery = "SELECT co.ID_STATUT,COUNT(co.ID_COMMANDE) AS NBRE, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, ecs.DESCRIPTION STATUT_DESCRIPTION, ecs.NEXT_STATUS FROM ecommerce_commandes co "
                   sqlQuery += " LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT "
-                  sqlQuery += " LEFT JOIN ecommerce_produit_partenaire ecp ON ecp.ID_PRODUIT_PARTENAIRE=co.ID_PRODUIT_PARTENAIRE "
                   sqlQuery += " WHERE co.ID_PARTENAIRE_SERVICE = ? AND co.ID_STATUT != 4 ORDER BY co.DATE_COMMANDE DESC "
                   return query(sqlQuery, binds)
         }
@@ -456,9 +451,21 @@ const getUserCommandesPartenaire = async (ID_PARTENAIRE_SERVICE,q, limit = 10, o
                   var binds = [ID_PARTENAIRE_SERVICE]
                   var sqlQuery = "SELECT co.ID_STATUT, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, ecs.DESCRIPTION STATUT_DESCRIPTION, ecs.NEXT_STATUS FROM ecommerce_commandes co "
                   sqlQuery += " LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT "
-                  sqlQuery += " LEFT JOIN ecommerce_produit_partenaire ecp ON ecp.ID_PRODUIT_PARTENAIRE=co.ID_PRODUIT_PARTENAIRE "
                   sqlQuery += " WHERE co.ID_PARTENAIRE_SERVICE = ? AND co.ID_STATUT != 1 ORDER BY co.DATE_COMMANDE DESC "
                   sqlQuery += `LIMIT ${offset}, ${limit}`
+                  return query(sqlQuery, binds)
+        }
+        catch (error) {
+                  throw error;
+        }
+};
+
+const getNewStatusUpdate = async (ID_COMMANDE) => {
+        try {
+                  var binds = [ID_COMMANDE]
+                  var sqlQuery = "SELECT eco.*, eco_c.DESCRIPTION, eco_c.NEXT_STATUS FROM ecommerce_commandes eco"
+                  sqlQuery += " LEFT JOIN ecommerce_commande_statut eco_c ON eco.ID_STATUT=eco_c.ID_STATUT "
+                  sqlQuery += " WHERE eco.ID_STATUT=3 AND eco.ID_COMMANDE=?"
                   return query(sqlQuery, binds)
         }
         catch (error) {
@@ -496,5 +503,6 @@ module.exports = {
           getUserCountCommandes,
           getLivraisons,
           getUserCountByPartenaire,
-          getUserCommandesPartenaire
+          getUserCommandesPartenaire,
+          getNewStatusUpdate
 }

@@ -7,8 +7,8 @@ const ProductUpload = require('../class/uploads/ProductUpload');
 
 const getAllProducts = async (req, res) => {
           try {
-                    const { q, category, subCategory, limit, offset } = req.query
-                    const allProducts = await productsModel.findproducts(q, category, subCategory, limit, offset)
+                    const { q, category, subCategory, partenaireService, limit, offset } = req.query
+                    const allProducts = await productsModel.findproducts(q, category, subCategory, partenaireService, limit, offset)
                     const products = allProducts.map(product => {
                               return {
                                         produit: {
@@ -22,7 +22,8 @@ const getAllProducts = async (req, res) => {
                                                   ID_PARTENAIRE: product.ID_PARTENAIRE,
                                                   ID_TYPE_PARTENAIRE: product.ID_TYPE_PARTENAIRE,
                                                   NOM: product.NOM_USER,
-                                                  PRENOM: product.PRENOM
+                                                  PRENOM: product.PRENOM,
+                                                  ADRESSE_COMPLETE: product.ADRESSE_COMPLETE
                                         },
                                         produit_partenaire: {
                                                   ID_PARTENAIRE_SERVICE: product.ID_PARTENAIRE_SERVICE,
@@ -1185,7 +1186,7 @@ const getProductVariants = async (req, res) => {
                     res.status(RESPONSE_CODES.OK).json({
                               statusCode: RESPONSE_CODES.OK,
                               httpStatus: RESPONSE_STATUS.OK,
-                              message: "Les variantes d'un prioduit",
+                              message: "Les variantes d'un produit",
                               result: {
                                         variants,
                                         combinaisons
