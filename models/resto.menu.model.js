@@ -75,9 +75,9 @@ const findmenu = async (ID_USER, ID_PARTENAIRE_SERVICE) => {
     ps.NOM_ORGANISATION,
     menu.DATE_INSERTION,
     menu.ID_RESTAURANT_MENU,
-    menu.IMAGES_1,
-    menu.IMAGES_2,
-    menu.IMAGES_3,
+    menu.IMAGE_1,
+    menu.IMAGE_2,
+    menu.IMAGE_3,
     rr.ID_REPAS,
     rr.NOM AS repas,
     menu.DESCRIPTION,
@@ -128,7 +128,7 @@ const findByIDmenu = async (ID_PARTENAIRE_SERVICE, category, limit = 10, offset 
 const findAllmenu = async (q, category, limit = 10, offset = 0) => {
     try {
         var binds = []
-        var sqlQuery = "SELECT  ps.ID_PARTENAIRE_SERVICE,ps.NOM_ORGANISATION,menu.DATE_INSERTION,menu.ID_RESTAURANT_MENU,menu.IMAGES_1,menu.IMAGES_2,menu.IMAGES_3 , rr.ID_REPAS,rr.NOM AS repas ,rr.DESCRIPTION,  "
+        var sqlQuery = "SELECT  ps.ID_PARTENAIRE_SERVICE,ps.NOM_ORGANISATION,menu.DATE_INSERTION,menu.ID_RESTAURANT_MENU,menu.IMAGE_1,menu.IMAGE_2,menu.IMAGE_3 , rr.ID_REPAS,rr.NOM AS repas ,rr.DESCRIPTION,  "
         sqlQuery += " menu.PRIX,c_menu.ID_CATEGORIE_MENU,c_menu.NOM as categorie,sc_menu.ID_SOUS_CATEGORIE_MENU  FROM restaurant_menus menu LEFT JOIN  "
         sqlQuery += "restaurant_categorie_menu c_menu ON menu.ID_CATEGORIE_MENU=c_menu.ID_CATEGORIE_MENU "
         sqlQuery += "LEFT JOIN  restaurant_sous_categorie_menu sc_menu ON  "
