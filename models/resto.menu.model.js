@@ -105,7 +105,7 @@ ORDER BY menu.DATE_INSERTION DESC`
 const findByIDmenu = async (ID_PARTENAIRE_SERVICE, category, limit = 10, offset = 0) => {
     try {
         var binds = [ID_PARTENAIRE_SERVICE]
-        var sqlQuery = "SELECT ps.OUVERT,ps.PRESENTATION, ps.ADRESSE_COMPLETE,ps.TELEPHONE,ps.ID_PARTENAIRE_SERVICE, ps.LOGO,ps.NOM_ORGANISATION,menu.DATE_INSERTION,menu.ID_RESTAURANT_MENU,menu.IMAGES_1,menu.IMAGES_2,menu.IMAGES_3 , rr.ID_REPAS,rr.NOM AS repas ,rr.DESCRIPTION,  "
+        var sqlQuery = "SELECT ps.OUVERT,ps.PRESENTATION, ps.ADRESSE_COMPLETE,ps.TELEPHONE,ps.ID_PARTENAIRE_SERVICE, ps.LOGO,ps.NOM_ORGANISATION,menu.DATE_INSERTION,menu.ID_RESTAURANT_MENU,menu.IMAGE_1,menu.IMAGE_2,menu.IMAGE_3 , rr.ID_REPAS,rr.NOM AS repas ,rr.DESCRIPTION,  "
         sqlQuery += " menu.PRIX,c_menu.ID_CATEGORIE_MENU,c_menu.NOM as categorie,sc_menu.ID_SOUS_CATEGORIE_MENU  FROM restaurant_menus menu LEFT JOIN  "
         sqlQuery += "restaurant_categorie_menu c_menu ON menu.ID_CATEGORIE_MENU=c_menu.ID_CATEGORIE_MENU "
         sqlQuery += "LEFT JOIN  restaurant_sous_categorie_menu sc_menu ON  "
@@ -126,39 +126,49 @@ const findByIDmenu = async (ID_PARTENAIRE_SERVICE, category, limit = 10, offset 
         throw error
     }
 }
-const findAllmenu = async (q, category, limit = 10, offset = 0) => {
+// const findAllmenu = async (q, category, limit = 10, offset = 0) => {
+//     try {
+//         var binds = []
+//         var sqlQuery = "SELECT  ps.ID_PARTENAIRE_SERVICE,ps.NOM_ORGANISATION,menu.DATE_INSERTION,menu.ID_RESTAURANT_MENU,menu.IMAGE_1,menu.IMAGE_2,menu.IMAGE_3 , rr.ID_REPAS,rr.NOM AS repas ,rr.DESCRIPTION,  "
+//         sqlQuery += " menu.PRIX,c_menu.ID_CATEGORIE_MENU,c_menu.NOM as categorie,sc_menu.ID_SOUS_CATEGORIE_MENU  FROM restaurant_menus menu LEFT JOIN  "
+//         sqlQuery += "restaurant_categorie_menu c_menu ON menu.ID_CATEGORIE_MENU=c_menu.ID_CATEGORIE_MENU "
+//         sqlQuery += "LEFT JOIN  restaurant_sous_categorie_menu sc_menu ON  "
+//         sqlQuery += "sc_menu.ID_SOUS_CATEGORIE_MENU=menu.ID_SOUS_CATEGORIE_MENU LEFT JOIN partenaire_service ps ON  "
+//         sqlQuery += "ps.ID_PARTENAIRE_SERVICE=menu.ID_PARTENAIRE_SERVICE "
+//         sqlQuery += "LEFT JOIN partenaires p on p.ID_PARTENAIRE=ps.ID_PARTENAIRE "
+//         sqlQuery += "LEFT JOIN restaurant_repas rr ON rr.ID_REPAS=menu.ID_REPAS "
+
+//         if (category) {
+//             binds.push(category)
+//             if (q && q != "") {
+//                 sqlQuery += " WHERE  c_menu.ID_CATEGORIE_MENU=? "
+//                 sqlQuery += ` AND rr.NOM LIKE '%${q}%'`
+
+//             }
+//             else {
+//                 sqlQuery += " WHERE  c_menu.ID_CATEGORIE_MENU=? "
+//             }
+//         }
+//         else {
+//             if (q && q != "") {
+//                 sqlQuery += `WHERE  rr.NOM LIKE '%${q}%' `
+//             }
+//         }
+//         sqlQuery += ` ORDER BY menu.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
+//         return query(sqlQuery, binds);
+//     }
+//     catch (error) {
+//         throw error
+//     }
+// }
+const findAllmenu = async () => {
     try {
-        var binds = []
-        var sqlQuery = "SELECT  ps.ID_PARTENAIRE_SERVICE,ps.NOM_ORGANISATION,menu.DATE_INSERTION,menu.ID_RESTAURANT_MENU,menu.IMAGE_1,menu.IMAGE_2,menu.IMAGE_3 , rr.ID_REPAS,rr.NOM AS repas ,rr.DESCRIPTION,  "
-        sqlQuery += " menu.PRIX,c_menu.ID_CATEGORIE_MENU,c_menu.NOM as categorie,sc_menu.ID_SOUS_CATEGORIE_MENU  FROM restaurant_menus menu LEFT JOIN  "
-        sqlQuery += "restaurant_categorie_menu c_menu ON menu.ID_CATEGORIE_MENU=c_menu.ID_CATEGORIE_MENU "
-        sqlQuery += "LEFT JOIN  restaurant_sous_categorie_menu sc_menu ON  "
-        sqlQuery += "sc_menu.ID_SOUS_CATEGORIE_MENU=menu.ID_SOUS_CATEGORIE_MENU LEFT JOIN partenaire_service ps ON  "
-        sqlQuery += "ps.ID_PARTENAIRE_SERVICE=menu.ID_PARTENAIRE_SERVICE "
-        sqlQuery += "LEFT JOIN partenaires p on p.ID_PARTENAIRE=ps.ID_PARTENAIRE "
-        sqlQuery += "LEFT JOIN restaurant_repas rr ON rr.ID_REPAS=menu.ID_REPAS "
 
-        if (category) {
-            binds.push(category)
-            if (q && q != "") {
-                sqlQuery += " WHERE  c_menu.ID_CATEGORIE_MENU=? "
-                sqlQuery += ` AND rr.NOM LIKE '%${q}%'`
-
-            }
-            else {
-                sqlQuery += " WHERE  c_menu.ID_CATEGORIE_MENU=? "
-            }
-        }
-        else {
-            if (q && q != "") {
-                sqlQuery += `WHERE  rr.NOM LIKE '%${q}%' `
-            }
-        }
-        sqlQuery += ` ORDER BY menu.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
-        return query(sqlQuery, binds);
+        return query("SELECT rcm.NOM AS NOM_CATEGORIE,rm.IMAGE_1,rm.IMAGE_2,rm.IMAGE_3 AS IMAGE ,rm.PRIX,rm.DESCRIPTION, rm.ID_PARTENAIRE_SERVICE,p.NOM_ORGANISATION FROM `restaurant_menus`rm  LEFT JOIN partenaire_service p  ON rm.`ID_PARTENAIRE_SERVICE`=p.ID_PARTENAIRE_SERVICE LEFT JOIN restaurant_categorie_menu rcm ON rcm.ID_CATEGORIE_MENU=rm.`ID_CATEGORIE_MENU`   WHERE 1");
     }
     catch (error) {
         throw error
+
     }
 }
 const findmenuResearch = async (q, category, limit = 10, offset = 0) => {
@@ -190,10 +200,20 @@ const findmenuResearch = async (q, category, limit = 10, offset = 0) => {
 
     }
 }
-const findmenubyPartenaire = async (ID_PARTENAIRE) => {
+// const findmenubyPartenaire = async (ID_PARTENAIRE) => {
+//     try {
+
+//         return query("SELECT rcm.NOM AS NOM_CATEGORIE,rscm.NOM AS NOM_SOUS_CATEGORIE,rscm.DESCRIPTION AS DESCRIPTION_SOUS_CATEGORIE,rm.IMAGES_1 AS IMAGE ,rpc.MONTANT, rm.ID_PARTENAIRE FROM restaurant_menu rm LEFT JOIN restaurant_sous_categorie_menu rscm ON rm.ID_SOUS_CATEGORIE_MENU=rscm.ID_SOUS_CATEGORIE_MENU LEFT JOIN restaurant_categorie_menu rcm ON rcm.ID_CATEGORIE_MENU=rm.ID_CATEGORIE_MENU LEFT JOIN restaurant_menu_prix rpc ON rpc.ID_RESTAURANT_MENU=rm.ID_RESTAURANT_MENU LEFT JOIN partenaires part ON part.ID_PARTENAIRE=rm.ID_PARTENAIRE WHERE 1 AND rm.ID_PARTENAIRE=?", [ID_PARTENAIRE]);
+//     }
+//     catch (error) {
+//         throw error
+
+//     }
+// }
+const findmenubyPartenaire = async (ID_PARTENAIRE_SERVICE) => {
     try {
 
-        return query("SELECT rcm.NOM AS NOM_CATEGORIE,rscm.NOM AS NOM_SOUS_CATEGORIE,rscm.DESCRIPTION AS DESCRIPTION_SOUS_CATEGORIE,rm.IMAGES_1 AS IMAGE ,rpc.MONTANT, rm.ID_PARTENAIRE FROM restaurant_menu rm LEFT JOIN restaurant_sous_categorie_menu rscm ON rm.ID_SOUS_CATEGORIE_MENU=rscm.ID_SOUS_CATEGORIE_MENU LEFT JOIN restaurant_categorie_menu rcm ON rcm.ID_CATEGORIE_MENU=rm.ID_CATEGORIE_MENU LEFT JOIN restaurant_menu_prix rpc ON rpc.ID_RESTAURANT_MENU=rm.ID_RESTAURANT_MENU LEFT JOIN partenaires part ON part.ID_PARTENAIRE=rm.ID_PARTENAIRE WHERE 1 AND rm.ID_PARTENAIRE=?", [ID_PARTENAIRE]);
+        return query("SELECT rcm.NOM AS NOM_CATEGORIE,rscm.NOM AS NOM_SOUS_CATEGORIE,rscm.DESCRIPTION AS DESCRIPTION_SOUS_CATEGORIE,rm.IMAGE_1 AS IMAGE ,rm.PRIX, rm.ID_PARTENAIRE_SERVICE FROM restaurant_menus rm LEFT JOIN restaurant_sous_categorie_menu rscm ON rm.ID_SOUS_CATEGORIE_MENU=rscm.ID_SOUS_CATEGORIE_MENU LEFT JOIN restaurant_categorie_menu rcm ON rcm.ID_CATEGORIE_MENU=rm.ID_CATEGORIE_MENU  LEFT JOIN partenaires part ON part.ID_PARTENAIRE=rm.ID_PARTENAIRE_SERVICE WHERE 1 AND rm.ID_PARTENAIRE_SERVICE=?", [ID_PARTENAIRE_SERVICE]);
     }
     catch (error) {
         throw error
@@ -315,6 +335,8 @@ module.exports = {
     updateMenu,
     findMenuPartenaire,
     findByServiceMenus
+    //findmenusbyPartenaire,
+    //findAllmenus
 
 
 }
