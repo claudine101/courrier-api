@@ -31,6 +31,7 @@ const findmenusouscategories = async (ID_CATEGORIE_MENU) => {
 
 
 
+
 const findById = async (id) => {
     try {
         var sqlQuery = "SELECT epn.ID_NOTE,epn.NOTE,epn.COMMENTAIRE,epn.ID_RESTAURANT_MENU,u.NOM,u.PRENOM, epn.ID_USER,epn.DATE_INSERTION,u.IMAGE FROM restaurant_menus_notes epn LEFT JOIN users u ON epn.ID_USER=u.ID_USER   WHERE epn.ID_NOTE=?";
@@ -261,7 +262,7 @@ const findMenuPartenaire = async (ID_PARTENAIRE_SERVICE, limit = 10, offset = 0,
                         part_s.TELEPHONE,
                         part_s.EMAIL,
                         part_s.LOGO,
-                        res_menu.NOM AS CATEGORIE
+                        res_menu.NOM AS NOM_CATEGORIE
                 FROM restaurant_menus res
                         LEFT JOIN partenaire_service part_s ON part_s.ID_PARTENAIRE_SERVICE = res.ID_PARTENAIRE_SERVICE
                         LEFT JOIN restaurant_categorie_menu res_menu ON res_menu.ID_CATEGORIE_MENU = res.ID_CATEGORIE_MENU
@@ -279,6 +280,23 @@ const findMenuPartenaire = async (ID_PARTENAIRE_SERVICE, limit = 10, offset = 0,
     }
 }
 
+const findByServiceMenus = async (ID_PARTENAIRE_SERVICE) => {
+    try {
+              var binds = [ID_PARTENAIRE_SERVICE]
+              var sqlQuery = " SELECT ep.ID_RESTAURANT_MENU, COUNT(ep.ID_PARTENAIRE_SERVICE) AS NBRE_MENUS FROM restaurant_menus ep"
+              sqlQuery += " LEFT JOIN partenaire_service ps ON ps.ID_PARTENAIRE_SERVICE=ep.ID_PARTENAIRE_SERVICE"
+              sqlQuery += "  WHERE ep.ID_PARTENAIRE_SERVICE= ? GROUP BY ep.ID_PARTENAIRE_SERVICE "
+              return query(sqlQuery, binds);
+
+    }
+    catch (error) {
+              throw error
+
+    }
+}
+
+
+
 
 module.exports = {
     findmenucategories,
@@ -295,7 +313,8 @@ module.exports = {
     findBYidProduitPartenaire,
     findnotemenu,
     updateMenu,
-    findMenuPartenaire
+    findMenuPartenaire,
+    findByServiceMenus
 
 
 }

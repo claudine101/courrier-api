@@ -650,6 +650,33 @@ const getAllMenuByPartenaire = async (req, res) => {
     }
 }
 
+const getAllCountMenuByPartenaire = async (req, res) => {
+    try {
+              const getImageUri = (fileName) => {
+                        if (!fileName) return null
+                        if (fileName.indexOf("http") === 0) return fileName
+                        return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+              }
+              const { ID_PARTENAIRE_SERVICE } = req.params
+              const allMenu = await restoMenuModel.findByServiceMenus(ID_PARTENAIRE_SERVICE)
+              res.status(RESPONSE_CODES.OK).json({
+                        statusCode: RESPONSE_CODES.OK,
+                        httpStatus: RESPONSE_STATUS.OK,
+                        message: "Liste des produits",
+                        result: allMenu
+              })
+    }
+    catch (error) {
+              console.log(error)
+              res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                        statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                        httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                        message: "Erreur interne du serveur, réessayer plus tard",
+
+              })
+    }
+}
+
 
 module.exports = {
     getAllCategories,
@@ -668,5 +695,6 @@ module.exports = {
     updateMenu,
     DeleteMenu,
     upadteAllDescription,
-    getAllMenuByPartenaire
+    getAllMenuByPartenaire,
+    getAllCountMenuByPartenaire
 }

@@ -23,6 +23,7 @@ restoMenuRouter.put('/description/:ID_RESTAURANT_MENU', restoMenuController.upad
 
 //nouveau route pour afficher les menus cote partenaire
 restoMenuRouter.get('/resto/:ID_PARTENAIRE_SERVICE', restoMenuController.getAllMenuByPartenaire)
+restoMenuRouter.get('/restaurant/count/:ID_PARTENAIRE_SERVICE', restoMenuController.getAllCountMenuByPartenaire)
 
 //restoMenuRouter.get('/', restoMenuController.getmenu)
 //restoMenuRouter.post('/note',restoMenuController.insertNote)
