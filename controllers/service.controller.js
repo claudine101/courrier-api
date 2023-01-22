@@ -71,7 +71,6 @@ const findPartenaireServices = async (req, res) => {
       }
                     const { ID_PARTENAIRE } = req.params
                     const services = await serviceModel.findPartenaireServices(ID_PARTENAIRE)
-                    console.log(services)
                     const partenaires = await Promise.all(services.map(async service =>{
                         var categories
                         if(service.ID_SERVICE==1){

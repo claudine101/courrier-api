@@ -693,10 +693,10 @@ const upadteAllDescription = async (req, res) => {
 const getAllMenuByPartenaire = async (req, res) => {
     try {
               const { ID_PARTENAIRE_SERVICE } = req.params
-              const { limit, offset } = req.query
-              const pureMenus = await restoMenuModel.findMenuPartenaire(ID_PARTENAIRE_SERVICE, limit, offset)
+              const { limit, offset, category } = req.query
+              const pureMenus = await restoMenuModel.findMenuPartenaire(ID_PARTENAIRE_SERVICE, limit, offset, category)
               const menuIds = pureMenus.map(menu => menu.ID_RESTAURANT_MENU)
-              const quantities = await query('SELECT SUM(QUANTITE) quantity, ID_RESTAURANT_MENU FROM restaurant_variant_combination WHERE ID_RESTAURANT_MENU IN (62, 1) GROUP BY ID_RESTAURANT_MENU', [menuIds])
+              const quantities = await query('SELECT SUM(QUANTITE) quantity, ID_RESTAURANT_MENU FROM restaurant_variant_combination WHERE ID_RESTAURANT_MENU IN (2, 1) GROUP BY ID_RESTAURANT_MENU', [menuIds])
               const menus = pureMenus.map(menu => {
                         const quantity = quantities.find(q => q.ID_RESTAURANT_MENU == menu.ID_RESTAURANT_MENU)
                         return {

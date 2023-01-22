@@ -185,8 +185,8 @@ const createProduit = async (req, res) => {
 const findByIdPartenaire = async (req, res) => {
           try {
                     const { id_partenaire_service } = req.params
-                    const { limit, offset } = req.query
-                    const pureProducts = await partenaireProduitModel.findByIdPartenaire(id_partenaire_service, limit, offset)
+                    const { limit, offset, category } = req.query
+                    const pureProducts = await partenaireProduitModel.findByIdPartenaire(id_partenaire_service, limit, offset,category)
                     const productsIds = pureProducts.map(product => product.ID_PRODUIT)
                     const quantities = await query('SELECT SUM(QUANTITE) quantity, ID_PRODUIT FROM ecommerce_variant_combination WHERE ID_PRODUIT IN (2, 1) GROUP BY ID_PRODUIT', [productsIds])
                     const products = pureProducts.map(product => {
@@ -385,6 +385,7 @@ const findByIdProduit = async (req, res) => {
                     })
           }
 }
+
 module.exports = {
           createProduit,
           findByIdPartenaire,
