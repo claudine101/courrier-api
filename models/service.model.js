@@ -75,12 +75,31 @@ const findbycategorie = async (id) => {
             throw error
   }
 }
+
+const findbycategorieResto = async (id) => {
+  try {
+
+            var sqlQuery = `SELECT res.DESCRIPTION,
+                            res_c.NOM AS NOM,
+                            COUNT(res.ID_RESTAURANT_MENU) NOMBRE_MENUS
+                    FROM restaurant_menus res
+                            LEFT JOIN restaurant_categorie_menu res_C ON res_C.ID_CATEGORIE_MENU = res.ID_CATEGORIE_MENU
+                    WHERE res.ID_PARTENAIRE_SERVICE = ?
+                    GROUP BY res.ID_PARTENAIRE_SERVICE`
+
+            return query(sqlQuery, [id]);
+  }
+  catch (error) {
+            throw error
+  }
+}
 module.exports = {
           createOne,
           findAll,
           findById,
           findPartenaireServices,
-          findbycategorie
+          findbycategorie,
+          findbycategorieResto
 }
 
 

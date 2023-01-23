@@ -1,12 +1,12 @@
 const { query } = require("../utils/db");
 
 
-const createProduit = (ID_REPAS,ID_CATEGORIE_MENU, ID_PARTENAIRE_SERVICE,PRIX,DESCRIPTION,IMAGE_1,IMAGE_2,IMAGE_3
+const createProduit = (ID_REPAS,ID_CATEGORIE_MENU, ID_PARTENAIRE_SERVICE,PRIX,NOM,DESCRIPTION,IMAGE_1,IMAGE_2,IMAGE_3
     ) => {
         try {
-            var sqlQuery = "INSERT INTO restaurant_menus (ID_REPAS,ID_CATEGORIE_MENU, ID_PARTENAIRE_SERVICE,PRIX,DESCRIPTION,IMAGE_1,IMAGE_2,IMAGE_3)";
-            sqlQuery += "values (?,?,?,?,?,?,?,?)";
-            return query(sqlQuery, [ID_REPAS,ID_CATEGORIE_MENU, ID_PARTENAIRE_SERVICE,PRIX,DESCRIPTION,IMAGE_1,IMAGE_2,IMAGE_3])
+            var sqlQuery = "INSERT INTO restaurant_menus (ID_REPAS,ID_CATEGORIE_MENU, ID_PARTENAIRE_SERVICE,PRIX,NOM,DESCRIPTION,IMAGE_1,IMAGE_2,IMAGE_3)";
+            sqlQuery += "values (?,?,?,?,?,?,?,?,?)";
+            return query(sqlQuery, [ID_REPAS,ID_CATEGORIE_MENU, ID_PARTENAIRE_SERVICE,PRIX,NOM,DESCRIPTION,IMAGE_1,IMAGE_2,IMAGE_3])
         }
         catch (error) {
     
