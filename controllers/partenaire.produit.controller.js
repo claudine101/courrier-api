@@ -188,7 +188,7 @@ const findByIdPartenaire = async (req, res) => {
                     const { limit, offset, category } = req.query
                     const pureProducts = await partenaireProduitModel.findByIdPartenaire(id_partenaire_service, limit, offset,category)
                     const productsIds = pureProducts.map(product => product.ID_PRODUIT)
-                    const quantities = await query('SELECT SUM(QUANTITE) quantity, ID_PRODUIT FROM ecommerce_variant_combination WHERE ID_PRODUIT IN (2, 1) GROUP BY ID_PRODUIT', [productsIds])
+                    const quantities = await query('SELECT SUM(QUANTITE) quantity, ID_PRODUIT FROM ecommerce_variant_combination WHERE ID_PRODUIT IN (?) GROUP BY ID_PRODUIT', [productsIds])
                     const products = pureProducts.map(product => {
                               const quantity = quantities.find(q => q.ID_PRODUIT == product.ID_PRODUIT)
                               return {

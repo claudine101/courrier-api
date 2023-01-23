@@ -72,13 +72,7 @@ const findPartenaireServices = async (req, res) => {
                     const { ID_PARTENAIRE } = req.params
                     const services = await serviceModel.findPartenaireServices(ID_PARTENAIRE)
                     const partenaires = await Promise.all(services.map(async service =>{
-                        var categories
-                        if(service.ID_SERVICE==1){
                             const categories = await serviceModel.findbycategorie(service.ID_PARTENAIRE_SERVICE)
-                        }else if(service.ID_SERVICE==2){
-                            const categories = await serviceModel.findbycategorieResto(service.ID_PARTENAIRE_SERVICE)
-                        }
-
                         return{
                             ...service,
                             LOGO: getImageUri(service.LOGO, 'partenaire'),

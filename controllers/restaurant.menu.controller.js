@@ -182,6 +182,7 @@ const createProduit = async (req, res) => {
             ID_CATEGORIE_MENU,
             ID_PARTENAIRE_SERVICE,
             PRIX,
+            NOM,
             DESCRIPTION,
             variants: varStr,
             inventories: invStr
@@ -273,6 +274,7 @@ const createProduit = async (req, res) => {
             ID_CATEGORIE_MENU,
             ID_PARTENAIRE_SERVICE,
             PRIX,
+            NOM,
             DESCRIPTION,
 
            `${req.protocol}://${req.get("host")}${IMAGES_DESTINATIONS.products}/${fileInfo_1.fileName}`,
@@ -301,10 +303,10 @@ const createProduit = async (req, res) => {
         if (inventories && inventories.length > 0) {
             const ecommerce_variant_combination = []
             inventories.forEach(inventory => {
-                ecommerce_variant_combination.push([ID_RESTAURANT_MENU, inventory.quantity, inventory.price, inventory.id])
+                ecommerce_variant_combination.push([ID_RESTAURANT_MENU, inventory.price, inventory.id])
             })
             if (ecommerce_variant_combination.length > 0) {
-                await query('INSERT INTO restaurant_variant_combination(ID_RESTAURANT_MENU, QUANTITE, PRIX, FRONTEND_COMBINAISON_ID) VALUES ?', [ecommerce_variant_combination])
+                await query('INSERT INTO restaurant_variant_combination(ID_RESTAURANT_MENU, PRIX, FRONTEND_COMBINAISON_ID) VALUES ?', [ecommerce_variant_combination])
             }
             const newCombinaisons = await query('SELECT * FROM restaurant_variant_combination WHERE ID_RESTAURANT_MENU = ?', [ID_RESTAURANT_MENU])
             const values = await query('SELECT * FROM restaurant_variant_values WHERE ID_RESTAURANT_MENU = ?', [ID_RESTAURANT_MENU])

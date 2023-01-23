@@ -66,7 +66,7 @@ const findpartenaireOne = async (ID_PARTENAIRE_SERVICE, lat, long, shop, limit =
 const findpartenaire = async (lat, long, shop, limit = 10, offset = 0) => {
           try {
                     var binds = []
-                    var sqlQuery = "SELECT ps.TELEPHONE, ps.ADRESSE_COMPLETE,ps.OUVERT,ps.PRESENTATION, ps.NOM_ORGANISATION,ps.ID_PARTENAIRE_SERVICE,ps.DATE_INSERTION,u.IMAGE,ps.LOGO,ps.BACKGROUND_IMAGE "
+                    var sqlQuery = "SELECT ps.TELEPHONE, ps.ADRESSE_COMPLETE,ps.OUVERT,ps.PRESENTATION, ps.NOM_ORGANISATION,ps.ID_PARTENAIRE_SERVICE,ps.DATE_INSERTION,u.IMAGE,ps.LOGO,ps.BACKGROUND_IMAGE, ps.	EMAIL "
                     if (lat && long) {
                               sqlQuery += `, ( 6371 * acos( cos( radians(${lat}) ) * cos( radians( ps.LATITUDE ) ) * cos( radians(ps.LONGITUDE) - radians(${long})) + sin(radians(${lat})) * sin( radians(ps.LATITUDE)))) AS DISTANCE  `
                     }
