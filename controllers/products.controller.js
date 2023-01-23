@@ -820,7 +820,7 @@ const insertNote = async (req, res) => {
           try {
 
 
-                    const { ID_PRODUIT_PARTENAIRE, NOTE, COMMENTAIRE } = req.body
+                    const { ID_PRODUIT, NOTE, COMMENTAIRE } = req.body
                     const getImageUri = (fileName) => {
                               if (!fileName) return null
                               if (fileName.indexOf("http") === 0) return fileName
@@ -870,7 +870,7 @@ const insertNote = async (req, res) => {
 
                     const { insertId } = await productsModel.createNotes(
                               req.userId,
-                              ID_PRODUIT_PARTENAIRE,
+                              ID_PRODUIT,
                               NOTE,
                               COMMENTAIRE,
 
@@ -881,7 +881,7 @@ const insertNote = async (req, res) => {
                                         NOTE: note.NOTE,
                                         COMENTAIRE: note.COMMENTAIRE,
                                         DATE: note.DATE_INSERTION,
-                                        ID_PRODUIT_PARTENAIRE: note.ID_PRODUIT_PARTENAIRE
+                                        ID_PRODUIT_PARTENAIRE: note.ID_PRODUIT
                               },
 
                               utilisateur: {

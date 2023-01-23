@@ -212,7 +212,7 @@ const findmenuResearch = async (q, category, limit = 10, offset = 0) => {
 const findmenubyPartenaire = async (ID_PARTENAIRE_SERVICE) => {
     try {
 
-        return query("SELECT rcm.NOM AS NOM_CATEGORIE,rscm.NOM AS NOM_SOUS_CATEGORIE,rscm.DESCRIPTION AS DESCRIPTION_SOUS_CATEGORIE,rm.IMAGE_1 AS IMAGE ,rm.PRIX, rm.ID_PARTENAIRE_SERVICE FROM restaurant_menus rm LEFT JOIN restaurant_sous_categorie_menu rscm ON rm.ID_SOUS_CATEGORIE_MENU=rscm.ID_SOUS_CATEGORIE_MENU LEFT JOIN restaurant_categorie_menu rcm ON rcm.ID_CATEGORIE_MENU=rm.ID_CATEGORIE_MENU  LEFT JOIN partenaires part ON part.ID_PARTENAIRE=rm.ID_PARTENAIRE_SERVICE WHERE 1 AND rm.ID_PARTENAIRE_SERVICE=?", [ID_PARTENAIRE_SERVICE]);
+        return query("SELECT rcm.NOM AS NOM_CATEGORIE,rscm.NOM AS NOM_SOUS_CATEGORIE,rscm.DESCRIPTION AS DESCRIPTION_SOUS_CATEGORIE,ps.NOM_ORGANISATION,rm.IMAGE_1 AS IMAGE ,rm.PRIX, rm.ID_PARTENAIRE_SERVICE FROM restaurant_menus rm LEFT JOIN restaurant_sous_categorie_menu rscm ON rm.ID_SOUS_CATEGORIE_MENU=rscm.ID_SOUS_CATEGORIE_MENU LEFT JOIN restaurant_categorie_menu rcm ON rcm.ID_CATEGORIE_MENU=rm.ID_CATEGORIE_MENU  LEFT JOIN partenaire_service ps ON ps.ID_PARTENAIRE_SERVICE=rm.ID_PARTENAIRE_SERVICE WHERE 1 AND rm.ID_PARTENAIRE_SERVICE=?", [ID_PARTENAIRE_SERVICE]);
     }
     catch (error) {
         throw error
