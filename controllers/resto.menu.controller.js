@@ -491,17 +491,41 @@ const getAllmenu = async (req, res) => {
             if (fileName.indexOf("http") === 0) return fileName
             return `${req.protocol}://${req.get("host")}/uploads/menu/${fileName}`
         }
-        const { q, category, limit, offset } = req.query
-        var menu = await restoMenuModel.findAllmenu(q, category, limit, offset)
-        const menus = await Promise.all(menu.map(async m => {
-            // const categorie = await userModel.findbycategorie(partenaire.ID_PARTENAIRE)
+        const { q, category, subCategory, partenaireService, limit, offset } = req.query
+        var Allmenus = await restoMenuModel.findAllmenu(q, category, subCategory, partenaireService, limit, offset)
+        const menus = Allmenus.map(menu => {
             return {
-                ...m,
-                IMAGE: getImageUri(m.IMAGE_1),
-                IMAGE2: getImageUri(m.IMAGE_2),
-                IMAGE3: getImageUri(m.IMAGE_3)
+                produit: {
+                    ID_RESTAURANT_MENU: menu.ID_RESTAURANT_MENU,
+                    NOM: menu.NOM,
+                    ID_PARTENAIRE_SERVICE: menu.ID_PARTENAIRE_SERVICE,
+                    IMAGE: menu.IMAGE_1,
+                },
+                partenaire: {
+                    NOM_ORGANISATION: menu.NOM_ORGANISATION,
+                    ID_PARTENAIRE: menu.ID_PARTENAIRE,
+                    ID_TYPE_PARTENAIRE: menu.ID_TYPE_PARTENAIRE,
+                    NOM: menu.NOM_USER,
+                    PRENOM: menu.PRENOM,
+                    ADRESSE_COMPLETE: menu.ADRESSE_COMPLETE
+                },
+                produit_partenaire: {
+                    ID_PARTENAIRE_SERVICE: menu.ID_PARTENAIRE_SERVICE,
+                    NOM_ORGANISATION: menu.NOM_ORGANISATION,
+                    NOM: menu.NOM_PRODUIT_PARTENAIRE,
+                    DESCRIPTION: menu.DESCRIPTION,
+                    IMAGE_1: menu.IMAGE_1,
+                    IMAGE_2: menu.IMAGE_2,
+                    IMAGE_3: menu.IMAGE_3,
+                    TAILLE: menu.NOM_TAILLE,
+                    PRIX: menu.PRIX
+                },
+                categorie: {
+                    ID_CATEGORIE_MENU: menu.ID_CATEGORIE_MENU,
+                    NOM: menu.NOM_CATEGORIE
+                },
             }
-        }))
+        })
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_CODES.OK,
@@ -692,56 +716,100 @@ const upadteAllDescription = async (req, res) => {
 
 const getAllMenuByPartenaire = async (req, res) => {
     try {
-              const { ID_PARTENAIRE_SERVICE } = req.params
-              const { limit, offset, category } = req.query
-              const pureMenus = await restoMenuModel.findMenuPartenaire(ID_PARTENAIRE_SERVICE, limit, offset, category)
-              const menuIds = pureMenus.map(menu => menu.ID_RESTAURANT_MENU)
-              const menus = pureMenus.map(menu => {
-                        return {
-                                  ...menu
-                        }
-              })
-              res.status(RESPONSE_CODES.OK).json({
-                        statusCode: RESPONSE_CODES.OK,
-                        httpStatus: RESPONSE_STATUS.OK,
-                        message: "succès",
-                        result: menus
-              })
+        const { ID_PARTENAIRE_SERVICE } = req.params
+        const { limit, offset, category } = req.query
+        const pureMenus = await restoMenuModel.findMenuPartenaire(ID_PARTENAIRE_SERVICE, limit, offset, category)
+        const menuIds = pureMenus.map(menu => menu.ID_RESTAURANT_MENU)
+        const menus = pureMenus.map(menu => {
+            return {
+                ...menu
+            }
+        })
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "succès",
+            result: menus
+        })
     }
     catch (error) {
-              console.log(error)
-              res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-                        statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-                        httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-                        message: "echoue",
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "echoue",
 
-              })
+        })
     }
 }
 
 const getAllCountMenuByPartenaire = async (req, res) => {
     try {
-              const getImageUri = (fileName) => {
-                        if (!fileName) return null
-                        if (fileName.indexOf("http") === 0) return fileName
-                        return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+        const getImageUri = (fileName) => {
+            if (!fileName) return null
+            if (fileName.indexOf("http") === 0) return fileName
+            return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+        }
+        const { ID_PARTENAIRE_SERVICE } = req.params
+        const allMenu = await restoMenuModel.findByServiceMenus(ID_PARTENAIRE_SERVICE)
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Liste des produits",
+            result: allMenu
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
+
+const getMenuVariants = async (req, res) => {
+    try {
+              const { ID_RESTAURANT_MENU } = req.params
+              const allVariants = await query('SELECT * FROM  restaurant_menu_variants WHERE ID_RESTAURANT_MENU = ?', [ID_RESTAURANT_MENU])
+              const allOptions = await query('SELECT * FROM restaurant_variant_values WHERE ID_RESTAURANT_MENU = ?', [ID_RESTAURANT_MENU])
+              const allCombinaisons = await query('SELECT * FROM  restaurant_variant_combination WHERE ID_RESTAURANT_MENU = ?', [ID_RESTAURANT_MENU])
+              const combinaisonsIds = allCombinaisons.map(comb => comb.ID_COMBINATION)
+              var allCombinaisonsOptions= []
+              if(combinaisonsIds.length > 0) {
+                        allCombinaisonsOptions = await query('SELECT * FROM restaurant_variant_combination_values WHERE ID_COMBINATION IN (?)', [combinaisonsIds])
               }
-              const { ID_PARTENAIRE_SERVICE } = req.params
-              const allMenu = await restoMenuModel.findByServiceMenus(ID_PARTENAIRE_SERVICE)
+              const variants = allVariants.map(variant => {
+                        const values = allOptions.filter(option => option.ID_VARIANT == variant.ID_VARIANT)
+                        return {
+                                  ...variant,
+                                  values
+                        }
+              })
+              const combinaisons = allCombinaisons.map(combinaison => {
+                        const values = allCombinaisonsOptions.filter(comb => comb.ID_COMBINATION == combinaison.ID_COMBINATION)
+                        return {
+                                  ...combinaison,
+                                  values
+                        }
+              })
               res.status(RESPONSE_CODES.OK).json({
                         statusCode: RESPONSE_CODES.OK,
                         httpStatus: RESPONSE_STATUS.OK,
-                        message: "Liste des produits",
-                        result: allMenu
+                        message: "Les variantes des menus",
+                        result: {
+                                  variants,
+                                  combinaisons
+                        }
               })
-    }
-    catch (error) {
+    } catch (error) {
               console.log(error)
               res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
                         statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
                         httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
                         message: "Erreur interne du serveur, réessayer plus tard",
-
               })
     }
 }
@@ -767,5 +835,6 @@ module.exports = {
     getAllMenuByPartenaire,
     getAllCountMenuByPartenaire,
     getByIdmenu,
-    
+    getMenuVariants
+
 }
