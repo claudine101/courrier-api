@@ -496,7 +496,7 @@ const createRestoCommandes = async (req, res) => {
                               if (fileName.indexOf("http") === 0) return fileName
                               return `${req.protocol}://${req.get("host")}/uploads/menu/${fileName}`
                     }
-                    const { shipping_info, resto, numero, service } = req.body
+                    const { shipping_info, commandes, numero, service } = req.body
                     const validation = new Validation(
                               shipping_info,
                               {
@@ -549,30 +549,19 @@ const createRestoCommandes = async (req, res) => {
                               },
                     }
                     )
-                    if (!resto || resto.length == 0 || !Array.isArray(resto)) {
-                              validation.setError('commandes', "Veuillez préciser les commandes")
-                    }
-                    if (!numero) {
-                              validation.setError('numero', "Le numéro ecocash est obligatoire")
-                    }
-                    let isnum = /^\d+$/.test(numero);
-                    let isTel = /^\d+$/.test(shipping_info?.TELEPHONE);
-                    if (!isnum || numero.length != 8) {
-                              validation.setError('numero', "Numéro ecocash invalide")
-                    }
-                    if (!isTel) {
-                              validation.setError('TELEPHONE', "Numéro de téléphone invalide")
-                    }
-                    if (resto && Array.isArray(resto)) {
-                              resto.forEach((resto, index) => {
-                                        if (!resto.ID_RESTAURANT_MENU || !resto.QUANTITE || !resto.MONTANT) {
-                                                  validation.setError(`commandes_${index + 1}`, "Quelques informations de la commandes sont manquantes")
-                                        }
-                              })
-                    }
-
-                    await validation.run()
-                    const isValid = await validation.isValidate()
+                        if (!numero) {
+                            validation.setError('numero', "Le numéro ecocash est obligatoire")
+                        }
+                        let isnum = /^\d+$/.test(numero);
+                        let isTel = /^\d+$/.test(shipping_info?.TELEPHONE);
+                        if (!isnum || numero.length != 8) {
+                                    validation.setError('numero', "Numéro ecocash invalide")
+                        }
+                        if (!isTel) {
+                                    validation.setError('TELEPHONE', "Numéro de téléphone invalide")
+                        }
+                        await validation.run()
+                        const isValid = await validation.isValidate()
                     if (!isValid) {
                               const erros = await validation.getErrors()
                               return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
@@ -582,53 +571,88 @@ const createRestoCommandes = async (req, res) => {
                                         result: erros
                               })
                     }
-                    const CODE_UNIQUE = await getReferenceCode()
+
+                   
+
                     const DATE_LIVRAISON = null
 
-                    const { insertId } = await commandeModel.createNewCommandes(
-                              req.userId,
-                              DATE_LIVRAISON,
-                              CODE_UNIQUE,
-                              1
-                    )
-                    const restaurant_commande_details = []
                     var TOTAL = 0
-                    resto.forEach(restaurant => {
-                              TOTAL += restaurant.QUANTITE * restaurant.MONTANT
-                              restaurant_commande_details.push([
-                                        insertId,
-                                        restaurant.ID_RESTAURANT_MENU,
-                                        restaurant.QUANTITE,
-                                        restaurant.MONTANT,
-                                        restaurant.QUANTITE * restaurant.MONTANT
-                              ])
+                    commandes.forEach(commande => {
+                              TOTAL += commande.QUANTITE * commande.PRIX
                     })
-                    await commandeModel.createCommandeRestoDetails(restaurant_commande_details);
-                    await commandeModel.createDetailLivraison(CODE_UNIQUE, shipping_info.N0M, shipping_info.PRENOM, shipping_info.ADRESSE, shipping_info.TELEPHONE, shipping_info.AVENUE, shipping_info.ID_COUNTRY)
-                    await paymentModel.createOne(insertId, service, 1, numero, null, TOTAL, CODE_UNIQUE, 0)
 
-                    const pureCommande = (await commandeModel.getOneRestoCommande(insertId))[0]
-                    const details = await commandeModel.getManyCommandesRestoDetails([insertId])
-                    var TOTAL_COMMANDE = 0
-                    details.forEach(detail => TOTAL_COMMANDE += detail.QUANTITE * detail.MONTANT)
-                    const commande = {
-                              ...pureCommande,
-                              ITEMS: details.length,
-                              TOTAL: TOTAL_COMMANDE,
-                              details: details.map(detail => ({
-                                        ...detail,
-                                        IMAGE_1: getImageUri(detail.IMAGE_1)
-                              }))
+                    if(false) {
+                        const econnetResponse = await axios.post('http://app.mediabox.bi/api_ussd_php/Api_client_ecocash', {
+                                  VENDEUR_PHONE: "79839653",
+                                  AMOUNT: TOTAL,
+                                  CLIENT_PHONE: numero,
+                                  INSTANCE_TOKEN: "2522"
+                        })
+                        const ecoData = econnetResponse.data
                     }
-
-                    console.log(commande)
-
-                    res.status(RESPONSE_CODES.OK).json({
-                              statusCode: RESPONSE_CODES.OK,
-                              httpStatus: RESPONSE_STATUS.OK,
-                              message: "Enregistrement reussi avec succès",
-                              result: commande
-                    })
+                    if(true){
+                      
+                        const  TXNI_D = await getReferenceCode()
+                              const restaurant_commande_details = []
+                              var TOTAL = 0
+                              const groups = {};
+                              commandes.forEach(commande => {
+                                        TOTAL += commande.PRIX * commande.QUANTITE
+                                        if (!groups[commande.ID_PARTENAIRE_SERVICE]) {
+                                                  groups[commande.ID_PARTENAIRE_SERVICE] = {
+                                                            ID_PARTENAIRE_SERVICE: commande.ID_PARTENAIRE_SERVICE,
+                                                            products: []
+                                                  };
+                                        }
+                                        groups[commande.ID_PARTENAIRE_SERVICE].products.push(commande);
+                              });
+                              const grouped = Object.values(groups);
+                              const { insertId: PAYEMENT_ID } = await paymentModel.createOne(service,1, numero, null, TOTAL, TXNI_D, 0)
+                              const { insertId: ID_DETAILS_LIVRAISON } = await commandeModel.createDetailLivraison(shipping_info.N0M, shipping_info.PRENOM, shipping_info.ADRESSE, shipping_info.TELEPHONE, shipping_info.AVENUE, shipping_info.ID_COUNTRY)
+                              const commandesIds = []
+                              await Promise.all(grouped.map(async (commande) => {
+                                const CODE_UNIQUE = await getReferenceCode()
+                                var TOTAL = 0
+                                commande.products.forEach(c => {
+                                          TOTAL += c.PRIX * c.QUANTITE
+                                })
+                                const { insertId } = await commandeModel.createCommandesResto(
+                                          PAYEMENT_ID,
+                                          commande.ID_PARTENAIRE_SERVICE,
+                                          req.userId,
+                                          DATE_LIVRAISON,
+                                          CODE_UNIQUE,
+                                          TOTAL,
+                                          ID_DETAILS_LIVRAISON,
+                                          1
+                                )
+                                commandesIds.push(insertId)
+                                commande.products.forEach(commande => {
+                                    restaurant_commande_details.push([
+                                                    insertId,
+                                                    commande.ID_RESTAURANT_MENU,
+                                                    commande.QUANTITE,
+                                                    commande.PRIX,
+                                                    commande.QUANTITE * commande.PRIX
+                                    ])
+                                })
+                        }))
+                            await commandeModel.createCommandeDetailsResto(restaurant_commande_details);
+                            res.status(RESPONSE_CODES.CREATED).json({
+                                statusCode: RESPONSE_CODES.CREATED,
+                                httpStatus: RESPONSE_STATUS.CREATED,
+                                message: "Enregistrement reussi avec succès",
+                                result: {
+                                        ID_COMMANDE: commandesIds[0]
+                                }
+                            })
+                    }else{
+                        return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
+                            statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
+                            httpStatus: RESPONSE_STATUS.UNPROCESSABLE_ENTITY,
+                            message: ecoData.message || 'Erreur inconnue, réessayer plus tard',
+                        })
+                    }
           }
           catch (error) {
                     console.log(error)

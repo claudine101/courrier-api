@@ -1,10 +1,10 @@
 const { query } = require("../utils/db")
 
 
-const createOne = async (MODE_ID = 1, NUMERO, EMAIL_PAYE, MONTANT, TXNI_D, STATUT_ID = 0, COMPTE_SIBLE = null, CLIENT_ID_PAYEMENT = null, INVOICE_ID = null, CARTE_TYPE = null, DEVISE = null) => {
+const createOne = async (service,MODE_ID = 1, NUMERO, EMAIL_PAYE, MONTANT, TXNI_D, STATUT_ID = 0, COMPTE_SIBLE = null, CLIENT_ID_PAYEMENT = null, INVOICE_ID = null, CARTE_TYPE = null, DEVISE = null) => {
           try {
-                    return query('INSERT INTO commandes_payement(MODE_ID, NUMERO, EMAIL_PAYE, MONTANT, TXNI_D, STATUT_ID, COMPTE_SIBLE, CLIENT_ID_PAYEMENT, INVOICE_ID, CARTE_TYPE, DEVISE)  VALUES(?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?)', [
-                              MODE_ID, NUMERO, EMAIL_PAYE, MONTANT, TXNI_D, STATUT_ID, COMPTE_SIBLE, CLIENT_ID_PAYEMENT, INVOICE_ID, CARTE_TYPE, DEVISE
+                    return query('INSERT INTO commandes_payement(MODE_ID, NUMERO, EMAIL_PAYE, MONTANT, TXNI_D, STATUT_ID, COMPTE_SIBLE, CLIENT_ID_PAYEMENT, INVOICE_ID, CARTE_TYPE, DEVISE, SERVICE)  VALUES(?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?,?)', [
+                              MODE_ID, NUMERO, EMAIL_PAYE, MONTANT, TXNI_D, STATUT_ID, COMPTE_SIBLE, CLIENT_ID_PAYEMENT, INVOICE_ID, CARTE_TYPE, DEVISE,service
                     ])
           } catch (error) {
                     throw error

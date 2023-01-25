@@ -473,6 +473,28 @@ const getNewStatusUpdate = async (ID_COMMANDE) => {
         }
 };
 
+const createCommandesResto = async (PAYEMENT_ID, ID_PARTENAIRE_SERVICE, ID_USER, DATE_LIVRAISON, CODE_UNIQUE, TOTAL, ID_DETAILS_LIVRAISON, ID_STATUT = 1) => {
+        try {
+                var sqlQuery = "INSERT INTO restaurant_commandes(PAYEMENT_ID, ID_PARTENAIRE_SERVICE, ID_USER, DATE_LIVRAISON, CODE_UNIQUE, TOTAL, ID_DETAILS_LIVRAISON, ID_STATUT)";
+                sqlQuery += "VALUES(?, ?, ?, ?, ?, ?, ?, ?)"
+                return query(sqlQuery, [PAYEMENT_ID, ID_PARTENAIRE_SERVICE, ID_USER, DATE_LIVRAISON, CODE_UNIQUE, TOTAL, ID_DETAILS_LIVRAISON, ID_STATUT]);
+        } catch (error) {
+                throw error
+        }
+
+};
+
+const createCommandeDetailsResto = async (ecommerce_commande_details) => {
+        try {
+                  var sqlQuery = "INSERT INTO  restaurant_commandes_details(ID_COMMANDE, ID_RESTAURANT_MENU, QUANTITE, MONTANT, SOMME)";
+                  sqlQuery += "VALUES ?"
+                  return query(sqlQuery, [ecommerce_commande_details]);
+        } catch (error) {
+                  throw error
+        }
+
+}
+
 module.exports = {
           findAll,
           createCommandes,
@@ -504,5 +526,7 @@ module.exports = {
           getLivraisons,
           getUserCountByPartenaire,
           getUserCommandesPartenaire,
-          getNewStatusUpdate
+          getNewStatusUpdate,
+          createCommandesResto,
+          createCommandeDetailsResto
 }
