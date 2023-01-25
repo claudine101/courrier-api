@@ -493,7 +493,32 @@ const createCommandeDetailsResto = async (ecommerce_commande_details) => {
                   throw error
         }
 
-}
+};
+
+const getUserCountRestoCommandes = async (ID_USER, q, limit = 10, offset = 0) => {
+        try {
+                  var binds = [ID_USER]
+                  var sqlQuery = `
+                                SELECT co.ID_STATUT,
+                                COUNT(co.ID_COMMANDE) AS NBRE,
+                                co.ID_COMMANDE,
+                                co.CODE_UNIQUE,
+                                co.DATE_COMMANDE,
+                                ecs.DESCRIPTION STATUT_DESCRIPTION,
+                                ecs.NEXT_STATUS
+                        FROM restaurant_commandes co
+                                LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT
+                        WHERE co.ID_USER = ?
+                                AND co.ID_STATUT != 4
+                        ORDER BY co.DATE_COMMANDE DESC
+                  `
+                  sqlQuery += `LIMIT ${offset}, ${limit}`
+                  return query(sqlQuery, binds)
+        }
+        catch (error) {
+                  throw error;
+        }
+};
 
 module.exports = {
           findAll,
@@ -528,5 +553,6 @@ module.exports = {
           getUserCommandesPartenaire,
           getNewStatusUpdate,
           createCommandesResto,
-          createCommandeDetailsResto
+          createCommandeDetailsResto,
+          getUserCountRestoCommandes
 }

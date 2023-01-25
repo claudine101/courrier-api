@@ -15,6 +15,8 @@ const paymentModel = require("../models/payment.model")
 const createAllCommandes = async (req, res) => {
           try {
                     const { shipping_info, commandes, numero, service } = req.body
+                    console.log(req.body)
+                    console.log(req.userId)
                     const validation = new Validation(
                               shipping_info,
                               {
@@ -114,7 +116,7 @@ const createAllCommandes = async (req, res) => {
                                         groups[commande.ID_PARTENAIRE_SERVICE].products.push(commande);
                               });
                               const grouped = Object.values(groups);
-                              const { insertId: PAYEMENT_ID } = await paymentModel.createOne(1, numero, null, TOTAL, TXNI_D, 0)
+                              const { insertId: PAYEMENT_ID } = await paymentModel.createOne(service,1, numero, null, TOTAL, TXNI_D, 0)
                               const { insertId: ID_DETAILS_LIVRAISON } = await commandeModel.createDetailLivraison(shipping_info.N0M, shipping_info.PRENOM, shipping_info.ADRESSE, shipping_info.TELEPHONE, shipping_info.AVENUE, shipping_info.ID_COUNTRY)
                               const commandesIds = []
                               await Promise.all(grouped.map(async (commande) => {
@@ -497,6 +499,8 @@ const createRestoCommandes = async (req, res) => {
                               return `${req.protocol}://${req.get("host")}/uploads/menu/${fileName}`
                     }
                     const { shipping_info, commandes, numero, service } = req.body
+                    console.log(req.body)
+                    console.log(req.userId)
                     const validation = new Validation(
                               shipping_info,
                               {
@@ -1025,6 +1029,32 @@ const getUpdateStatus = async (req, res) => {
               })
     }
 }
+
+const getCountRestoCommandes = async (req, res) => {
+    try {
+              const getImageUri = (fileName) => {
+                        if (!fileName) return null
+                        if (fileName.indexOf("http") === 0) return fileName
+                        return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+              }
+              const commandes = await commandeModel.getUserCountRestoCommandes(req.userId)
+              res.status(RESPONSE_CODES.OK).json({
+                        statusCode: RESPONSE_CODES.OK,
+                        httpStatus: RESPONSE_STATUS.OK,
+                        message: "succès",
+                        result: commandes
+              })
+    }
+    catch (error) {
+              console.log(error)
+              res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                        statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                        httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                        message: "Erreur interne du serveur, réessayer plus tard",
+
+              })
+    }
+}
 module.exports = {
     createAllCommandes,
     getCommandes,
@@ -1042,5 +1072,6 @@ module.exports = {
     getCountCommandes,
     getCountCommandesByPartenaire,
     getCommandesPartenaire,
-    getUpdateStatus
+    getUpdateStatus,
+    getCountRestoCommandes
 }
