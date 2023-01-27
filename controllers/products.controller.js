@@ -857,7 +857,7 @@ const getnotes = async (req, res) => {
 
                 const { ID_PRODUIT } = req.params
 
-                const noteListe = await productsModel.findnoteProduitPartenaire(ID_PRODUIT, req.userId)
+                const noteListe = await productsModel.findnoteProduitPartenaire(ID_PRODUIT)
 
                 res.status(RESPONSE_CODES.OK).json({
                         statusCode: RESPONSE_CODES.OK,
@@ -908,10 +908,7 @@ const getNoteUser = async (req, res) => {
 
 
 const insertNote = async (req, res) => {
-
         try {
-
-
                 const { ID_PRODUIT, NOTE, COMMENTAIRE } = req.body
                 const getImageUri = (fileName) => {
                         if (!fileName) return null
@@ -920,31 +917,18 @@ const insertNote = async (req, res) => {
                 }
                 const validation = new Validation(req.body,
                         {
-
-
                                 NOTE:
                                 {
                                         required: true,
                                 },
-
-
-
-
                         },
                         {
-
                                 NOTE: {
                                         required: "La note est obligatoire"
                                 },
-
-
-
-
-
                         }
 
                 )
-
                 await validation.run();
                 const isValide = await validation.isValidate()
                 const errors = await validation.getErrors()
@@ -957,9 +941,6 @@ const insertNote = async (req, res) => {
                         })
 
                 }
-
-
-
                 const { insertId } = await productsModel.createNotes(
                         req.userId,
                         ID_PRODUIT,

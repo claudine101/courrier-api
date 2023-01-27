@@ -373,13 +373,13 @@ const findBYidProduitPartenaire = async (id, limit = 10, offset = 0) => {
     throw error
   }
 }
-const findnoteProduitPartenaire = async (ID_PRODUIT, id) => {
+const findnoteProduitPartenaire = async (ID_PRODUIT) => {
   try {
-    var sqlQuery = "SELECT epn.NOTE,epn.COMMENTAIRE,epn.ID_PRODUIT,u.NOM,u.PRENOM,"
+    var sqlQuery = "SELECT epn.NOTE,epn.COMMENTAIRE,epn.ID_PRODUIT,u.NOM,u.PRENOM, u.NOM, u.PRENOM,"
     sqlQuery += " epn.ID_USER,epn.DATE_INSERTION,u.IMAGE FROM ecommerce_produit_notes epn LEFT JOIN"
-    sqlQuery += " users u ON epn.ID_USER=u.ID_USER   WHERE epn.ID_PRODUIT=? AND  epn.ID_USER=?"
+    sqlQuery += " users u ON epn.ID_USER=u.ID_USER  WHERE epn.ID_PRODUIT=? "
     sqlQuery += ` ORDER BY epn.DATE_INSERTION DESC`;
-    return query(sqlQuery, [ID_PRODUIT, id]);
+    return query(sqlQuery, [ID_PRODUIT]);
 
   }
   catch (error) {
