@@ -57,6 +57,114 @@ const getnote = async (req, res) => {
         })
     }
 }
+
+const getnoteUser = async (req, res) => {
+    try {
+
+     const noteListe = await restoMenuModel.findnotemenuUser(req.userId)
+
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "La commentaire",
+            result: noteListe
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
+
+const deleteNote= async (req, res) => {
+    try {
+            const {ID_NOTE} = req.params
+            const note = await query("DELETE FROM restaurant_menus_notes WHERE ID_NOTE=?",[ID_NOTE])
+            res.status(RESPONSE_CODES.OK).json({
+                    statusCode: RESPONSE_CODES.OK,
+                    httpStatus: RESPONSE_STATUS.OK,
+                    message: "Suppression reussi",
+            })
+    }
+    catch (error) {
+            console.log(error)
+            res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                    statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                    httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                    message: "Erreur interne du serveur, réessayer plus tard",
+
+            })
+    }
+}
+const updateNote = async (req, res) =>{
+    try {
+
+           const
+                  {
+                    NOTE,
+                    COMMENTAIRE
+                         
+                  } =req.body
+          console.log(req.body)
+           const { ID_NOTE } = req.params;
+           const validation = new Validation(req.body,
+                  {
+                    NOTE:
+                         {
+                                required: true,
+                                
+                         },
+                    },
+                  {
+                    NOTE:
+                         {
+                                required: "La note est obligatoire",
+                                
+                         },
+                    }
+           )
+
+
+           validation.run()
+           if (validation.isValidate()) {
+
+                  const { insertId } = await restoMenuModel.updateOne(NOTE,COMMENTAIRE,ID_NOTE)
+                  const note = (await restoMenuModel.findByIdNote(insertId))[0]
+                  res.status(200).json({
+                         success: true,
+                         message: "modification reussi avec succes"
+                  })
+
+           }
+           else {
+                  res.status(422).json(
+                         {
+                                success: false,
+                                message: "La validation des données a échoué",
+                                errors: validation.getErrors(),
+                         })
+           }
+
+
+
+
+
+    }
+
+
+    catch (error) {
+           console.log(error)
+           res.status(500).send("server error")
+    }
+}
+
+
+
 const getByIdCategories = async (req, res) => {
     try {
         const { ID_PARTENAIRE_SERVICE } = req.params
@@ -835,6 +943,9 @@ module.exports = {
     getAllMenuByPartenaire,
     getAllCountMenuByPartenaire,
     getByIdmenu,
-    getMenuVariants
+    getMenuVariants,
+    getnoteUser,
+    deleteNote,
+    updateNote
 
 }

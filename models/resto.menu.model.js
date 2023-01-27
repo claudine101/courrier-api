@@ -9,6 +9,24 @@ const findmenucategories = async () => {
 
     }
 }
+const updateOne = async (NOTE,COMMENTAIRE,ID_NOTE) =>{
+    try {
+      var sql = "UPDATE restaurant_menus_notes SET NOTE=?,COMMENTAIRE=? WHERE ID_NOTE=?"
+      return query(sql, [NOTE,COMMENTAIRE,ID_NOTE])
+    }
+    catch (error) {
+      throw error
+    }
+  
+  }
+  const findByIdNote = async (id) =>{
+    try {
+      return query("SELECT * FROM  restaurant_menus_notes WHERE ID_NOTE=?", [id]);
+    } catch (error)
+     {
+      throw error;
+    }
+  };
 const findCategories = async (ID_PARTENAIRE_SERVICE) => {
     try {
         var binds = [ID_PARTENAIRE_SERVICE]
@@ -289,6 +307,22 @@ const findnotemenu = async (ID_RESTAURANT_MENU, id) => {
     }
 }
 
+const findnotemenuUser = async (id) => {
+    try {
+        var sqlQuery = "SELECT epn.NOTE,epn.COMMENTAIRE,epn.ID_RESTAURANT_MENU,u.NOM,u.PRENOM,"
+        sqlQuery += " epn.ID_USER,epn.DATE_INSERTION,u.IMAGE FROM restaurant_menus_notes epn LEFT JOIN"
+        sqlQuery += " users u ON epn.ID_USER=u.ID_USER   WHERE epn.ID_USER=?"
+        //sqlQuery+=` ORDER BY epn.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
+        return query(sqlQuery, [id]);
+
+    }
+    catch (error) {
+        throw error
+    }
+}
+
+
+
 const updateMenu = async (IMAGES_1, ID_RESTAURANT_MENU) => {
     try {
         var sqlQuery = "UPDATE  restaurant_menus SET IMAGES_1 = ? WHERE ID_RESTAURANT_MENU = ?";
@@ -350,6 +384,7 @@ module.exports = {
     findmenucategories,
     findmenusouscategories,
     findmenu,
+    findByIdNote,
     findmenuResearch,
     findAllmenu,
     findmenubyPartenaire,
@@ -362,7 +397,9 @@ module.exports = {
     findnotemenu,
     updateMenu,
     findMenuPartenaire,
-    findByServiceMenus
+    findByServiceMenus,
+    findnotemenuUser,
+    updateOne
     //findmenusbyPartenaire,
     //findAllmenus
 
