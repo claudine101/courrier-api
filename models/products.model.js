@@ -84,15 +84,11 @@ const findproducts = async (q, category, subCategory, partenaireService, min_pri
 
     } else if (min_prix && max_prix) {
 
-      sqlQuery += " AND ep.PRIX BETWEEN min_prix=? AND max_prix=?"
+      sqlQuery += "AND ep.PRIX BETWEEN min_prix=? AND max_prix=?"
       binds.push(min_prix && max_prix)
 
     }
-    // if (prix1 && prix2) {
-
-    //   sqlQuery += " AND ep.PRIX BETWEEN prix1=? AND prix2=?"
-    //   binds.push(prix1, prix2)
-    // }
+   
     sqlQuery += ` ORDER BY ep.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
     return query(sqlQuery, binds);
   }

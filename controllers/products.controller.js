@@ -5,6 +5,11 @@ const { query } = require("../utils/db")
 const Validation = require('../class/Validation')
 const ProductUpload = require('../class/uploads/ProductUpload');
 
+/**
+ * Controller pour afficher les produits et produits par fitre faites par un utilisateur
+ * @author Innocent <ndayikengurukiye.innocent@mediabox.bi>
+ **/
+
 const getAllProducts = async (req, res) => {
         try {
                 const { q, category, subCategory, partenaireService,min_prix,max_prix,limit, offset } = req.query
@@ -71,6 +76,7 @@ const getAllProducts = async (req, res) => {
                 })
         }
 }
+
 
 const getAllProductCommandes = async (req, res) => {
         try {
