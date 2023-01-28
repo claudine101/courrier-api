@@ -5,6 +5,8 @@ const RESPONSE_CODES = require('../constants/RESPONSE_CODES');
 const RESPONSE_STATUS = require('../constants/RESPONSE_STATUS');
 const generateToken = require('../utils/generateToken');
 const UserUpload = require("../class/uploads/UserUpload")
+const sendPushNotifications = require("../utils/sendPushNotifications")
+const {query} = require("../utils/db")
 
 const path = require("path");
 const md5 = require('md5');
@@ -12,7 +14,7 @@ const md5 = require('md5');
 const login = async (req, res) => {
 
           try {
-                    const { email, password } = req.body;
+                    const { email, password, PUSH_NOTIFICATION_TOKEN, DEVICE } = req.body;
 
                     const validation = new Validation(
                               req.body,
@@ -51,6 +53,10 @@ const login = async (req, res) => {
                     var user = (await userModel.findBy("EMAIL", email))[0];
                     if (user) {
                               if (user.PASSWORD == md5(password)) {
+                                        const notification = (await query('SELECT ID_NOTIFICATION_TOKEN FROM notification_tokens WHERE TOKEN = ? AND ID_USER = ?', [PUSH_NOTIFICATION_TOKEN, user.ID_USER]))[0]
+                                        if (!notification && PUSH_NOTIFICATION_TOKEN) {
+                                                await query('INSERT INTO notification_tokens(ID_USER, DEVICE, TOKEN, ID_PROFIL) VALUES(?, ?, ?, ?)', [user.ID_USER, DEVICE, PUSH_NOTIFICATION_TOKEN, user.ID_PROFIL]);
+                                        }
                                         const token = generateToken({ user: user.ID_USER }, 3 * 12 * 30 * 24 * 3600)
                                         const { PASSWORD, USERNAME, ID_PROFIL, ...other } = user
                                         res.status(RESPONSE_CODES.CREATED).json({
@@ -106,7 +112,7 @@ const createUser = async (req, res) => {
           try {
 
 
-                    const { NOM, PRENOM, EMAIL, USERNAME, PASSWORD, SEXE, DATE_NAISSANCE, COUNTRY_ID, ADRESSE, TELEPHONE_1, TELEPHONE_2 } = req.body
+                    const { NOM, PRENOM, EMAIL, USERNAME, PASSWORD, SEXE, DATE_NAISSANCE, COUNTRY_ID, ADRESSE, TELEPHONE_1, TELEPHONE_2, PUSH_NOTIFICATION_TOKEN, DEVICE } = req.body
                     const { IMAGE } = req.files || {}
                     const validation = new Validation({ ...req.body, ...req.files },
                               {
@@ -195,6 +201,10 @@ const createUser = async (req, res) => {
                               filename ? filename : null
                     )
                     const user = (await userModel.findById(insertId))[0]
+                    const notification = (await query('SELECT ID_NOTIFICATION_TOKEN FROM notification_tokens WHERE TOKEN = ? AND ID_USER = ?', [PUSH_NOTIFICATION_TOKEN, user.ID_USER]))[0]
+                    if (!notification && PUSH_NOTIFICATION_TOKEN) {
+                                await query('INSERT INTO notification_tokens(ID_USER, DEVICE, TOKEN, ID_PROFIL) VALUES(?, ?, ?, ?)', [user.ID_USER, DEVICE, PUSH_NOTIFICATION_TOKEN, user.ID_PROFIL]);
+                        }
                     res.status(RESPONSE_CODES.CREATED).json({
                               statusCode: RESPONSE_CODES.CREATED,
                               httpStatus: RESPONSE_STATUS.CREATED,

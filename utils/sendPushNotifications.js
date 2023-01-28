@@ -27,9 +27,9 @@ module.exports = function sendPushNotifications(tokens, title, body, data) {
                                         let receipts = await expo.sendPushNotificationsAsync(chunk);
                               } catch (error) {
                                         console.error(error);
-                                        if(error.code == 'PUSH_TOO_MANY_EXPERIENCE_IDS') {
-                                                  sendPushNotifications(error.details['@dukizwe/psr-app'], title, body, data)
-                                        }
+                                        // if(error.code == 'PUSH_TOO_MANY_EXPERIENCE_IDS') {
+                                        //           sendPushNotifications(error.details['@dukizwe/psr-app'], title, body, data)
+                                        // }
                               }
                     }
           })();
