@@ -277,6 +277,90 @@ const createPartenaire = async (req, res) => {
                     })
           }
 }
+
+const  UpdatePartenaire= async (req, res) => {
+    try {
+             
+              const {NOM_ORGANISATION, TELEPHONE, NIF, EMAIL, ADRESSE_COMPLETE, LATITUDE, LONGITUDE} = req.body
+              const { ID_PARTENAIRE_SERVICE}=req.params
+              const { LOGO, BACKGROUND_IMAGE } = req.files || {}
+              const partenaireService = (await query('SELECT * FROM partenaire_service WHERE ID_PARTENAIRE_SERVICE = ?', [ID_PARTENAIRE_SERVICE]))[0]
+              console.log(partenaireService.BACKGROUND_IMAGE)
+              const validation = new Validation({ ...req.body, ...req.files },
+                        {
+                                  LOGO: {
+                                            image: 21000000,
+                                            
+                                  },
+                                  BACKGROUND_IMAGE: {
+                                            image: 21000000
+                                  },
+                        },
+                        {
+                                  LOGO: {
+                                            image: "La taille invalide"
+                                  },
+                                  BACKGROUND_IMAGE: {
+                                            image: "La taille invalide"
+                                  },
+                        }
+              )
+              await validation.run();
+              const isValide = await validation.isValidate()
+              const errors = await validation.getErrors()
+              if (!isValide) {
+                        return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
+                                  statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
+                                  httpStatus: RESPONSE_STATUS.UNPROCESSABLE_ENTITY,
+                                  message: "Probleme de validation des donnees",
+                                  result: errors
+                        })
+              }
+              const partenaireUpload = new PartenaireUpload()
+              var backgoundImage = null
+              
+               if(LOGO){
+                const { fileInfo: fileInfo_1 } = await partenaireUpload.upload(LOGO, false)
+                const logoImage =`${req.protocol}://${req.get("host")}${IMAGES_DESTINATIONS.partenaires}/${fileInfo_1.fileName}`;
+               }
+                
+
+              if (BACKGROUND_IMAGE) {
+                        const { fileInfo: fileInfo_2 } = await partenaireUpload.upload(BACKGROUND_IMAGE, false)
+                        backgoundImage = `${req.protocol}://${req.get("host")}${IMAGES_DESTINATIONS.partenaires}/${fileInfo_2.fileName}`;
+              }
+              const {insertId} = await userPartenaireModel.changeService(
+             
+                        NOM_ORGANISATION,
+                        TELEPHONE,
+                        NIF,
+                        EMAIL,
+                        ADRESSE_COMPLETE,
+                        LATITUDE,
+                        LONGITUDE,
+                        LOGO?logoImage:partenaireService.LOGO,
+                        BACKGROUND_IMAGE?backgoundImage:partenaireService.BACKGROUND_IMAGE,
+                        ID_PARTENAIRE_SERVICE
+                        
+
+              )
+              const service = (await userPartenaireModel.findByIdPartenai(insertId))[0]
+              res.status(RESPONSE_CODES.CREATED).json({
+                        statusCode: RESPONSE_CODES.CREATED,
+                        httpStatus: RESPONSE_STATUS.CREATED,
+                        message: "La modification est fait avec succès",
+                        result: service
+              })
+    }catch (error) {
+              console.log(error)
+              res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                        statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                        httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                        message: "Enregistrement echoue",
+              })
+    }
+}
+
 const getAllPartenaire = async (req, res) => {
           try {
                     const getImageUri = (fileName, folder) => {
@@ -622,5 +706,6 @@ module.exports = {
           findAll,
           findAllShop,
           UpdateShop,
-          findAllResto
+          findAllResto,
+          UpdatePartenaire
 }

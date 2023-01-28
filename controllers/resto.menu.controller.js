@@ -599,8 +599,8 @@ const getAllmenu = async (req, res) => {
             if (fileName.indexOf("http") === 0) return fileName
             return `${req.protocol}://${req.get("host")}/uploads/menu/${fileName}`
         }
-        const { q, category, subCategory, partenaireService, limit, offset } = req.query
-        var Allmenus = await restoMenuModel.findAllmenu(q, category, subCategory, partenaireService, limit, offset)
+        const { q, category, subCategory, partenaireService,min_prix,max_prix, limit, offset } = req.query
+        var Allmenus = await restoMenuModel.findAllmenu(q, category, subCategory, partenaireService,min_prix,max_prix, limit, offset)
         const menus = Allmenus.map(menu => {
             return {
                 produit: {

@@ -9,24 +9,23 @@ const findmenucategories = async () => {
 
     }
 }
-const updateOne = async (NOTE,COMMENTAIRE,ID_NOTE) =>{
+const updateOne = async (NOTE, COMMENTAIRE, ID_NOTE) => {
     try {
-      var sql = "UPDATE restaurant_menus_notes SET NOTE=?,COMMENTAIRE=? WHERE ID_NOTE=?"
-      return query(sql, [NOTE,COMMENTAIRE,ID_NOTE])
+        var sql = "UPDATE restaurant_menus_notes SET NOTE=?,COMMENTAIRE=? WHERE ID_NOTE=?"
+        return query(sql, [NOTE, COMMENTAIRE, ID_NOTE])
     }
     catch (error) {
-      throw error
+        throw error
     }
-  
-  }
-  const findByIdNote = async (id) =>{
+
+}
+const findByIdNote = async (id) => {
     try {
-      return query("SELECT * FROM  restaurant_menus_notes WHERE ID_NOTE=?", [id]);
-    } catch (error)
-     {
-      throw error;
+        return query("SELECT * FROM  restaurant_menus_notes WHERE ID_NOTE=?", [id]);
+    } catch (error) {
+        throw error;
     }
-  };
+};
 const findCategories = async (ID_PARTENAIRE_SERVICE) => {
     try {
         var binds = [ID_PARTENAIRE_SERVICE]
@@ -179,7 +178,7 @@ const findByIDmenu = async (ID_PARTENAIRE_SERVICE, category, limit = 10, offset 
 //         throw error
 //     }
 // }
-const findAllmenu = async (q, category, subCategory, partenaireService, limit = 10, offset = 0) => {
+const findAllmenu = async (q, category, subCategory, partenaireService, min_prix, max_prix, limit = 10, offset = 0) => {
     try {
         var binds = []
         var sqlQuery = `
@@ -208,6 +207,19 @@ const findAllmenu = async (q, category, subCategory, partenaireService, limit = 
         if (partenaireService) {
             sqlQuery += " AND menu.ID_PARTENAIRE_SERVICE = ? "
             binds.push(partenaireService)
+        }
+        if (min_prix && !max_prix) {
+            sqlQuery += " AND menu.PRIX >=? "
+            binds.push(min_prix)
+        }
+        else if (!min_prix && max_prix) {
+            sqlQuery += " AND menu.PRIX <=? "
+            binds.push(max_prix)
+        }
+        else if (min_prix && max_prix) {
+            sqlQuery += "AND menu.PRIX BETWEEN min_prix=? AND max_prix=?"
+            binds.push(min_prix && max_prix)
+
         }
         sqlQuery += ` ORDER BY menu.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
         return query(sqlQuery, binds);
