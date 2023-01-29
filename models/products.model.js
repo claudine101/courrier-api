@@ -71,7 +71,7 @@ const findproducts = async (q, category, subCategory, partenaireService, limit =
                               sqlQuery += " AND ep.ID_PRODUIT_SOUS_CATEGORIE = ? "
                               binds.push(subCategory)
                     }
-                    if(partenaireService) {
+                    if (partenaireService) {
                               sqlQuery += " AND ep.ID_PARTENAIRE_SERVICE = ? "
                               binds.push(partenaireService)
                     }
@@ -452,21 +452,6 @@ const updateImage = async (IMAGES, index, ID_PRODUIT) => {
                     throw error;
           }
 }
-
-const findByServiceProduits = async (ID_PARTENAIRE_SERVICE) => {
-    try {
-              var binds = [ID_PARTENAIRE_SERVICE]
-              var sqlQuery = " SELECT ep.ID_PRODUIT, COUNT(ep.ID_PARTENAIRE_SERVICE) AS NBRE_PRODUITS FROM ecommerce_produits ep"
-              sqlQuery += " LEFT JOIN partenaire_service ps ON ps.ID_PARTENAIRE_SERVICE=ep.ID_PARTENAIRE_SERVICE"
-              sqlQuery += "  WHERE ep.ID_PARTENAIRE_SERVICE= ? GROUP BY ep.ID_PARTENAIRE_SERVICE "
-              return query(sqlQuery, binds);
-
-    }
-    catch (error) {
-              throw error
-
-    }
-}
 module.exports = {
           findproducts,
           findproductCommande,
@@ -490,8 +475,4 @@ module.exports = {
           findnoteProduitPartenaire,
           getdetail,
           findCategoriesPartnaire,
-          findByServiceProduits
-
-
-
 }

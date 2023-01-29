@@ -16,7 +16,6 @@ productsRouter.post('/note', productsController.insertNote)
 productsRouter.get('/note/:ID_PRODUIT_PARTENAIRE', productsController.getnotes)
 productsRouter.get('/wishlist', productsController.getAllProduct)
 productsRouter.get('/product/:ID_PRODUIT', productsController.getOne)
-productsRouter.get('/products/count/:ID_PARTENAIRE_SERVICE', productsController.getProduitsByService)
 
 productsRouter.get('/categorie/:ID_PARTENAIRE_SERVICE', productsController.getCategorieByPartenaire)
 productsRouter.get('/categories', productsController.getAllCategorie)
