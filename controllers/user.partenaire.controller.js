@@ -694,6 +694,39 @@ const UpdateShop = async (req, res) => {
                     })
           }
 }
+
+/**
+ * fonction pour recuperer les services a la personne
+ * @author Vanny Boy <vanny@mediabox.bi>
+ * @date 30/1/2023
+ * @param {*} req 
+ * @param {*} res 
+ */
+const getServicePersonne = async (req, res) => {
+
+    try {
+              const getImageUri = (fileName) => {
+                        if (!fileName) return null
+                        if (fileName.indexOf("http") === 0) return fileName
+                        return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+              }
+              const {ID_SERVICE_CATEGORIE} = req.params
+              const servicePersonne = await userPartenaireModel.getServcePersonne(ID_SERVICE_CATEGORIE)
+              res.status(RESPONSE_CODES.OK).json({
+                        statusCode: RESPONSE_CODES.OK,
+                        httpStatus: RESPONSE_STATUS.OK,
+                        message: "Liste service a la personne",
+                        result: servicePersonne
+              })
+    } catch (error) {
+              console.log(error)
+              res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                        statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                        httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                        message: "Erreur interne du serveur, réessayer plus tard"
+              })
+    }
+}
 module.exports = {
           login,
           createUser,
@@ -707,5 +740,6 @@ module.exports = {
           findAllShop,
           UpdateShop,
           findAllResto,
-          UpdatePartenaire
+          UpdatePartenaire,
+          getServicePersonne
 }

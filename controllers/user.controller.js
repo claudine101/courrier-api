@@ -110,8 +110,6 @@ const createUser = async (req, res) => {
           // const email = (await query("SELECT EMAIL FROM users WHERE 1"))
           // console.log(email)
           try {
-
-
                     const { NOM, PRENOM, EMAIL, USERNAME, PASSWORD, SEXE, DATE_NAISSANCE, COUNTRY_ID, ADRESSE, TELEPHONE_1, TELEPHONE_2, PUSH_NOTIFICATION_TOKEN, DEVICE } = req.body
                     const { IMAGE } = req.files || {}
                     const validation = new Validation({ ...req.body, ...req.files },

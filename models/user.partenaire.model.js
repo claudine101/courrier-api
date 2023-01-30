@@ -221,6 +221,20 @@ const CreatePartenaireService = (ID_PARTENAIRE, ID_SERVICE, PARTENAIRE_SERVICE_S
     }
 }
 
+const getServcePersonne = async (ID_SERVICE_CATEGORIE) => {
+    try {
+        var binds = [ID_SERVICE_CATEGORIE]
+        var sqlQuery = `SELECT *
+                        FROM services
+                        WHERE ID_SERVICE_CATEGORIE = ?`
+        return query(sqlQuery, binds);
+    }
+    catch (error) {
+        throw error
+    }
+
+}
+
 module.exports = {
     findBy,
     createOne,
@@ -235,6 +249,7 @@ module.exports = {
     CreatePartenaireService,
     createOnePartenaire,
     findpartenaireOne,
-    changeService
+    changeService,
+    getServcePersonne
     // findpartenaires
 }
