@@ -26,4 +26,5 @@ commandeRouter.get('/get/partenaire', commandeController.getPartenaireCommandes)
 commandeRouter.put('/status/update/:ID_COMMANDE', commandeController.getUpdateStatus)
 commandeRouter.get('/ecommerce/livraison/:ID_COMMANDE', commandeController.getLivraisonDetails)
 
+
 module.exports = commandeRouter
