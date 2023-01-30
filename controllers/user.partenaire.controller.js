@@ -13,187 +13,195 @@ const UserUpload = require("../class/uploads/UserUpload");
 const { query } = require('../utils/db');
 const IMAGES_DESTINATIONS = require('../constants/IMAGES_DESTINATIONS');
 const login = async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        const validation = new Validation(
-            req.body,
-            {
-                email: "required,email",
-                password:
-                {
-                    required: true,
-                },
-            },
-            {
-                password:
-                {
-                    required: "Mot de passe est obligatoire",
-                },
-                email: {
-                    required: "L'email est obligatoire",
-                    email: "Email invalide"
-                }
-            }
-        );
-        await validation.run();
-        const isValid = await validation.isValidate()
-        const errors = await validation.getErrors()
-        if (!isValid) {
-            return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
-                statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
-                httpStatus: RESPONSE_STATUS.UNPROCESSABLE_ENTITY,
-                message: "Probleme de validation des donnees",
-                result: errors
-            })
-        }
-        var user = (await userPartenaireModel.findBy("EMAIL", email))[0];
-        if (user) {
-            if (user.PASSWORD == md5(password)) {
-                const token = generateToken({ user: user.ID_USER }, 3 * 12 * 30 * 24 * 3600)
-                const { PASSWORD, USERNAME, ID_TYPE_PARTENAIRE, COUNTRY_ID, ...other } = user
-                res.status(RESPONSE_CODES.CREATED).json({
-                    statusCode: RESPONSE_CODES.CREATED,
-                    httpStatus: RESPONSE_STATUS.CREATED,
-                    message: "Vous êtes connecté avec succès",
-                    result: {
-                        ...other,
-                        token
+          try {
+                    const { email, password, PUSH_NOTIFICATION_TOKEN, DEVICE } = req.body;
+                    const validation = new Validation(
+                              req.body,
+                              {
+                                        email: "required,email",
+                                        password:
+                                        {
+                                                  required: true,
+                                        },
+                              },
+                              {
+                                        password:
+                                        {
+                                                  required: "Mot de passe est obligatoire",
+                                        },
+                                        email: {
+                                                  required: "L'email est obligatoire",
+                                                  email: "Email invalide"
+                                        }
+                              }
+                    );
+                    await validation.run();
+                    const isValid = await validation.isValidate()
+                    const errors = await validation.getErrors()
+                    if (!isValid) {
+                              return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
+                                        statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
+                                        httpStatus: RESPONSE_STATUS.UNPROCESSABLE_ENTITY,
+                                        message: "Probleme de validation des donnees",
+                                        result: errors
+                              })
                     }
-                })
-            } else {
-                validation.setError('main', 'Identifiants incorrects')
-                const errors = await validation.getErrors()
-                res.status(RESPONSE_CODES.NOT_FOUND).json({
-                    statusCode: RESPONSE_CODES.NOT_FOUND,
-                    httpStatus: RESPONSE_STATUS.NOT_FOUND,
-                    message: "Utilisateur n'existe pas",
-                    result: errors
-                })
-            }
-        } else {
-            validation.setError('main', 'Identifiants incorrects')
-            const errors = await validation.getErrors()
-            res.status(RESPONSE_CODES.NOT_FOUND).json({
-                statusCode: RESPONSE_CODES.NOT_FOUND,
-                httpStatus: RESPONSE_STATUS.NOT_FOUND,
-                message: "Utilisateur n'existe pas",
-                result: errors
-            })
-        }
-    } catch (error) {
-        console.log(error)
-        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-            message: "La connexion echoue Verifier les identifiants",
-        })
-    }
+                    var user = (await userPartenaireModel.findBy("EMAIL", email))[0];
+                    if (user && user.ID_PROFIL == 2) {
+                              if (user.PASSWORD == md5(password)) {
+                                        const notification = (await query('SELECT ID_NOTIFICATION_TOKEN FROM notification_tokens WHERE TOKEN = ? AND ID_USER = ?', [PUSH_NOTIFICATION_TOKEN, user.ID_USER]))[0]
+                                        if (!notification && PUSH_NOTIFICATION_TOKEN) {
+                                                await query('INSERT INTO notification_tokens(ID_USER, DEVICE, TOKEN, ID_PROFIL) VALUES(?, ?, ?, ?)', [user.ID_USER, DEVICE, PUSH_NOTIFICATION_TOKEN, user.ID_PROFIL]);
+                                        }
+                                        const token = generateToken({ user: user.ID_USER }, 3 * 12 * 30 * 24 * 3600)
+                                        const { PASSWORD, USERNAME, ID_TYPE_PARTENAIRE, COUNTRY_ID, ...other } = user
+                                        res.status(RESPONSE_CODES.CREATED).json({
+                                                  statusCode: RESPONSE_CODES.CREATED,
+                                                  httpStatus: RESPONSE_STATUS.CREATED,
+                                                  message: "Vous êtes connecté avec succès",
+                                                  result: {
+                                                            ...other,
+                                                            token
+                                                  }
+                                        })
+                              } else {
+                                        validation.setError('main', 'Identifiants incorrects')
+                                        const errors = await validation.getErrors()
+                                        res.status(RESPONSE_CODES.NOT_FOUND).json({
+                                                  statusCode: RESPONSE_CODES.NOT_FOUND,
+                                                  httpStatus: RESPONSE_STATUS.NOT_FOUND,
+                                                  message: "Utilisateur n'existe pas",
+                                                  result: errors
+                                        })
+                              }
+                    }else {
+                              validation.setError('main', 'Identifiants incorrects')
+                              const errors = await validation.getErrors()
+                              res.status(RESPONSE_CODES.NOT_FOUND).json({
+                                        statusCode: RESPONSE_CODES.NOT_FOUND,
+                                        httpStatus: RESPONSE_STATUS.NOT_FOUND,
+                                        message: "Utilisateur n'existe pas",
+                                        result: errors
+                              })
+                    }
+          } catch (error) {
+                    console.log(error)
+                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                              message: "La connexion echoue Verifier les identifiants",
+                    })
+          }
 }
 const createUser = async (req, res) => {
-    try {
-        const { NOM, PRENOM, EMAIL, USERNAME, PASSWORD, SEXE, DATE_NAISSANCE, COUNTRY_ID, ADRESSE, TELEPHONE_1, TELEPHONE_2 } = req.body
-        console.log(req.body)
-        const { IMAGE } = req.files || {}
-        const validation = new Validation({ ...req.body, ...req.files },
-            {
-                NOM:
-                {
-                    required: true,
-                },
-                IMAGE: {
-                    image: 21000000
-                },
-                PRENOM:
-                {
-                    required: true,
-                },
-                EMAIL:
-                {
-                    required: true,
-                    email: true,
-                    unique: "users,EMAIL"
-                },
+          try {
+                    const { NOM, PRENOM, EMAIL, USERNAME, PASSWORD, SEXE, DATE_NAISSANCE, COUNTRY_ID, ADRESSE, TELEPHONE_1, TELEPHONE_2, PUSH_NOTIFICATION_TOKEN, DEVICE } = req.body
+                    console.log(req.body)
+                    const { IMAGE } = req.files || {}
+                    const validation = new Validation({ ...req.body, ...req.files },
+                              {
+                                        NOM:
+                                        {
+                                                  required: true,
+                                        },
+                                        IMAGE: {
+                                                  image: 21000000
+                                        },
+                                        PRENOM:
+                                        {
+                                                  required: true,
+                                        },
+                                        EMAIL:
+                                        {
+                                                  required: true,
+                                                  email: true,
+                                                  unique: "users,EMAIL"
+                                        },
 
                 PASSWORD:
                 {
                     required: true,
                 },
 
-            },
-            {
-                IMAGE: {
-                    IMAGE: "La taille invalide"
-                },
-                NOM: {
-                    required: "Le nom est obligatoire"
-                },
-                PRENOM: {
-                    required: "Le prenom est obligatoire"
-                },
-                EMAIL: {
-                    required: "L'email est obligatoire",
-                    email: "Email invalide",
-                    unique: "Email déjà utilisé"
-                },
-                PASSWORD: {
-                    required: "Le mot de passe est obligatoire"
-                },
-            }
-        )
-        await validation.run();
-        const isValide = await validation.isValidate()
-        const errors = await validation.getErrors()
-        if (!isValide) {
-            return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
-                statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
-                httpStatus: RESPONSE_STATUS.UNPROCESSABLE_ENTITY,
-                message: "Probleme de validation des donnees",
-                result: errors
-            })
-        }
-        const userUpload = new UserUpload()
-        var filename
-        if (IMAGE) {
-            const { fileInfo } = await userUpload.upload(IMAGE, false)
-            filename = fileInfo.fileName
-        }
-        const { insertId } = await userPartenaireModel.createOne(
-            NOM,
-            PRENOM,
-            EMAIL,
-            USERNAME,
-            md5(PASSWORD),
-            2,
-            SEXE,
-            DATE_NAISSANCE,
-            COUNTRY_ID,
-            ADRESSE,
-            TELEPHONE_1,
-            TELEPHONE_2,
-            filename ? filename : null
-        )
-        const { partenaireId } = await userPartenaireModel.createOnePartenaire(insertId)
-        const user = (await userPartenaireModel.findById(insertId))[0]
-        const token = generateToken({ user: user.ID_USER }, 3 * 12 * 30 * 24 * 3600)
-        const { PASSWORD: pw, USERNAME: usr, ID_PROFIL, IMAGE: img, ID_PARTENAIRE: idp, ID_TYPE_PARTENAIRE, COUNTRY_ID: ctr, ...other } = user
-        res.status(RESPONSE_CODES.CREATED).json({
-            statusCode: RESPONSE_CODES.CREATED,
-            httpStatus: RESPONSE_STATUS.CREATED,
-            message: "Enregistrement est fait avec succès",
-            result: {
-                ...other,
-                token
-            }
-        })
-    }
-    catch (error) {
-        console.log(error)
-        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-            message: "Enregistrement echoue",
-        })
-    }
+                              },
+                              {
+                                        IMAGE: {
+                                                  IMAGE: "La taille invalide"
+                                        },
+                                        NOM: {
+                                                  required: "Le nom est obligatoire"
+                                        },
+                                        PRENOM: {
+                                                  required: "Le prenom est obligatoire"
+                                        },
+                                        EMAIL: {
+                                                  required: "L'email est obligatoire",
+                                                  email: "Email invalide",
+                                                  unique: "Email déjà utilisé"
+                                        },
+                                        PASSWORD: {
+                                                  required: "Le mot de passe est obligatoire"
+                                        },
+                              }
+                    )
+                    await validation.run();
+                    const isValide = await validation.isValidate()
+                    const errors = await validation.getErrors()
+                    if (!isValide) {
+                              return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
+                                        statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
+                                        httpStatus: RESPONSE_STATUS.UNPROCESSABLE_ENTITY,
+                                        message: "Probleme de validation des donnees",
+                                        result: errors
+                              })
+                    }
+                    const userUpload = new UserUpload()
+                    var filename
+                    if (IMAGE) {
+                              const { fileInfo } = await userUpload.upload(IMAGE, false)
+                              filename = fileInfo.fileName
+                    }
+                    const { insertId } = await userPartenaireModel.createOne(
+                              NOM,
+                              PRENOM,
+                              EMAIL,
+                              USERNAME,
+                              md5(PASSWORD),
+                              2,
+                              SEXE,
+                              DATE_NAISSANCE,
+                              COUNTRY_ID,
+                              ADRESSE,
+                              TELEPHONE_1,
+                              TELEPHONE_2,
+                              filename ? filename : null
+                    )
+                    const { partenaireId } = await userPartenaireModel.createOnePartenaire(insertId)
+                    const user = (await userPartenaireModel.findById(insertId))[0]
+                    const notification = (await query('SELECT ID_NOTIFICATION_TOKEN FROM notification_tokens WHERE TOKEN = ? AND ID_USER = ?', [PUSH_NOTIFICATION_TOKEN, user.ID_USER]))[0]
+                                if (!notification && PUSH_NOTIFICATION_TOKEN) {
+                                await query('INSERT INTO notification_tokens(ID_USER, DEVICE, TOKEN, ID_PROFIL) VALUES(?, ?, ?, ?)', [user.ID_USER, DEVICE, PUSH_NOTIFICATION_TOKEN, user.ID_PROFIL]);
+                        }
+                    const token = generateToken({ user: user.ID_USER }, 3 * 12 * 30 * 24 * 3600)
+                    const { PASSWORD: pw, USERNAME: usr, ID_PROFIL, IMAGE: img, ID_PARTENAIRE: idp, ID_TYPE_PARTENAIRE, COUNTRY_ID: ctr, ...other } = user
+                    res.status(RESPONSE_CODES.CREATED).json({
+                              statusCode: RESPONSE_CODES.CREATED,
+                              httpStatus: RESPONSE_STATUS.CREATED,
+                              message: "Enregistrement est fait avec succès",
+                              result: {
+                                        ...other,
+                                        token
+                              }
+                    })
+          }
+          catch (error) {
+                    console.log(error)
+                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                              message: "Enregistrement echoue",
+                    })
+          }
 }
 const createPartenaire = async (req, res) => {
     try {

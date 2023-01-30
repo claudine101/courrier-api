@@ -11,67 +11,72 @@ const ProductUpload = require('../class/uploads/ProductUpload');
  **/
 
 const getAllProducts = async (req, res) => {
-        try {
-                const { q, category, subCategory, partenaireService,min_prix,max_prix,limit, offset } = req.query
-                //console.log(req.query)
-                const allProducts = await productsModel.findproducts(q, category, subCategory, partenaireService,min_prix,max_prix, limit, offset)
-                const products = allProducts.map(product => {
-                        return {
-                                produit: {
-                                        ID_PRODUIT: product.ID_PRODUIT,
-                                        NOM: product.NOM,
-                                        ID_PRODUIT_PARTENAIRE: product.ID_PRODUIT_PARTENAIRE,
-                                        IMAGE: product.IMAGE_1,
-                                },
-                                partenaire: {
-                                        NOM_ORGANISATION: product.NOM_ORGANISATION,
-                                        ID_PARTENAIRE: product.ID_PARTENAIRE,
-                                        ID_TYPE_PARTENAIRE: product.ID_TYPE_PARTENAIRE,
-                                        NOM: product.NOM_USER,
-                                        PRENOM: product.PRENOM,
-                                        ADRESSE_COMPLETE: product.ADRESSE_COMPLETE
-                                },
-                                produit_partenaire: {
-                                        ID_PARTENAIRE_SERVICE: product.ID_PARTENAIRE_SERVICE,
-                                        NOM_ORGANISATION: product.NOM_ORGANISATION,
-                                        NOM: product.NOM_PRODUIT_PARTENAIRE,
-                                        DESCRIPTION: product.DESCRIPTION,
-                                        IMAGE_1: product.IMAGE_1,
-                                        IMAGE_2: product.IMAGE_2,
-                                        IMAGE_3: product.IMAGE_3,
-                                        TAILLE: product.NOM_TAILLE,
-                                        PRIX: product.PRIX
-                                },
-                                categorie: {
-                                        ID_CATEGORIE_PRODUIT: product.ID_CATEGORIE_PRODUIT,
-                                        NOM: product.NOM_CATEGORIE
-                                },
-                                sous_categorie: {
-                                        ID_PRODUIT_SOUS_CATEGORIE: product.ID_PRODUIT_SOUS_CATEGORIE,
-                                        NOM: product.NOM_SOUS_CATEGORIE
-                                },
-                                stock: {
-                                        ID_PRODUIT_STOCK: product.ID_PRODUIT_STOCK,
-                                        QUANTITE_STOCKE: product.QUANTITE_TOTAL,
-                                        QUANTITE_RESTANTE: product.QUANTITE_RESTANTE,
-                                        QUANTITE_VENDUE: product.QUANTITE_VENDUS
-                                }
-                        }
-                }
-                )
-                res.status(RESPONSE_CODES.OK).json({
-                        statusCode: RESPONSE_CODES.OK,
-                        httpStatus: RESPONSE_STATUS.OK,
-                        message: "Liste des produits",
-                        result: products
-                })
-        }
-        catch (error) {
-                console.log(error)
-                res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-                        statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-                        httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-                        message: "Erreur interne du serveur, réessayer plus tard",
+          try {
+                    const { q, category, subCategory, partenaireService, limit, offset } = req.query
+                    const allProducts = await productsModel.findproducts(q, category, subCategory, partenaireService, limit, offset)
+                    const products = allProducts.map(product => {
+                              return {
+                                        produit: {
+                                                  ID_PRODUIT: product.ID_PRODUIT,
+                                                  NOM: product.NOM,
+                                                  ID_PRODUIT_PARTENAIRE: product.ID_PRODUIT_PARTENAIRE,
+                                                  IMAGE: product.IMAGE_1,
+                                        },
+                                        partenaire: {
+                                                  NOM_ORGANISATION: product.NOM_ORGANISATION,
+                                                  ID_PARTENAIRE: product.ID_PARTENAIRE,
+                                                  ID_TYPE_PARTENAIRE: product.ID_TYPE_PARTENAIRE,
+                                                  NOM: product.NOM_USER,
+                                                  PRENOM: product.PRENOM,
+                                                  ADRESSE_COMPLETE: product.ADRESSE_COMPLETE,
+                                                  ID_SERVICE: product.ID_SERVICE,
+                                                  LOGO: product.LOGO,
+                                                  BACKGROUND_IMAGE: product.BACKGROUND_IMAGE,
+                                                  EMAIL: product.EMAIL,
+                                                  TELEPHONE: product.TELEPHONE,
+                                                  ID_PARTENAIRE_SERVICE: product.ID_PARTENAIRE_SERVICE,
+                                        },
+                                        produit_partenaire: {
+                                                  ID_PARTENAIRE_SERVICE: product.ID_PARTENAIRE_SERVICE,
+                                                  NOM_ORGANISATION: product.NOM_ORGANISATION,
+                                                  NOM: product.NOM_PRODUIT_PARTENAIRE,
+                                                  DESCRIPTION: product.DESCRIPTION,
+                                                  IMAGE_1: product.IMAGE_1,
+                                                  IMAGE_2: product.IMAGE_2,
+                                                  IMAGE_3: product.IMAGE_3,
+                                                  TAILLE: product.NOM_TAILLE,
+                                                  PRIX: product.PRIX
+                                        },
+                                        categorie: {
+                                                  ID_CATEGORIE_PRODUIT: product.ID_CATEGORIE_PRODUIT,
+                                                  NOM: product.NOM_CATEGORIE
+                                        },
+                                        sous_categorie: {
+                                                  ID_PRODUIT_SOUS_CATEGORIE: product.ID_PRODUIT_SOUS_CATEGORIE,
+                                                  NOM: product.NOM_SOUS_CATEGORIE
+                                        },
+                                        stock: {
+                                                  ID_PRODUIT_STOCK: product.ID_PRODUIT_STOCK,
+                                                  QUANTITE_STOCKE: product.QUANTITE_TOTAL,
+                                                  QUANTITE_RESTANTE: product.QUANTITE_RESTANTE,
+                                                  QUANTITE_VENDUE: product.QUANTITE_VENDUS
+                                        }
+                              }
+                    }
+                    )
+                    res.status(RESPONSE_CODES.OK).json({
+                              statusCode: RESPONSE_CODES.OK,
+                              httpStatus: RESPONSE_STATUS.OK,
+                              message: "Liste des produits",
+                              result: products
+                    })
+          }
+          catch (error) {
+                    console.log(error)
+                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                              message: "Erreur interne du serveur, réessayer plus tard",
 
                 })
         }
@@ -863,7 +868,7 @@ const getnotes = async (req, res) => {
 
                 const { ID_PRODUIT } = req.params
 
-                const noteListe = await productsModel.findnoteProduitPartenaire(ID_PRODUIT, req.userId)
+                const noteListe = await productsModel.findnoteProduitPartenaire(ID_PRODUIT)
 
                 res.status(RESPONSE_CODES.OK).json({
                         statusCode: RESPONSE_CODES.OK,
@@ -914,10 +919,7 @@ const getNoteUser = async (req, res) => {
 
 
 const insertNote = async (req, res) => {
-
         try {
-
-
                 const { ID_PRODUIT, NOTE, COMMENTAIRE } = req.body
                 const getImageUri = (fileName) => {
                         if (!fileName) return null
@@ -926,31 +928,18 @@ const insertNote = async (req, res) => {
                 }
                 const validation = new Validation(req.body,
                         {
-
-
                                 NOTE:
                                 {
                                         required: true,
                                 },
-
-
-
-
                         },
                         {
-
                                 NOTE: {
                                         required: "La note est obligatoire"
                                 },
-
-
-
-
-
                         }
 
                 )
-
                 await validation.run();
                 const isValide = await validation.isValidate()
                 const errors = await validation.getErrors()
@@ -963,9 +952,6 @@ const insertNote = async (req, res) => {
                         })
 
                 }
-
-
-
                 const { insertId } = await productsModel.createNotes(
                         req.userId,
                         ID_PRODUIT,
@@ -1279,47 +1265,47 @@ const getColor = async (req, res) => {
 }
 
 const getProductVariants = async (req, res) => {
-        try {
-                const { ID_PRODUIT } = req.params
-                const allVariants = await query('SELECT * FROM ecommerce_produit_variants WHERE ID_PRODUIT = ?', [ID_PRODUIT])
-                const allOptions = await query('SELECT * FROM ecommerce_variant_values WHERE ID_PRODUIT = ?', [ID_PRODUIT])
-                const allCombinaisons = await query('SELECT * FROM ecommerce_variant_combination WHERE ID_PRODUIT = ?', [ID_PRODUIT])
-                const combinaisonsIds = allCombinaisons.map(comb => comb.ID_COMBINATION)
-                var allCombinaisonsOptions = []
-                if (combinaisonsIds.length > 0) {
-                        allCombinaisonsOptions = await query('SELECT * FROM ecommerce_variant_combination_values WHERE ID_COMBINATION IN (?)', [combinaisonsIds])
-                }
-                const variants = allVariants.map(variant => {
-                        const values = allOptions.filter(option => option.ID_VARIANT == variant.ID_VARIANT)
-                        return {
-                                ...variant,
-                                values
-                        }
-                })
-                const combinaisons = allCombinaisons.map(combinaison => {
-                        const values = allCombinaisonsOptions.filter(comb => comb.ID_COMBINATION == combinaison.ID_COMBINATION)
-                        return {
-                                ...combinaison,
-                                values
-                        }
-                })
-                res.status(RESPONSE_CODES.OK).json({
-                        statusCode: RESPONSE_CODES.OK,
-                        httpStatus: RESPONSE_STATUS.OK,
-                        message: "Les variantes d'un produit",
-                        result: {
-                                variants,
-                                combinaisons
-                        }
-                })
-        } catch (error) {
-                console.log(error)
-                res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-                        statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-                        httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-                        message: "Erreur interne du serveur, réessayer plus tard",
-                })
-        }
+          try {
+                    const { ID_PRODUIT } = req.params
+                    const allVariants = await query('SELECT * FROM ecommerce_produit_variants WHERE ID_PRODUIT = ?', [ID_PRODUIT])
+                    const allOptions = await query('SELECT * FROM ecommerce_variant_values WHERE ID_PRODUIT = ?', [ID_PRODUIT])
+                    const allCombinaisons = await query('SELECT * FROM ecommerce_variant_combination WHERE ID_PRODUIT = ?', [ID_PRODUIT])
+                    const combinaisonsIds = allCombinaisons.map(comb => comb.ID_COMBINATION)
+                    var allCombinaisonsOptions = []
+                    if (combinaisonsIds.length > 0) {
+                              allCombinaisonsOptions = await query('SELECT * FROM ecommerce_variant_combination_values WHERE ID_COMBINATION IN (?)', [combinaisonsIds])
+                    }
+                    const variants = allVariants.map(variant => {
+                              const values = allOptions.filter(option => option.ID_VARIANT == variant.ID_VARIANT)
+                              return {
+                                        ...variant,
+                                        values
+                              }
+                    })
+                    const combinaisons = allCombinaisons.map(combinaison => {
+                              const values = allCombinaisonsOptions.filter(comb => comb.ID_COMBINATION == combinaison.ID_COMBINATION)
+                              return {
+                                        ...combinaison,
+                                        values
+                              }
+                    })
+                    res.status(RESPONSE_CODES.OK).json({
+                              statusCode: RESPONSE_CODES.OK,
+                              httpStatus: RESPONSE_STATUS.OK,
+                              message: "Les variantes d'un produit",
+                              result: {
+                                        variants,
+                                        combinaisons
+                              }
+                    })
+          } catch (error) {
+                    console.log(error)
+                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                              message: "Erreur interne du serveur, réessayer plus tard",
+                    })
+          }
 }
 
 const getProduitsByService = async (req, res) => {

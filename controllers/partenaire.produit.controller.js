@@ -161,7 +161,6 @@ const createProduit = async (req, res) => {
                               if(ecommerce_variant_combination_values.length > 0) {
                                         await query('INSERT INTO ecommerce_variant_combination_values(ID_COMBINATION, ID_VALUE) VALUES ?', [ecommerce_variant_combination_values])
                               }
-                              console.log({ ecommerce_variant_combination_values, length: ecommerce_variant_combination_values.length})
                     }
                     res.status(RESPONSE_CODES.CREATED).json({
                               statusCode: RESPONSE_CODES.CREATED,

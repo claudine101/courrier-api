@@ -19,11 +19,11 @@ const createCommandes = async (PAYEMENT_ID, ID_PARTENAIRE_SERVICE, ID_USER, DATE
         }
 
 }
-const createDetailLivraison = async (CODE_UNIQUE, N0M, PRENOM, ADRESSE, TELEPHONE, AVENUE, ID_COUNTRY) => {
+const createDetailLivraison = async (ID_USER, NOM, PRENOM, ADRESSE, TELEPHONE, AVENUE, ID_COUNTRY) => {
           try {
-                    var sqlQuery = "INSERT  INTO driver_details_livraison(NOM,PRENOM,ADRESSE,TELEPHONE,AVENUE,ID_COUNTRY)";
-                    sqlQuery += "VALUES(?,?,?,?,?,?)"
-                    return query(sqlQuery, [N0M, PRENOM, ADRESSE, TELEPHONE, AVENUE, ID_COUNTRY]);
+                    var sqlQuery = "INSERT  INTO driver_details_livraison(ID_USER, NOM,PRENOM,ADRESSE,TELEPHONE,AVENUE,ID_COUNTRY)";
+                    sqlQuery += "VALUES(?, ?,?,?,?,?,?)"
+                    return query(sqlQuery, [ID_USER, NOM, PRENOM, ADRESSE, TELEPHONE, AVENUE, ID_COUNTRY]);
           } catch (error) {
                     throw error
           }
@@ -338,13 +338,12 @@ const saveStatusResto = async (ID_COMMANDE, ID_USER, ID_STATUT) => {
         }
 }
 
-const getUserCountCommandes = async (ID_USER,ID_SERVICE, q, limit = 10, offset = 0) => {
+const getUserCountCommandes = async (ID_USER,ID_SERVICE) => {
         try {
                   var binds = [ID_USER,ID_SERVICE]
                   var sqlQuery = "SELECT co.ID_STATUT,COUNT(co.ID_COMMANDE) AS NBRE, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, ecs.DESCRIPTION STATUT_DESCRIPTION, ecs.NEXT_STATUS FROM ecommerce_commandes co "
                   sqlQuery += " LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT "
                   sqlQuery += " WHERE co.ID_USER = ? AND co.ID_STATUT != 4 ORDER BY co.DATE_COMMANDE DESC "
-                  sqlQuery += `LIMIT ${offset}, ${limit}`
                   return query(sqlQuery, binds)
         }
         catch (error) {
@@ -494,7 +493,7 @@ const createCommandeDetailsResto = async (ecommerce_commande_details) => {
 
 };
 
-const getUserCountRestoCommandes = async (ID_USER, q, limit = 10, offset = 0) => {
+const getUserCountRestoCommandes = async (ID_USER) => {
         try {
                   var binds = [ID_USER]
                   var sqlQuery = `
@@ -511,7 +510,6 @@ const getUserCountRestoCommandes = async (ID_USER, q, limit = 10, offset = 0) =>
                                 AND co.ID_STATUT != 4
                         ORDER BY co.DATE_COMMANDE DESC
                   `
-                  sqlQuery += `LIMIT ${offset}, ${limit}`
                   return query(sqlQuery, binds)
         }
         catch (error) {
@@ -585,7 +583,6 @@ module.exports = {
           getManyCommandesDetailsResto,
           getOneCommandeResto,
           getCommandeDetailsRsto,
-          getUserCountCommandes,
           getLivraisons,
           getUserCountByPartenaire,
           getUserCommandesPartenaire,
