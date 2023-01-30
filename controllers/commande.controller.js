@@ -11,6 +11,7 @@ const { query } = require('../utils/db');
 const getReferenceCode = require('../utils/getReferenceCode');
 const axios = require('axios').default
 const paymentModel = require("../models/payment.model")
+const express = require('express')
 
 const createAllCommandes = async (req, res) => {
           try {
@@ -89,7 +90,7 @@ const createAllCommandes = async (req, res) => {
                     commandes.forEach(commande => {
                               TOTAL += commande.QUANTITE * commande.PRIX
                     })
-                    if(false) {
+                    if (false) {
                               const econnetResponse = await axios.post('http://app.mediabox.bi/api_ussd_php/Api_client_ecocash', {
                                         VENDEUR_PHONE: "79839653",
                                         AMOUNT: TOTAL,
@@ -99,7 +100,7 @@ const createAllCommandes = async (req, res) => {
                               const ecoData = econnetResponse.data
                     }
                     if (true) {
-                              const  TXNI_D = await getReferenceCode()
+                              const TXNI_D = await getReferenceCode()
                               const ecommerce_commande_details = []
                               var TOTAL = 0
                               const groups = {};
@@ -114,8 +115,8 @@ const createAllCommandes = async (req, res) => {
                                         groups[commande.ID_PARTENAIRE_SERVICE].products.push(commande);
                               });
                               const grouped = Object.values(groups);
-                              const { insertId: PAYEMENT_ID } = await paymentModel.createOne(service,1, numero, null, TOTAL, TXNI_D, 0)
-                              const { insertId: ID_DETAILS_LIVRAISON } = await commandeModel.createDetailLivraison(shipping_info.N0M, shipping_info.PRENOM, shipping_info.ADRESSE, shipping_info.TELEPHONE, shipping_info.AVENUE, shipping_info.ID_COUNTRY)
+                              const { insertId: PAYEMENT_ID } = await paymentModel.createOne(service, 1, numero, null, TOTAL, TXNI_D, 0)
+                              const { insertId: ID_DETAILS_LIVRAISON } = await commandeModel.createDetailLivraison(req.userId, shipping_info.NOM, shipping_info.PRENOM, shipping_info.ADRESSE, shipping_info.TELEPHONE, shipping_info.AVENUE, shipping_info.ID_COUNTRY)
                               const commandesIds = []
                               await Promise.all(grouped.map(async (commande) => {
                                         const CODE_UNIQUE = await getReferenceCode()
@@ -551,19 +552,19 @@ const createRestoCommandes = async (req, res) => {
                               },
                     }
                     )
-                        if (!numero) {
-                            validation.setError('numero', "Le numéro ecocash est obligatoire")
-                        }
-                        let isnum = /^\d+$/.test(numero);
-                        let isTel = /^\d+$/.test(shipping_info?.TELEPHONE);
-                        if (!isnum || numero.length != 8) {
-                                    validation.setError('numero', "Numéro ecocash invalide")
-                        }
-                        if (!isTel) {
-                                    validation.setError('TELEPHONE', "Numéro de téléphone invalide")
-                        }
-                        await validation.run()
-                        const isValid = await validation.isValidate()
+                    if (!numero) {
+                              validation.setError('numero', "Le numéro ecocash est obligatoire")
+                    }
+                    let isnum = /^\d+$/.test(numero);
+                    let isTel = /^\d+$/.test(shipping_info?.TELEPHONE);
+                    if (!isnum || numero.length != 8) {
+                              validation.setError('numero', "Numéro ecocash invalide")
+                    }
+                    if (!isTel) {
+                              validation.setError('TELEPHONE', "Numéro de téléphone invalide")
+                    }
+                    await validation.run()
+                    const isValid = await validation.isValidate()
                     if (!isValid) {
                               const erros = await validation.getErrors()
                               return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
@@ -574,7 +575,7 @@ const createRestoCommandes = async (req, res) => {
                               })
                     }
 
-                   
+
 
                     const DATE_LIVRAISON = null
 
@@ -583,18 +584,18 @@ const createRestoCommandes = async (req, res) => {
                               TOTAL += commande.QUANTITE * commande.PRIX
                     })
 
-                    if(false) {
-                        const econnetResponse = await axios.post('http://app.mediabox.bi/api_ussd_php/Api_client_ecocash', {
-                                  VENDEUR_PHONE: "79839653",
-                                  AMOUNT: TOTAL,
-                                  CLIENT_PHONE: numero,
-                                  INSTANCE_TOKEN: "2522"
-                        })
-                        const ecoData = econnetResponse.data
+                    if (false) {
+                              const econnetResponse = await axios.post('http://app.mediabox.bi/api_ussd_php/Api_client_ecocash', {
+                                        VENDEUR_PHONE: "79839653",
+                                        AMOUNT: TOTAL,
+                                        CLIENT_PHONE: numero,
+                                        INSTANCE_TOKEN: "2522"
+                              })
+                              const ecoData = econnetResponse.data
                     }
-                    if(true){
-                      
-                        const  TXNI_D = await getReferenceCode()
+                    if (true) {
+
+                              const TXNI_D = await getReferenceCode()
                               const restaurant_commande_details = []
                               var TOTAL = 0
                               const groups = {};
@@ -609,51 +610,51 @@ const createRestoCommandes = async (req, res) => {
                                         groups[commande.ID_PARTENAIRE_SERVICE].products.push(commande);
                               });
                               const grouped = Object.values(groups);
-                              const { insertId: PAYEMENT_ID } = await paymentModel.createOne(service,1, numero, null, TOTAL, TXNI_D, 0)
+                              const { insertId: PAYEMENT_ID } = await paymentModel.createOne(service, 1, numero, null, TOTAL, TXNI_D, 0)
                               const { insertId: ID_DETAILS_LIVRAISON } = await commandeModel.createDetailLivraison(shipping_info.N0M, shipping_info.PRENOM, shipping_info.ADRESSE, shipping_info.TELEPHONE, shipping_info.AVENUE, shipping_info.ID_COUNTRY)
                               const commandesIds = []
                               await Promise.all(grouped.map(async (commande) => {
-                                const CODE_UNIQUE = await getReferenceCode()
-                                var TOTAL = 0
-                                commande.products.forEach(c => {
-                                          TOTAL += c.PRIX * c.QUANTITE
-                                })
-                                const { insertId } = await commandeModel.createCommandesResto(
-                                          PAYEMENT_ID,
-                                          commande.ID_PARTENAIRE_SERVICE,
-                                          req.userId,
-                                          DATE_LIVRAISON,
-                                          CODE_UNIQUE,
-                                          TOTAL,
-                                          ID_DETAILS_LIVRAISON,
-                                          1
-                                )
-                                commandesIds.push(insertId)
-                                commande.products.forEach(commande => {
-                                    restaurant_commande_details.push([
-                                                    insertId,
-                                                    commande.ID_RESTAURANT_MENU,
-                                                    commande.QUANTITE,
-                                                    commande.PRIX,
-                                                    commande.QUANTITE * commande.PRIX
-                                    ])
-                                })
-                        }))
-                            await commandeModel.createCommandeDetailsResto(restaurant_commande_details);
-                            res.status(RESPONSE_CODES.CREATED).json({
-                                statusCode: RESPONSE_CODES.CREATED,
-                                httpStatus: RESPONSE_STATUS.CREATED,
-                                message: "Enregistrement reussi avec succès",
-                                result: {
-                                        ID_COMMANDE: commandesIds[0]
-                                }
-                            })
-                    }else{
-                        return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
-                            statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
-                            httpStatus: RESPONSE_STATUS.UNPROCESSABLE_ENTITY,
-                            message: ecoData.message || 'Erreur inconnue, réessayer plus tard',
-                        })
+                                        const CODE_UNIQUE = await getReferenceCode()
+                                        var TOTAL = 0
+                                        commande.products.forEach(c => {
+                                                  TOTAL += c.PRIX * c.QUANTITE
+                                        })
+                                        const { insertId } = await commandeModel.createCommandesResto(
+                                                  PAYEMENT_ID,
+                                                  commande.ID_PARTENAIRE_SERVICE,
+                                                  req.userId,
+                                                  DATE_LIVRAISON,
+                                                  CODE_UNIQUE,
+                                                  TOTAL,
+                                                  ID_DETAILS_LIVRAISON,
+                                                  1
+                                        )
+                                        commandesIds.push(insertId)
+                                        commande.products.forEach(commande => {
+                                                  restaurant_commande_details.push([
+                                                            insertId,
+                                                            commande.ID_RESTAURANT_MENU,
+                                                            commande.QUANTITE,
+                                                            commande.PRIX,
+                                                            commande.QUANTITE * commande.PRIX
+                                                  ])
+                                        })
+                              }))
+                              await commandeModel.createCommandeDetailsResto(restaurant_commande_details);
+                              res.status(RESPONSE_CODES.CREATED).json({
+                                        statusCode: RESPONSE_CODES.CREATED,
+                                        httpStatus: RESPONSE_STATUS.CREATED,
+                                        message: "Enregistrement reussi avec succès",
+                                        result: {
+                                                  ID_COMMANDE: commandesIds[0]
+                                        }
+                              })
+                    } else {
+                              return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
+                                        statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
+                                        httpStatus: RESPONSE_STATUS.UNPROCESSABLE_ENTITY,
+                                        message: ecoData.message || 'Erreur inconnue, réessayer plus tard',
+                              })
                     }
           }
           catch (error) {
@@ -745,101 +746,7 @@ const getStatusResto = async (req, res) => {
                     })
           }
 }
-// const findDetail = async (req, res) => {
-//     try {
-//         const getImageUri = (fileName) => {
-//             if (!fileName) return null
-//             if (fileName.indexOf("http") === 0) return fileName
-//             return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
-//         }
-//         const { ID_COMMANDE } = req.params
-//         const service = (await query('SELECT ID_SERVICE FROM commandes_payement WHERE ID_COMMANDE=?', [ID_COMMANDE]))[0]
-//  if(service.ID_SERVICE==1)
-//  {
-//     const pureCommande = (await commandeModel.getOneCommande(ID_COMMANDE))[0]
-//     console.log(pureCommande)
-//     const details = await commandeModel.getCommandeDetails(ID_COMMANDE, req.userId)
-//     var TOTAL_COMMANDE = 0
-//     details.forEach(detail => TOTAL_COMMANDE += detail.QUANTITE * detail.PRIX)
-//     const commande = {
-//         ...pureCommande,
-//         ITEMS: details.length,
-//         TOTAL: TOTAL_COMMANDE,
-//         details: details.map(detail => ({
-//             ...detail,
-//             IMAGE_1: getImageUri(detail.IMAGE_1)
-//         }))
-//     }
-//     res.status(RESPONSE_CODES.OK).json({
-//         statusCode: RESPONSE_CODES.OK,
-//         httpStatus: RESPONSE_STATUS.OK,
-//         message: "Une commande",
-//         result: commande
-//     })
 
-//  }
-//  else if(service.ID_SERVICE==2)
-//  {
-//     const pureCommande = (await commandeModel.getOneCommandeResto(ID_COMMANDE))[0]
-//     console.log(pureCommande)
-//     const details = await commandeModel.getCommandeDetailsRsto(ID_COMMANDE, req.userId)
-//     var TOTAL_COMMANDE = 0
-//     details.forEach(detail => TOTAL_COMMANDE += detail.QUANTITE * detail.PRIX)
-//     const commande = {
-//         ...pureCommande,
-//         ITEMS: details.length,
-//         TOTAL: TOTAL_COMMANDE,
-//         details: details.map(detail => ({
-//             ...detail,
-//             IMAGE_1: getImageUri(detail.IMAGES_1)
-//         }))
-//     }
-//     console.log(commande)
-//     res.status(RESPONSE_CODES.OK).json({
-//         statusCode: RESPONSE_CODES.OK,
-//         httpStatus: RESPONSE_STATUS.OK,
-//         message: "Une commande",
-//         result: commande
-//     })
-
-//  }
-
-//     } catch (error) {
-//         console.log(error)
-//         res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-//             statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-//             httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-//             message: "Erreur interne du serveur, réessayer plus tard",
-
-//         })
-//     }
-// }
-
-const getCountCommandes = async (req, res) => {
-          try {
-                    const getImageUri = (fileName) => {
-                              if (!fileName) return null
-                              if (fileName.indexOf("http") === 0) return fileName
-                              return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
-                    }
-                    const commandes = await commandeModel.getUserCountCommandes(req.userId)
-                    res.status(RESPONSE_CODES.OK).json({
-                              statusCode: RESPONSE_CODES.OK,
-                              httpStatus: RESPONSE_STATUS.OK,
-                              message: "succès",
-                              result: commandes
-                    })
-          }
-          catch (error) {
-                    console.log(error)
-                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-                              message: "Erreur interne du serveur, réessayer plus tard",
-
-                    })
-          }
-}
 const findDetail = async (req, res) => {
           try {
                     const getImageUri = (fileName) => {
@@ -927,224 +834,239 @@ const findDetail = async (req, res) => {
 }
 
 const getCountCommandesByPartenaire = async (req, res) => {
-    try {
-        const getImageUri = (fileName) => {
-            if (!fileName) return null
-            if (fileName.indexOf("http") === 0) return fileName
-            return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
-        }
-        const {ID_PARTENAIRE_SERVICE} = req.params
-            const commandes = await commandeModel.getUserCountByPartenaire(ID_PARTENAIRE_SERVICE)
-            res.status(RESPONSE_CODES.OK).json({
-                statusCode: RESPONSE_CODES.OK,
-                httpStatus: RESPONSE_STATUS.OK,
-                message: "succès",
-                result: commandes
-            })
-    }
-    catch (error) {
-        console.log(error)
-        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-            message: "Erreur interne du serveur, réessayer plus tard",
+          try {
+                    const getImageUri = (fileName) => {
+                              if (!fileName) return null
+                              if (fileName.indexOf("http") === 0) return fileName
+                              return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+                    }
+                    const { ID_PARTENAIRE_SERVICE } = req.params
+                    const commandes = await commandeModel.getUserCountByPartenaire(ID_PARTENAIRE_SERVICE)
+                    res.status(RESPONSE_CODES.OK).json({
+                              statusCode: RESPONSE_CODES.OK,
+                              httpStatus: RESPONSE_STATUS.OK,
+                              message: "succès",
+                              result: commandes
+                    })
+          }
+          catch (error) {
+                    console.log(error)
+                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                              message: "Erreur interne du serveur, réessayer plus tard",
 
-        })
-    }
+                    })
+          }
 }
 
 const getCommandesPartenaire = async (req, res) => {
-    try {
-        const getImageUri = (fileName) => {
-            if (!fileName) return null
-            if (fileName.indexOf("http") === 0) return fileName
-            return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
-        }
+          try {
+                    const getImageUri = (fileName) => {
+                              if (!fileName) return null
+                              if (fileName.indexOf("http") === 0) return fileName
+                              return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+                    }
 
-            const {ID_PARTENAIRE_SERVICE} = req.params
-            var commandesIds = []
-            const commandes = await commandeModel.getUserCommandesPartenaire(ID_PARTENAIRE_SERVICE)
-            commandes.forEach(commande => commandesIds.push(commande.ID_COMMANDE))
-            var details = 0
-            if (commandesIds.length > 0) {
-                details = await commandeModel.getManyCommandesDetails(commandesIds)
-            }
-            const commandesDetails = commandes.map(commande => {
-                var TOTAL_COMMANDE = 0
-                const myDetails = details.filter(d => d.ID_COMMANDE == commande.ID_COMMANDE)
-                myDetails.forEach(detail => TOTAL_COMMANDE += detail.QUANTITE * detail.PRIX)
-                return {
-                    ...commande,
-                    ITEMS: myDetails.length,
-                    TOTAL: TOTAL_COMMANDE,
-                    details: myDetails.map(detail => ({
-                        ...detail,
-                        IMAGE_1: getImageUri(detail.IMAGE_1)
-                    }))
-                }
-            })
-            res.status(RESPONSE_CODES.OK).json({
-                statusCode: RESPONSE_CODES.OK,
-                httpStatus: RESPONSE_STATUS.OK,
-                message: "succès",
-                result: commandesDetails
-            })
+                    const { ID_PARTENAIRE_SERVICE } = req.params
+                    var commandesIds = []
+                    const commandes = await commandeModel.getUserCommandesPartenaire(ID_PARTENAIRE_SERVICE)
+                    commandes.forEach(commande => commandesIds.push(commande.ID_COMMANDE))
+                    var details = 0
+                    if (commandesIds.length > 0) {
+                              details = await commandeModel.getManyCommandesDetails(commandesIds)
+                    }
+                    const commandesDetails = commandes.map(commande => {
+                              var TOTAL_COMMANDE = 0
+                              const myDetails = details.filter(d => d.ID_COMMANDE == commande.ID_COMMANDE)
+                              myDetails.forEach(detail => TOTAL_COMMANDE += detail.QUANTITE * detail.PRIX)
+                              return {
+                                        ...commande,
+                                        ITEMS: myDetails.length,
+                                        TOTAL: TOTAL_COMMANDE,
+                                        details: myDetails.map(detail => ({
+                                                  ...detail,
+                                                  IMAGE_1: getImageUri(detail.IMAGE_1)
+                                        }))
+                              }
+                    })
+                    res.status(RESPONSE_CODES.OK).json({
+                              statusCode: RESPONSE_CODES.OK,
+                              httpStatus: RESPONSE_STATUS.OK,
+                              message: "succès",
+                              result: commandesDetails
+                    })
 
-    }
-    catch (error) {
-        console.log(error)
-        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-            message: "Erreur interne du serveur, réessayer plus tard",
+          }
+          catch (error) {
+                    console.log(error)
+                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                              message: "Erreur interne du serveur, réessayer plus tard",
 
-        })
-    }
+                    })
+          }
 }
 
 const getUpdateStatus = async (req, res) => {
-    try {
-              const {ID_COMMANDE} = req.params
-              const updateStatus = await query("UPDATE ecommerce_commandes SET ID_STATUT = 3 WHERE ID_COMMANDE=?", [ID_COMMANDE]);
-              const status = (await commandeModel.getNewStatusUpdate(ID_COMMANDE))[0]
-              res.status(RESPONSE_CODES.OK).json({
-                        statusCode: RESPONSE_CODES.OK,
-                        httpStatus: RESPONSE_STATUS.OK,
-                        message: "succès",
-                        result: status
-              })
-    }
-    catch (error) {
-              console.log(error)
-              res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-                        statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-                        httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-                        message: "Erreur interne du serveur, réessayer plus tard",
+          try {
+                    const { ID_COMMANDE } = req.params
+                    const updateStatus = await query("UPDATE ecommerce_commandes SET ID_STATUT = 3 WHERE ID_COMMANDE=?", [ID_COMMANDE]);
+                    const status = (await commandeModel.getNewStatusUpdate(ID_COMMANDE))[0]
+                    res.status(RESPONSE_CODES.OK).json({
+                              statusCode: RESPONSE_CODES.OK,
+                              httpStatus: RESPONSE_STATUS.OK,
+                              message: "succès",
+                              result: status
+                    })
+          }
+          catch (error) {
+                    console.log(error)
+                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                              message: "Erreur interne du serveur, réessayer plus tard",
 
-              })
-    }
+                    })
+          }
 }
 
-const getCountRestoCommandes = async (req, res) => {
-    try {
-              const getImageUri = (fileName) => {
-                        if (!fileName) return null
-                        if (fileName.indexOf("http") === 0) return fileName
-                        return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
-              }
-              const commandes = await commandeModel.getUserCountRestoCommandes(req.userId)
-              res.status(RESPONSE_CODES.OK).json({
-                        statusCode: RESPONSE_CODES.OK,
-                        httpStatus: RESPONSE_STATUS.OK,
-                        message: "succès",
-                        result: commandes
-              })
-    }
-    catch (error) {
-              console.log(error)
-              res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-                        statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-                        httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-                        message: "Erreur interne du serveur, réessayer plus tard",
-
-              })
-    }
+/**
+ * Permet de récuperer les details de livraison et du livreur d'une commande
+ * @author Dukizwe Darcie <darcy@mediabox.bi>
+ * @date 28/01/2023
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
+const getLivraisonDetails = async (req, res) => {
+          try {
+                    const { ID_COMMANDE } = req.params
+                    const livraisonSqlQuery = `
+                    SELECT d.*,
+                              u.NOM CLIENT_NOM,
+                              u.PRENOM CLIENT_PRENOM
+                    FROM ecommerce_commandes c
+                              LEFT JOIN driver_details_livraison d ON d.ID_DETAILS_LIVRAISON = c.ID_DETAILS_LIVRAISON
+                              LEFT JOIN users u ON u.ID_USER = c.ID_USER
+                    WHERE c.ID_COMMANDE = ?
+                    `
+                    const livraison = (await query(livraisonSqlQuery, [ID_COMMANDE]))[0]
+                    const livreur = null
+                    res.status(RESPONSE_CODES.OK).json({
+                              statusCode: RESPONSE_CODES.OK,
+                              httpStatus: RESPONSE_STATUS.OK,
+                              message: "Livraison et livreur de la commannde",
+                              result: {
+                                        livraison,
+                                        livreur
+                              }
+                    })
+          } catch (error) {
+                    console.log(error)
+                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                              message: "Erreur interne du serveur, réessayer plus tard",
+                    })
+          }
 }
 
 const getCommandesPartenaireRestaurant = async (req, res) => {
-    try {
-        const getImageUri = (fileName) => {
-            if (!fileName) return null
-            if (fileName.indexOf("http") === 0) return fileName
-            return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
-        }
+          try {
+                    const getImageUri = (fileName) => {
+                              if (!fileName) return null
+                              if (fileName.indexOf("http") === 0) return fileName
+                              return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+                    }
 
-            const {ID_PARTENAIRE_SERVICE} = req.params
-            var commandesIds = []
-            const commandes = await commandeModel.getUserCommandesPartenaireRestaurant(ID_PARTENAIRE_SERVICE)
-            commandes.forEach(commande => commandesIds.push(commande.ID_COMMANDE))
-            var details = 0
-            if (commandesIds.length > 0) {
-                details = await commandeModel.getManyCommandesRestaurantDetails(commandesIds)
-            }
-            const commandesDetails = commandes.map(commande => {
-                var TOTAL_COMMANDE = 0
-                const myDetails = details.filter(d => d.ID_COMMANDE == commande.ID_COMMANDE)
-                myDetails.forEach(detail => TOTAL_COMMANDE += detail.QUANTITE * detail.PRIX)
-                return {
-                    ...commande,
-                    ITEMS: myDetails.length,
-                    TOTAL: TOTAL_COMMANDE,
-                    details: myDetails.map(detail => ({
-                        ...detail,
-                        IMAGE_1: getImageUri(detail.IMAGE_1)
-                    }))
-                }
-            })
-            res.status(RESPONSE_CODES.OK).json({
-                statusCode: RESPONSE_CODES.OK,
-                httpStatus: RESPONSE_STATUS.OK,
-                message: "succès",
-                result: commandesDetails
-            })
+                    const { ID_PARTENAIRE_SERVICE } = req.params
+                    var commandesIds = []
+                    const commandes = await commandeModel.getUserCommandesPartenaireRestaurant(ID_PARTENAIRE_SERVICE)
+                    commandes.forEach(commande => commandesIds.push(commande.ID_COMMANDE))
+                    var details = 0
+                    if (commandesIds.length > 0) {
+                              details = await commandeModel.getManyCommandesRestaurantDetails(commandesIds)
+                    }
+                    const commandesDetails = commandes.map(commande => {
+                              var TOTAL_COMMANDE = 0
+                              const myDetails = details.filter(d => d.ID_COMMANDE == commande.ID_COMMANDE)
+                              myDetails.forEach(detail => TOTAL_COMMANDE += detail.QUANTITE * detail.PRIX)
+                              return {
+                                        ...commande,
+                                        ITEMS: myDetails.length,
+                                        TOTAL: TOTAL_COMMANDE,
+                                        details: myDetails.map(detail => ({
+                                                  ...detail,
+                                                  IMAGE_1: getImageUri(detail.IMAGE_1)
+                                        }))
+                              }
+                    })
+                    res.status(RESPONSE_CODES.OK).json({
+                              statusCode: RESPONSE_CODES.OK,
+                              httpStatus: RESPONSE_STATUS.OK,
+                              message: "succès",
+                              result: commandesDetails
+                    })
 
-    }
-    catch (error) {
-        console.log(error)
-        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-            message: "Erreur interne du serveur, réessayer plus tard",
+          }
+          catch (error) {
+                    console.log(error)
+                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                              message: "Erreur interne du serveur, réessayer plus tard",
 
-        })
-    }
+                    })
+          }
 }
 
 const getCountCommandesByPartenaireRestau = async (req, res) => {
-    try {
-        const getImageUri = (fileName) => {
-            if (!fileName) return null
-            if (fileName.indexOf("http") === 0) return fileName
-            return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
-        }
-        const {ID_PARTENAIRE_SERVICE} = req.params
-            const commandes = await commandeModel.getUserCountByPartenaireRestaurant(ID_PARTENAIRE_SERVICE)
-            res.status(RESPONSE_CODES.OK).json({
-                statusCode: RESPONSE_CODES.OK,
-                httpStatus: RESPONSE_STATUS.OK,
-                message: "succès",
-                result: commandes
-            })
-    }
-    catch (error) {
-        console.log(error)
-        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-            message: "Erreur interne du serveur, réessayer plus tard",
+          try {
+                    const getImageUri = (fileName) => {
+                              if (!fileName) return null
+                              if (fileName.indexOf("http") === 0) return fileName
+                              return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+                    }
+                    const { ID_PARTENAIRE_SERVICE } = req.params
+                    const commandes = await commandeModel.getUserCountByPartenaireRestaurant(ID_PARTENAIRE_SERVICE)
+                    res.status(RESPONSE_CODES.OK).json({
+                              statusCode: RESPONSE_CODES.OK,
+                              httpStatus: RESPONSE_STATUS.OK,
+                              message: "succès",
+                              result: commandes
+                    })
+          }
+          catch (error) {
+                    console.log(error)
+                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                              message: "Erreur interne du serveur, réessayer plus tard",
 
-        })
-    }
+                    })
+          }
 }
+
 module.exports = {
-    createAllCommandes,
-    getCommandes,
-    createAllCommandes,
-    getStatus,
-    getCommandeStatus,
-    findOneCommande,
-    commandeDetail,
-    commandePartenaire,
-    createRestoCommandes,
-    getAllRestoCommandes,
-    getPartenaireCommandes,
-    getStatusResto,
-    findDetail,
-    getCountCommandes,
-    getCountCommandesByPartenaire,
-    getCommandesPartenaire,
-    getUpdateStatus,
-    getCountRestoCommandes,
-    getCommandesPartenaireRestaurant,
-    getCountCommandesByPartenaireRestau
+          createAllCommandes,
+          getCommandes,
+          getStatus,
+          getCommandeStatus,
+          findOneCommande,
+          commandeDetail,
+          getAllRestoCommandes,
+          getPartenaireCommandes,
+          getStatusResto,
+          findDetail,
+          getCountCommandesByPartenaire,
+          getCommandesPartenaire,
+          getUpdateStatus,
+          getLivraisonDetails,
+          commandePartenaire,
+          createRestoCommandes,
+          // getCountCommandes,
+          // getCountRestoCommandes,
+          getCommandesPartenaireRestaurant,
+          getCountCommandesByPartenaireRestau
 }

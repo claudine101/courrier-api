@@ -6,8 +6,7 @@ serviceRouter.get('/', servicecontroller.findAllService)
 serviceRouter.get('/search/:ID_SERVICE', servicecontroller.findOne)
 serviceRouter.get('/partenaires/:ID_PARTENAIRE', servicecontroller.findPartenaireServices)
 serviceRouter.post('/payement', servicecontroller.paye)
-
+serviceRouter.get('/count/ecommerce/:ID_PARTENAIRE_SERVICE', servicecontroller.getEcommerceServiceCounts)
+serviceRouter.get('/count/restaurant/:ID_PARTENAIRE_SERVICE', servicecontroller.getRestoServiceCounts)
 
 module.exports = serviceRouter
-
-

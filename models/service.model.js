@@ -4,7 +4,7 @@ const { query } = require("../utils/db");
 const findAll = async (value) => {
           try {
 
-                    var sqlQuery = "SELECT * FROM services s LEFT JOIN categories_service ca ON s.ID_CATEGORIE_SERVICE=ca.ID_CATEGORIE_SERVICE WHERE 1 "
+                    var sqlQuery = "SELECT * FROM services_categories WHERE 1 "
                     return query(sqlQuery, [value]);
           }
           catch (error) {
@@ -13,18 +13,6 @@ const findAll = async (value) => {
           }
 
 }
-const updateImage = async (IMAGE,ID_PARTENAIRE_SERVICE) =>{
-    try {
-      var sqlQuery = `UPDATE  partenaire_service SET LOGO = ? ,BACKGROUND_IMAGE=? WHERE ID_PARTENAIRE_SERVICE = ?`;
-      return query(sqlQuery, [
-        IMAGE,
-        IMAGE,
-        ID_PARTENAIRE_SERVICE
-      ]);
-    } catch (error) {
-      throw error;
-    }
-   }
 const findById = async (ID_USER, ID_SERVICE) => {
           try {
 

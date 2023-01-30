@@ -10,7 +10,8 @@ const path = require("path");
 const { query } = require('../utils/db');
 const getReferenceCode = require('../utils/getReferenceCode');
 const UserUpload = require("../class/uploads/UserUpload");
-const express = require('express')
+const express = require('express');
+const  IDS_COMMANDES_STATUTS = require('../constants/IDS_COMMANDES_STATUTS');
 
 const findAllService = async (req, res) => {
           try {
@@ -162,26 +163,58 @@ const paye = async (req, res) => {
           }
 }
 
+const getEcommerceServiceCounts = async (req, res) => {
+          try {
+                    const { ID_PARTENAIRE_SERVICE } = req.params
+                    const items =( await query('SELECT COUNT(ep.ID_PARTENAIRE_SERVICE) AS items FROM ecommerce_produits ep WHERE ep.ID_PARTENAIRE_SERVICE= ?', [ID_PARTENAIRE_SERVICE]))[0]
+                    const commandes = (await query(`SELECT COUNT(ID_COMMANDE) commandes FROM ecommerce_commandes WHERE ID_PARTENAIRE_SERVICE = ? AND ID_STATUT NOT IN (${IDS_COMMANDES_STATUTS.ETTENTE_PAIEMENET}, ${IDS_COMMANDES_STATUTS.LIVRE})`, [ID_PARTENAIRE_SERVICE]))[0]
+                    res.status(RESPONSE_CODES.OK).json({
+                              statusCode: RESPONSE_CODES.OK,
+                              httpStatus: RESPONSE_STATUS.OK,
+                              message: "Les counts sur le service de ecommerce",
+                              result: {
+                                        ...items,
+                                        ...commandes
+                              }
+                    })
+           } catch (error) {
+                    console.log(error)
+                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                              message: "Erreur interne du serveur, réessayer plus tard",
+                    })
+          }
+}
+const getRestoServiceCounts = async (req, res) => {
+          try {
+                    const { ID_PARTENAIRE_SERVICE } = req.params
+                    const items =( await query('SELECT COUNT(ep.ID_PARTENAIRE_SERVICE) AS items FROM restaurant_menus ep WHERE ep.ID_PARTENAIRE_SERVICE= ?', [ID_PARTENAIRE_SERVICE]))[0]
+                    const commandes = (await query(`SELECT COUNT(ID_COMMANDE) commandes FROM restaurant_commandes WHERE ID_PARTENAIRE_SERVICE = ? AND ID_STATUT NOT IN (${IDS_COMMANDES_STATUTS.ETTENTE_PAIEMENET}, ${IDS_COMMANDES_STATUTS.LIVRE})`, [ID_PARTENAIRE_SERVICE]))[0]
+                    res.status(RESPONSE_CODES.OK).json({
+                              statusCode: RESPONSE_CODES.OK,
+                              httpStatus: RESPONSE_STATUS.OK,
+                              message: "Les counts sur le service de restauration",
+                              result: {
+                                        ...items,
+                                        ...commandes
+                              }
+                    })
+           } catch (error) {
+                    console.log(error)
+                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                              message: "Erreur interne du serveur, réessayer plus tard",
+                    })
+          }
+}
+
 module.exports = {
           paye,
           findAllService,
           findOne,
-          findPartenaireServices
+          findPartenaireServices,
+          getEcommerceServiceCounts,
+          getRestoServiceCounts
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
