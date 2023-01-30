@@ -1,3 +1,4 @@
+const IDS_SERVICE_CATEGORIES = require("../constants/IDS_SERVICE_CATEGORIES")
 const RESPONSE_CODES = require("../constants/RESPONSE_CODES")
 const RESPONSE_STATUS = require("../constants/RESPONSE_STATUS")
 const { saveStatus, saveStatusResto } = require("../models/commande.model")
@@ -9,7 +10,7 @@ const confirmEconet = async (req, res) => {
           try {
                     const { txni_d } = req.params
                     const payment = (await paymentModel.findBy('TXNI_D', txni_d))[0]
-                    if(payment.SERVICE==1 && payment.STATUT_ID == 0){
+                    if(payment.ID_SERVICE_CATEGORIE== IDS_SERVICE_CATEGORIES.ecommerce && payment.STATUT_ID == 0){
                         const commandes = await query("SELECT ID_COMMANDE, ID_USER FROM ecommerce_commandes WHERE PAYEMENT_ID = ? ", [payment.PAYEMENT_ID])
                               await query("UPDATE ecommerce_commandes SET ID_STATUT = 2 WHERE PAYEMENT_ID = ?", [payment.PAYEMENT_ID])
                               await Promise.all(commandes.map(async commande => {
@@ -27,7 +28,7 @@ const confirmEconet = async (req, res) => {
                               //                    sendPushNotifications(tokens, 'Paiement de la commade' , message, { command: commande, url: `wasilieats://Orders`, refreshOrders: true })
                               //          }
                               res.status(200).json({ confirmed: true, txni_d })
-                    } else if (payment.SERVICE==2 && payment.STATUT_ID == 0) {
+                    } else if (payment.ID_SERVICE_CATEGORIE==IDS_SERVICE_CATEGORIES.resto && payment.STATUT_ID == 0) {
                               const commandes = await query("SELECT ID_COMMANDE, ID_USER FROM  restaurant_commandes WHERE PAYEMENT_ID = ? ", [payment.PAYEMENT_ID])
                               await query("UPDATE restaurant_commandes SET ID_STATUT = 2 WHERE PAYEMENT_ID = ?", [payment.PAYEMENT_ID])
                               await Promise.all(commandes.map(async commande => {

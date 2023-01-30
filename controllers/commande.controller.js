@@ -16,8 +16,6 @@ const express = require('express')
 const createAllCommandes = async (req, res) => {
           try {
                     const { shipping_info, commandes, numero, service } = req.body
-                    console.log(req.body)
-                    console.log(req.userId)
                     const validation = new Validation(
                               shipping_info,
                               {
@@ -118,7 +116,7 @@ const createAllCommandes = async (req, res) => {
                               });
                               const grouped = Object.values(groups);
                               const { insertId: PAYEMENT_ID } = await paymentModel.createOne(service, 1, numero, null, TOTAL, TXNI_D, 0)
-                              const { insertId: ID_DETAILS_LIVRAISON } = await commandeModel.createDetailLivraison(shipping_info.N0M, shipping_info.PRENOM, shipping_info.ADRESSE, shipping_info.TELEPHONE, shipping_info.AVENUE, shipping_info.ID_COUNTRY)
+                              const { insertId: ID_DETAILS_LIVRAISON } = await commandeModel.createDetailLivraison(req.userId, shipping_info.NOM, shipping_info.PRENOM, shipping_info.ADRESSE, shipping_info.TELEPHONE, shipping_info.AVENUE, shipping_info.ID_COUNTRY)
                               const commandesIds = []
                               await Promise.all(grouped.map(async (commande) => {
                                         const CODE_UNIQUE = await getReferenceCode()

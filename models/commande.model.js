@@ -19,11 +19,11 @@ const createCommandes = async (PAYEMENT_ID, ID_PARTENAIRE_SERVICE, ID_USER, DATE
         }
 
 }
-const createDetailLivraison = async (CODE_UNIQUE, N0M, PRENOM, ADRESSE, TELEPHONE, AVENUE, ID_COUNTRY) => {
+const createDetailLivraison = async (ID_USER, NOM, PRENOM, ADRESSE, TELEPHONE, AVENUE, ID_COUNTRY) => {
           try {
-                    var sqlQuery = "INSERT  INTO driver_details_livraison(NOM,PRENOM,ADRESSE,TELEPHONE,AVENUE,ID_COUNTRY)";
-                    sqlQuery += "VALUES(?,?,?,?,?,?)"
-                    return query(sqlQuery, [N0M, PRENOM, ADRESSE, TELEPHONE, AVENUE, ID_COUNTRY]);
+                    var sqlQuery = "INSERT  INTO driver_details_livraison(ID_USER, NOM,PRENOM,ADRESSE,TELEPHONE,AVENUE,ID_COUNTRY)";
+                    sqlQuery += "VALUES(?, ?,?,?,?,?,?)"
+                    return query(sqlQuery, [ID_USER, NOM, PRENOM, ADRESSE, TELEPHONE, AVENUE, ID_COUNTRY]);
           } catch (error) {
                     throw error
           }

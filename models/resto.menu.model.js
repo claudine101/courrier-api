@@ -171,6 +171,11 @@ const findAllmenu = async (q, category, subCategory, partenaireService, limit = 
                             ps.ID_PARTENAIRE,
                             ps.ID_PARTENAIRE_SERVICE,
                             ps.ADRESSE_COMPLETE,
+                            ps.ID_SERVICE,
+                            ps.LOGO,
+                            ps.BACKGROUND_IMAGE,
+                            ps.EMAIL,
+                            ps.TELEPHONE,
                             resc.NOM NOM_CATEGORIE
                     FROM restaurant_menus menu
                             LEFT JOIN partenaire_service ps ON ps.ID_PARTENAIRE_SERVICE = menu.ID_PARTENAIRE_SERVICE

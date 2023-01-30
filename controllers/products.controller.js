@@ -23,7 +23,13 @@ const getAllProducts = async (req, res) => {
                                                   ID_TYPE_PARTENAIRE: product.ID_TYPE_PARTENAIRE,
                                                   NOM: product.NOM_USER,
                                                   PRENOM: product.PRENOM,
-                                                  ADRESSE_COMPLETE: product.ADRESSE_COMPLETE
+                                                  ADRESSE_COMPLETE: product.ADRESSE_COMPLETE,
+                                                  ID_SERVICE: product.ID_SERVICE,
+                                                  LOGO: product.LOGO,
+                                                  BACKGROUND_IMAGE: product.BACKGROUND_IMAGE,
+                                                  EMAIL: product.EMAIL,
+                                                  TELEPHONE: product.TELEPHONE,
+                                                  ID_PARTENAIRE_SERVICE: product.ID_PARTENAIRE_SERVICE,
                                         },
                                         produit_partenaire: {
                                                   ID_PARTENAIRE_SERVICE: product.ID_PARTENAIRE_SERVICE,

@@ -486,11 +486,6 @@ const DeleteMenu = async (req, res) => {
 // };
 const getAllmenu = async (req, res) => {
           try {
-                    const getImageUri = (fileName) => {
-                              if (!fileName) return null
-                              if (fileName.indexOf("http") === 0) return fileName
-                              return `${req.protocol}://${req.get("host")}/uploads/menu/${fileName}`
-                    }
                     const { q, category, subCategory, partenaireService, limit, offset } = req.query
                     var Allmenus = await restoMenuModel.findAllmenu(q, category, subCategory, partenaireService, limit, offset)
                     const menus = Allmenus.map(menu => {
@@ -507,7 +502,13 @@ const getAllmenu = async (req, res) => {
                                                   ID_TYPE_PARTENAIRE: menu.ID_TYPE_PARTENAIRE,
                                                   NOM: menu.NOM_USER,
                                                   PRENOM: menu.PRENOM,
-                                                  ADRESSE_COMPLETE: menu.ADRESSE_COMPLETE
+                                                  ADRESSE_COMPLETE: menu.ADRESSE_COMPLETE,
+                                                  ID_SERVICE: menu.ID_SERVICE,
+                                                  LOGO: menu.LOGO,
+                                                  BACKGROUND_IMAGE: menu.BACKGROUND_IMAGE,
+                                                  EMAIL: menu.EMAIL,
+                                                  TELEPHONE: menu.TELEPHONE,
+                                                  ID_PARTENAIRE_SERVICE: menu.ID_PARTENAIRE_SERVICE,
                                         },
                                         produit_partenaire: {
                                                   ID_PARTENAIRE_SERVICE: menu.ID_PARTENAIRE_SERVICE,
@@ -775,7 +776,7 @@ const getMenuVariants = async (req, res) => {
                     const { ID_RESTAURANT_MENU } = req.params
                     const allVariants = await query('SELECT * FROM  restaurant_menu_variants WHERE ID_RESTAURANT_MENU = ?', [ID_RESTAURANT_MENU])
                     const allOptions = await query('SELECT * FROM restaurant_variant_values WHERE ID_RESTAURANT_MENU = ?', [ID_RESTAURANT_MENU])
-                    const allCombinaisons = await query('SELECT * FROM  restaurant_variant_combination WHERE ID_RESTAURANT_MENU = ?', [ID_RESTAURANT_MENU])
+                    const allCombinaisons = await query('SELECT * FROM  resto_variant_combination WHERE ID_RESTAURANT_MENU = ?', [ID_RESTAURANT_MENU])
                     const combinaisonsIds = allCombinaisons.map(comb => comb.ID_COMBINATION)
                     var allCombinaisonsOptions = []
                     if (combinaisonsIds.length > 0) {
