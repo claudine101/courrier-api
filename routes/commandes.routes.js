@@ -8,7 +8,7 @@ commandeRouter.post('/clients/restaurant', commandeController.createRestoCommand
 commandeRouter.get('/', commandeController.getCommandes)
 commandeRouter.get('/partenaire/:ID_PARTENAIRE_SERVICE', commandeController.getCommandesPartenaire)
 commandeRouter.get('/partenaire/restaurant/:ID_PARTENAIRE_SERVICE', commandeController.getCommandesPartenaireRestaurant)
-// commandeRouter.get('/count', commandeController.getCountCommandes)
+commandeRouter.get('/count', commandeController.getCountCommandes)
 // commandeRouter.get('/restaurant/count', commandeController.getCountRestoCommandes)
 commandeRouter.get('/count/:ID_PARTENAIRE_SERVICE', commandeController.getCountCommandesByPartenaire)
 commandeRouter.get('/count/restaurant/:ID_PARTENAIRE_SERVICE', commandeController.getCountCommandesByPartenaireRestau)

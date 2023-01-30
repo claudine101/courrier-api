@@ -47,7 +47,7 @@ const login = async (req, res) => {
                               })
                     }
                     var user = (await userPartenaireModel.findBy("EMAIL", email))[0];
-                    if (user) {
+                    if (user && user.ID_PROFIL == 2) {
                               if (user.PASSWORD == md5(password)) {
                                         const notification = (await query('SELECT ID_NOTIFICATION_TOKEN FROM notification_tokens WHERE TOKEN = ? AND ID_USER = ?', [PUSH_NOTIFICATION_TOKEN, user.ID_USER]))[0]
                                         if (!notification && PUSH_NOTIFICATION_TOKEN) {

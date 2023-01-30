@@ -1,5 +1,6 @@
 const express = require("express")
 const restoMenuController = require('../controllers/resto.menu.controller')
+const menucontroller = require('../controllers/restaurant.menu.controller')
 
 const restoMenuRouter = express.Router()
 restoMenuRouter.get('/categories', restoMenuController.getAllCategories)
@@ -29,6 +30,7 @@ restoMenuRouter.put('/description/:ID_RESTAURANT_MENU', restoMenuController.upad
 restoMenuRouter.get('/resto/:ID_PARTENAIRE_SERVICE', restoMenuController.getAllMenuByPartenaire)
 restoMenuRouter.get('/restaurant/count/:ID_PARTENAIRE_SERVICE', restoMenuController.getAllCountMenuByPartenaire)
 restoMenuRouter.get('/variants/:ID_RESTAURANT_MENU', restoMenuController.getMenuVariants)
+restoMenuRouter.post('/create', menucontroller.createProduit)
 
 //restoMenuRouter.get('/', restoMenuController.getmenu)
 //restoMenuRouter.post('/note',restoMenuController.insertNote)

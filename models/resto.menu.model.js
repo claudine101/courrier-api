@@ -178,7 +178,7 @@ const findByIDmenu = async (ID_PARTENAIRE_SERVICE, category, limit = 10, offset 
 //         throw error
 //     }
 // }
-const findAllmenu = async (q, category, subCategory, partenaireService, min_prix, max_prix, limit = 10, offset = 0) => {
+const findAllmenu = async (q, category, subCategory, partenaireService, limit = 10, offset = 0, min_prix, max_prix) => {
     try {
         var binds = []
         var sqlQuery = `
