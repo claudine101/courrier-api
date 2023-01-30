@@ -76,9 +76,12 @@ const findproducts = async (q, category, subCategory, partenaireService, min_pri
       binds.push(partenaireService)
     }
     if (min_prix && !max_prix) {
+
       sqlQuery += " AND ep.PRIX >= ? "
       binds.push(min_prix)
+
     } else if (!min_prix && max_prix) {
+      
       sqlQuery += " AND ep.PRIX <= ? "
       binds.push(max_prix)
 
@@ -88,7 +91,7 @@ const findproducts = async (q, category, subCategory, partenaireService, min_pri
       binds.push(min_prix && max_prix)
 
     }
-   
+
     sqlQuery += ` ORDER BY ep.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
     return query(sqlQuery, binds);
   }
