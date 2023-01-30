@@ -11,7 +11,8 @@ const { query } = require('../utils/db');
 const getReferenceCode = require('../utils/getReferenceCode');
 const axios = require('axios').default
 const paymentModel = require("../models/payment.model")
-const express = require('express')
+const express = require('express');
+const IDS_COMMANDES_STATUTS = require('../constants/IDS_COMMANDES_STATUTS');
 
 const createAllCommandes = async (req, res) => {
           try {
@@ -611,7 +612,7 @@ const createRestoCommandes = async (req, res) => {
                               });
                               const grouped = Object.values(groups);
                               const { insertId: PAYEMENT_ID } = await paymentModel.createOne(service, 1, numero, null, TOTAL, TXNI_D, 0)
-                              const { insertId: ID_DETAILS_LIVRAISON } = await commandeModel.createDetailLivraison(shipping_info.N0M, shipping_info.PRENOM, shipping_info.ADRESSE, shipping_info.TELEPHONE, shipping_info.AVENUE, shipping_info.ID_COUNTRY)
+                              const { insertId: ID_DETAILS_LIVRAISON } = await commandeModel.createDetailLivraison(req.userId, shipping_info.N0M, shipping_info.PRENOM, shipping_info.ADRESSE, shipping_info.TELEPHONE, shipping_info.AVENUE, shipping_info.ID_COUNTRY)
                               const commandesIds = []
                               await Promise.all(grouped.map(async (commande) => {
                                         const CODE_UNIQUE = await getReferenceCode()
@@ -1048,6 +1049,30 @@ const getCountCommandesByPartenaireRestau = async (req, res) => {
           }
 }
 
+const getCountCommandes = async (req, res) => {
+          try {
+                    const ecommerce = (await query('SELECT COUNT(ID_COMMANDE) ecommerce FROM ecommerce_commandes WHERE ID_USER = ? AND ID_STATUT IN (?)', [req.userId, [IDS_COMMANDES_STATUTS.PAYEMENT_COMMANDE, IDS_COMMANDES_STATUTS.PRIS_PAR_LIVREUR]]))[0]
+                    const resto = (await query('SELECT COUNT(ID_COMMANDE) resto FROM restaurant_commandes WHERE ID_USER = ? AND ID_STATUT IN (?)', [req.userId, [IDS_COMMANDES_STATUTS.PAYEMENT_COMMANDE, IDS_COMMANDES_STATUTS.PRIS_PAR_LIVREUR]]))[0]
+                    res.status(RESPONSE_CODES.OK).json({
+                              statusCode: RESPONSE_CODES.OK,
+                              httpStatus: RESPONSE_STATUS.OK,
+                              message: "Les count de la commande",
+                              result: {
+                                        ...ecommerce,
+                                        ...resto
+                              }
+                    })
+          } catch (error) {
+                    console.log(error)
+                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                              message: "Erreur interne du serveur, réessayer plus tard",
+
+                    })
+          }
+}
+
 module.exports = {
           createAllCommandes,
           getCommandes,
@@ -1065,7 +1090,7 @@ module.exports = {
           getLivraisonDetails,
           commandePartenaire,
           createRestoCommandes,
-          // getCountCommandes,
+          getCountCommandes,
           // getCountRestoCommandes,
           getCommandesPartenaireRestaurant,
           getCountCommandesByPartenaireRestau

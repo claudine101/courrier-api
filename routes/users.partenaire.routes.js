@@ -3,12 +3,12 @@ const userPartenairecontroller = require('../controllers/user.partenaire.control
 const userPartenaireRouter = express.Router()
 userPartenaireRouter.post('/login', userPartenairecontroller.login)
 userPartenaireRouter.post('/', userPartenairecontroller.createUser)
+userPartenaireRouter.post('/livreur', userPartenairecontroller.createLivreur)
 userPartenaireRouter.post('/Ajouter',userPartenairecontroller.createPartenaire)
 userPartenaireRouter.put('/modifier/:ID_PARTENAIRE_SERVICE',userPartenairecontroller.UpdatePartenaire)
 userPartenaireRouter.get('/categories/:ID_PARTENAIRE', userPartenairecontroller.getcategories)
 userPartenaireRouter.get('/ecommerce', userPartenairecontroller.getAllPartenaire)
 userPartenaireRouter.get('/ecommerce/one/:ID_PARTENAIRE_SERVICE', userPartenairecontroller.getOnePartenaire)
-
 // userPartenaireRouter.get('/ecommerces', userPartenairecontroller.getAllPartenaires)
 userPartenaireRouter.get('/ecommerce/:id', userPartenairecontroller.findByIdPartenaire)
 userPartenaireRouter.get('/', userPartenairecontroller.findAll)

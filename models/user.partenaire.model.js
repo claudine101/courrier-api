@@ -34,6 +34,13 @@ const findByIdPartenai = async (id) => {
         throw error;
     }
 };
+const findByIdPartenaireService = async (id) => {
+    try {
+        return query("SELECT * FROM partenaire_service WHERE ID_PARTENAIRE_SERVICE  = ?", [id]);
+    } catch (error) {
+        throw error;
+    }
+};
 const findpartenaireOne = async (ID_PARTENAIRE_SERVICE, lat, long, shop, limit = 10, offset = 0) => {
     try {
         var binds = []
@@ -182,6 +189,34 @@ const createpartenaire = (ID_PARTENAIRE, ID_SERVICE, ID_TYPE_PARTENAIRE, NOM_ORG
         throw error
     }
 }
+const createpartenaireLivreur = (ID_PARTENAIRE,ID_TYPE_PARTENAIRE,ID_SERVICE,TELEPHONE,NOM_ORGANISATION,NIF, EMAIL,LOGO, BACKGROUND_IMAGE) => {
+    try {
+        var sqlQuery = "INSERT INTO partenaire_service (ID_PARTENAIRE,ID_TYPE_PARTENAIRE,ID_SERVICE,TELEPHONE,NOM_ORGANISATION,NIF,EMAIL,LOGO,BACKGROUND_IMAGE)";
+        sqlQuery += "values (?,?,?,?,?,?,?,?,?)";
+        return query(sqlQuery, [
+            ID_PARTENAIRE,ID_TYPE_PARTENAIRE,ID_SERVICE,TELEPHONE,NOM_ORGANISATION,NIF, EMAIL,LOGO, BACKGROUND_IMAGE])
+    }
+    catch (error) {
+
+        throw error
+    }
+}
+
+const insertLivreur =(ID_PARTENAIRE_SERVICE,NOM,PRENOM,NUMERO_PLAQUE,MODELE,MARQUE,NOMBRE_PLACE,IMAGE_1,IMAGE_2,IMAGE_3) => {
+    try {
+        var sqlQuery = "INSERT INTO personne_livreurs (ID_PARTENAIRE_SERVICE,NOM,PRENOM,NUMERO_PLAQUE,MODELE,MARQUE,NOMBRE_PLACE,IMAGE_1,IMAGE_2,IMAGE_3)";
+        sqlQuery += "values (?,?,?,?,?,?,?,?,?,?)";
+        return query(sqlQuery, [
+            ID_PARTENAIRE_SERVICE,NOM,PRENOM,NUMERO_PLAQUE,MODELE,MARQUE,NOMBRE_PLACE,IMAGE_1,IMAGE_2,IMAGE_3])
+    }
+    catch (error) {
+
+        throw error
+    }
+}
+
+
+
 
 const changeService =(NOM_ORGANISATION, TELEPHONE, NIF, EMAIL, ADRESSE_COMPLETE, LATITUDE, LONGITUDE, LOGO, BACKGROUND_IMAGE, ID_PARTENAIRE_SERVICE) => {
     try {
@@ -250,6 +285,8 @@ module.exports = {
     createOnePartenaire,
     findpartenaireOne,
     changeService,
+    createpartenaireLivreur,
+    insertLivreur,
+    findByIdPartenaireService,
     getServcePersonne
-    // findpartenaires
 }

@@ -138,9 +138,9 @@ const createProduit = async (req, res) => {
                                         ecommerce_variant_combination.push([ID_RESTAURANT_MENU, inventory.price, inventory.id])
                               })
                               if (ecommerce_variant_combination.length > 0) {
-                                        await query('INSERT INTO resto_variant_combination(ID_RESTAURANT_MENU, PRIX, FRONTEND_COMBINAISON_ID) VALUES ?', [ecommerce_variant_combination])
+                                        await query('INSERT INTO restaurant_variant_combination(ID_RESTAURANT_MENU, PRIX, FRONTEND_COMBINAISON_ID) VALUES ?', [ecommerce_variant_combination])
                               }
-                              const newCombinaisons = await query('SELECT * FROM resto_variant_combination WHERE ID_RESTAURANT_MENU = ?', [ID_RESTAURANT_MENU])
+                              const newCombinaisons = await query('SELECT * FROM restaurant_variant_combination WHERE ID_RESTAURANT_MENU = ?', [ID_RESTAURANT_MENU])
                               const values = await query('SELECT * FROM restaurant_variant_values WHERE ID_RESTAURANT_MENU = ?', [ID_RESTAURANT_MENU])
                               var ecommerce_variant_combination_values = []
                               newCombinaisons.forEach(combinaison => {
