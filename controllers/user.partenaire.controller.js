@@ -280,19 +280,17 @@ const createPartenaire = async (req, res) => {
 const createLivreur = async (req, res) => {
     try {
         const { ID_PARTENAIRE, ID_SERVICE, NOM, PRENOM, TELEPHONE, NIF, EMAIL, NUMERO_PLAQUE, MODELE, MARQUE, NOMBRE_PLACE } = req.body
-        const { IMAGE_1, IMAGE_2, IMAGE_3 } = req.files || {}
+        const { IMAGE_1, IMAGE_2 } = req.files || {}
 
         const validation = new Validation({ ...req.body, ...req.files },
             {
                 IMAGE_1: {
                     image: 21000000,
-                    required: true
+                    required: true,
                 },
                 IMAGE_2: {
-                    image: 21000000
-                },
-                IMAGE_3: {
-                    image: 21000000
+                    image: 21000000,
+                    required: true,
                 },
                 NOM:
                 {
@@ -334,9 +332,6 @@ const createLivreur = async (req, res) => {
                 IMAGE_1: {
                     image: "La taille invalide"
                 },
-                IMAGE_3: {
-                    image: "La taille invalide"
-                },
                 NOM: {
                     nom: "Le nom est obligatoire"
                 },
@@ -367,11 +362,10 @@ const createLivreur = async (req, res) => {
 
         const { fileInfo: fileInfo_2 } = await partenaireUpload.upload(IMAGE_2, false)
         const Image2 = `${req.protocol}://${req.get("host")}${IMAGES_DESTINATIONS.partenaires}/${fileInfo_2.fileName}`;
-        if (IMAGE_3) {
-            const { fileInfo: fileInfo_3 } = await partenaireUpload.upload(IMAGE_3, false)
-            Image3 = `${req.protocol}://${req.get("host")}${IMAGES_DESTINATIONS.partenaires}/${fileInfo_3.fileName}`;
-        }
-
+        // if (IMAGE_3) {
+        //     const { fileInfo: fileInfo_3 } = await partenaireUpload.upload(IMAGE_3, false)
+        //     Image3 = `${req.protocol}://${req.get("host")}${IMAGES_DESTINATIONS.partenaires}/${fileInfo_3.fileName}`;
+        // }
         const { insertId } = await userPartenaireModel.createpartenaireLivreur(
             ID_PARTENAIRE,
             1,
@@ -382,8 +376,6 @@ const createLivreur = async (req, res) => {
             EMAIL,
             Image1,
             Image2
-
-
         )
 
         const { LivreurId } = await userPartenaireModel.insertLivreur(
