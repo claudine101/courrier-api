@@ -50,7 +50,7 @@ app.use('/partenaire/stock/approvisionnement', approvisionnementRouter)
 app.use("/commandes", commandeRouter)
 app.use("/resto/commandes", restoCommandeRouter)
 app.use("/products", productsRouter)
-app.use("/resto/menu", restoMenuRouter)
+app.use("/resto/menu",restoMenuRouter)
 
 app.use("/resto/repas", repasRouter)
 app.use("/driver/course", driverCourseRouter)

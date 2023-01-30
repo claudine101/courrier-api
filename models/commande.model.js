@@ -308,7 +308,7 @@ const getOneRestoCommande = async (ID_COMMANDE) => {
 const getUserRestoCommandes = async (ID_USER, q, limit = 10, offset = 0) => {
         try {
                   var binds = [ID_USER]
-                  var sqlQuery = "SELECT * FROM restaurant_commandes co "
+                  var sqlQuery = "SELECT co.ID_STATUT, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, ecs.DESCRIPTION STATUT_DESCRIPTION, ecs.NEXT_STATUS FROM restaurant_commandes co "
                   sqlQuery += " LEFT JOIN restaurant_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT "
                   sqlQuery += " WHERE co.ID_USER = ? AND co.ID_STATUT != 1 ORDER BY co.DATE_COMMANDE DESC "
                   sqlQuery += `LIMIT ${offset}, ${limit}`
@@ -322,9 +322,8 @@ const getUserRestoCommandes = async (ID_USER, q, limit = 10, offset = 0) => {
 const getManyCommandesRestoDetails = async (commandesIds) => {
         try {
                   var binds = [commandesIds]
-                  var sqlQuery = "SELECT * FROM restaurant_commandes_details cd "
-                  sqlQuery += " LEFT JOIN restaurant_menu eps ON eps.ID_RESTAURANT_MENU = cd.ID_RESTAURANT_MENU "
-                  sqlQuery += " LEFT JOIN restaurant_repas epp ON epp.ID_REPAS = eps.ID_REPAS "
+                  var sqlQuery = "SELECT cd.ID_COMMANDE, cd.ID_COMMANDE_DETAIL, cd.QUANTITE, cd.MONTANT, cd.SOMME, ep.NOM, ep.IMAGE_1  FROM restaurant_commandes_details cd "
+                  sqlQuery += " LEFT JOIN restaurant_menus ep ON ep.ID_RESTAURANT_MENU = cd.ID_RESTAURANT_MENU "
                   sqlQuery += " WHERE ID_COMMANDE IN (?)"
                   return query(sqlQuery, binds)
         }catch (error) {
@@ -338,6 +337,19 @@ const saveStatusResto = async (ID_COMMANDE, ID_USER, ID_STATUT) => {
                   throw error;
         }
 }
+
+const getUserCountCommandes = async (ID_USER,ID_SERVICE) => {
+        try {
+                  var binds = [ID_USER,ID_SERVICE]
+                  var sqlQuery = "SELECT co.ID_STATUT,COUNT(co.ID_COMMANDE) AS NBRE, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, ecs.DESCRIPTION STATUT_DESCRIPTION, ecs.NEXT_STATUS FROM ecommerce_commandes co "
+                  sqlQuery += " LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT "
+                  sqlQuery += " WHERE co.ID_USER = ? AND co.ID_STATUT != 4 ORDER BY co.DATE_COMMANDE DESC "
+                  return query(sqlQuery, binds)
+        }
+        catch (error) {
+                  throw error;
+        }
+};
 
 const getLivraisons = async (CODE) => {
         try {
@@ -481,6 +493,69 @@ const createCommandeDetailsResto = async (ecommerce_commande_details) => {
 
 };
 
+const getUserCountRestoCommandes = async (ID_USER) => {
+        try {
+                  var binds = [ID_USER]
+                  var sqlQuery = `
+                                SELECT co.ID_STATUT,
+                                COUNT(co.ID_COMMANDE) AS NBRE,
+                                co.ID_COMMANDE,
+                                co.CODE_UNIQUE,
+                                co.DATE_COMMANDE,
+                                ecs.DESCRIPTION STATUT_DESCRIPTION,
+                                ecs.NEXT_STATUS
+                        FROM restaurant_commandes co
+                                LEFT JOIN ecommerce_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT
+                        WHERE co.ID_USER = ?
+                                AND co.ID_STATUT != 4
+                        ORDER BY co.DATE_COMMANDE DESC
+                  `
+                  return query(sqlQuery, binds)
+        }
+        catch (error) {
+                  throw error;
+        }
+};
+
+const getUserCommandesPartenaireRestaurant = async (ID_PARTENAIRE_SERVICE,q, limit = 10, offset = 0) => {
+        try {
+                  var binds = [ID_PARTENAIRE_SERVICE]
+                  var sqlQuery = "SELECT co.ID_STATUT, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, ecs.DESCRIPTION STATUT_DESCRIPTION, ecs.NEXT_STATUS FROM restaurant_commandes co "
+                  sqlQuery += " LEFT JOIN restaurant_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT "
+                  sqlQuery += " WHERE co.ID_PARTENAIRE_SERVICE = ? AND co.ID_STATUT != 1 ORDER BY co.DATE_COMMANDE DESC "
+                  sqlQuery += `LIMIT ${offset}, ${limit}`
+                  return query(sqlQuery, binds)
+        }
+        catch (error) {
+                  throw error;
+        }
+};
+
+const getManyCommandesRestaurantDetails = async (commandesIds) => {
+        try {
+                  var binds = [commandesIds]
+                  var sqlQuery = " SELECT cd.ID_COMMANDE, cd.ID_COMMANDE_DETAIL, cd.QUANTITE, cd.MONTANT, cd.SOMME, ep.NOM, ep.IMAGE_1 FROM restaurant_commandes_details cd"
+                  sqlQuery += "  LEFT JOIN  restaurant_menus ep ON ep.ID_RESTAURANT_MENU=cd.ID_RESTAURANT_MENU WHERE ID_COMMANDE IN (?)"
+                  return query(sqlQuery, binds)
+  
+        }catch (error) {
+                  throw error
+        }
+};
+
+const getUserCountByPartenaireRestaurant = async (ID_PARTENAIRE_SERVICE) => {
+        try {
+                  var binds = [ID_PARTENAIRE_SERVICE]
+                  var sqlQuery = "SELECT co.ID_STATUT,COUNT(co.ID_COMMANDE) AS NBRE, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, ecs.DESCRIPTION STATUT_DESCRIPTION, ecs.NEXT_STATUS FROM restaurant_commandes co "
+                  sqlQuery += " LEFT JOIN restaurant_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT "
+                  sqlQuery += " WHERE co.ID_PARTENAIRE_SERVICE = ? AND co.ID_STATUT != 4 ORDER BY co.DATE_COMMANDE DESC "
+                  return query(sqlQuery, binds)
+        }
+        catch (error) {
+                  throw error;
+        }
+};
+
 module.exports = {
           findAll,
           createCommandes,
@@ -514,4 +589,8 @@ module.exports = {
           getNewStatusUpdate,
           createCommandesResto,
           createCommandeDetailsResto,
+          getUserCountRestoCommandes,
+          getUserCommandesPartenaireRestaurant,
+          getManyCommandesRestaurantDetails,
+          getUserCountByPartenaireRestaurant
 }

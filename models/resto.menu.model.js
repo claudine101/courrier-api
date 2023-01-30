@@ -9,6 +9,23 @@ const findmenucategories = async () => {
 
           }
 }
+const updateOne = async (NOTE, COMMENTAIRE, ID_NOTE) => {
+    try {
+        var sql = "UPDATE restaurant_menus_notes SET NOTE=?,COMMENTAIRE=? WHERE ID_NOTE=?"
+        return query(sql, [NOTE, COMMENTAIRE, ID_NOTE])
+    }
+    catch (error) {
+        throw error
+    }
+
+}
+const findByIdNote = async (id) => {
+    try {
+        return query("SELECT * FROM  restaurant_menus_notes WHERE ID_NOTE=?", [id]);
+    } catch (error) {
+        throw error;
+    }
+};
 const findCategories = async (ID_PARTENAIRE_SERVICE) => {
           try {
                     var binds = [ID_PARTENAIRE_SERVICE]
@@ -161,10 +178,10 @@ const findByIDmenu = async (ID_PARTENAIRE_SERVICE, category, limit = 10, offset 
 //         throw error
 //     }
 // }
-const findAllmenu = async (q, category, subCategory, partenaireService, limit = 10, offset = 0) => {
-          try {
-                    var binds = []
-                    var sqlQuery = `
+const findAllmenu = async (q, category, subCategory, partenaireService, min_prix, max_prix, limit = 10, offset = 0) => {
+    try {
+        var binds = []
+        var sqlQuery = `
                             SELECT menu.*,
                             ps.NOM_ORGANISATION,
                             ps.ID_TYPE_PARTENAIRE,
@@ -183,26 +200,39 @@ const findAllmenu = async (q, category, subCategory, partenaireService, limit = 
                             LEFT JOIN restaurant_categorie_menu resc ON resc.ID_CATEGORIE_MENU = menu.ID_CATEGORIE_MENU
                     WHERE 1
                     `
-                    if (q && q != "") {
-                              sqlQuery +=
-                                        "AND  menu.NOM  LIKE ?";
-                              binds.push(`%${q}%`);
-                    }
-                    if (category) {
-                              sqlQuery += " AND menu.ID_CATEGORIE_MENU=? "
-                              binds.push(category)
-                    }
-                    if (partenaireService) {
-                              sqlQuery += " AND menu.ID_PARTENAIRE_SERVICE = ? "
-                              binds.push(partenaireService)
-                    }
-                    sqlQuery += ` ORDER BY menu.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
-                    return query(sqlQuery, binds);
-          }
-          catch (error) {
-                    throw error
+        if (q && q != "") {
+            sqlQuery +=
+                "AND  menu.NOM  LIKE ?";
+            binds.push(`%${q}%`);
+        }
+        if (category) {
+            sqlQuery += " AND menu.ID_CATEGORIE_MENU=? "
+            binds.push(category)
+        }
+        if (partenaireService) {
+            sqlQuery += " AND menu.ID_PARTENAIRE_SERVICE = ? "
+            binds.push(partenaireService)
+        }
+        if (min_prix && !max_prix) {
+            sqlQuery += " AND menu.PRIX >=? "
+            binds.push(min_prix)
+        }
+        else if (!min_prix && max_prix) {
+            sqlQuery += " AND menu.PRIX <=? "
+            binds.push(max_prix)
+        }
+        else if (min_prix && max_prix) {
+            sqlQuery += "AND menu.PRIX BETWEEN min_prix=? AND max_prix=?"
+            binds.push(min_prix && max_prix)
 
-          }
+        }
+        sqlQuery += ` ORDER BY menu.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
+        return query(sqlQuery, binds);
+    }
+    catch (error) {
+        throw error
+
+    }
 }
 const findmenuResearch = async (q, category, limit = 10, offset = 0) => {
           try {
@@ -294,6 +324,22 @@ const findnotemenu = async (ID_RESTAURANT_MENU, id) => {
           }
 }
 
+const findnotemenuUser = async (id) => {
+    try {
+        var sqlQuery = "SELECT epn.NOTE,epn.COMMENTAIRE,epn.ID_RESTAURANT_MENU,u.NOM,u.PRENOM,"
+        sqlQuery += " epn.ID_USER,epn.DATE_INSERTION,u.IMAGE FROM restaurant_menus_notes epn LEFT JOIN"
+        sqlQuery += " users u ON epn.ID_USER=u.ID_USER   WHERE epn.ID_USER=?"
+        //sqlQuery+=` ORDER BY epn.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
+        return query(sqlQuery, [id]);
+
+    }
+    catch (error) {
+        throw error
+    }
+}
+
+
+
 const updateMenu = async (IMAGES_1, ID_RESTAURANT_MENU) => {
           try {
                     var sqlQuery = "UPDATE  restaurant_menus SET IMAGES_1 = ? WHERE ID_RESTAURANT_MENU = ?";
@@ -346,24 +392,27 @@ const findByServiceMenus = async (ID_PARTENAIRE_SERVICE) => {
 
 
 module.exports = {
-          findmenucategories,
-          findmenusouscategories,
-          findmenu,
-          findmenuResearch,
-          findAllmenu,
-          findmenubyPartenaire,
-          findCategories,
-          findByIDmenu,
-          findWishlist,
-          createNotes,
-          findById,
-          findBYidProduitPartenaire,
-          findnotemenu,
-          updateMenu,
-          findMenuPartenaire,
-          findByServiceMenus
-          //findmenusbyPartenaire,
-          //findAllmenus
+    findmenucategories,
+    findmenusouscategories,
+    findmenu,
+    findByIdNote,
+    findmenuResearch,
+    findAllmenu,
+    findmenubyPartenaire,
+    findCategories,
+    findByIDmenu,
+    findWishlist,
+    createNotes,
+    findById,
+    findBYidProduitPartenaire,
+    findnotemenu,
+    updateMenu,
+    findMenuPartenaire,
+    findByServiceMenus,
+    findnotemenuUser,
+    updateOne
+    //findmenusbyPartenaire,
+    //findAllmenus
 
 
 }

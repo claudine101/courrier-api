@@ -14,7 +14,7 @@ const { query } = require('../utils/db');
 const IMAGES_DESTINATIONS = require('../constants/IMAGES_DESTINATIONS');
 const login = async (req, res) => {
           try {
-                    const { email, password } = req.body;
+                    const { email, password, PUSH_NOTIFICATION_TOKEN, DEVICE } = req.body;
                     const validation = new Validation(
                               req.body,
                               {
@@ -49,6 +49,10 @@ const login = async (req, res) => {
                     var user = (await userPartenaireModel.findBy("EMAIL", email))[0];
                     if (user) {
                               if (user.PASSWORD == md5(password)) {
+                                        const notification = (await query('SELECT ID_NOTIFICATION_TOKEN FROM notification_tokens WHERE TOKEN = ? AND ID_USER = ?', [PUSH_NOTIFICATION_TOKEN, user.ID_USER]))[0]
+                                        if (!notification && PUSH_NOTIFICATION_TOKEN) {
+                                                await query('INSERT INTO notification_tokens(ID_USER, DEVICE, TOKEN, ID_PROFIL) VALUES(?, ?, ?, ?)', [user.ID_USER, DEVICE, PUSH_NOTIFICATION_TOKEN, user.ID_PROFIL]);
+                                        }
                                         const token = generateToken({ user: user.ID_USER }, 3 * 12 * 30 * 24 * 3600)
                                         const { PASSWORD, USERNAME, ID_TYPE_PARTENAIRE, COUNTRY_ID, ...other } = user
                                         res.status(RESPONSE_CODES.CREATED).json({
@@ -91,7 +95,7 @@ const login = async (req, res) => {
 }
 const createUser = async (req, res) => {
           try {
-                    const { NOM, PRENOM, EMAIL, USERNAME, PASSWORD, SEXE, DATE_NAISSANCE, COUNTRY_ID, ADRESSE, TELEPHONE_1, TELEPHONE_2 } = req.body
+                    const { NOM, PRENOM, EMAIL, USERNAME, PASSWORD, SEXE, DATE_NAISSANCE, COUNTRY_ID, ADRESSE, TELEPHONE_1, TELEPHONE_2, PUSH_NOTIFICATION_TOKEN, DEVICE } = req.body
                     console.log(req.body)
                     const { IMAGE } = req.files || {}
                     const validation = new Validation({ ...req.body, ...req.files },
@@ -174,6 +178,10 @@ const createUser = async (req, res) => {
                     )
                     const { partenaireId } = await userPartenaireModel.createOnePartenaire(insertId)
                     const user = (await userPartenaireModel.findById(insertId))[0]
+                    const notification = (await query('SELECT ID_NOTIFICATION_TOKEN FROM notification_tokens WHERE TOKEN = ? AND ID_USER = ?', [PUSH_NOTIFICATION_TOKEN, user.ID_USER]))[0]
+                                if (!notification && PUSH_NOTIFICATION_TOKEN) {
+                                await query('INSERT INTO notification_tokens(ID_USER, DEVICE, TOKEN, ID_PROFIL) VALUES(?, ?, ?, ?)', [user.ID_USER, DEVICE, PUSH_NOTIFICATION_TOKEN, user.ID_PROFIL]);
+                        }
                     const token = generateToken({ user: user.ID_USER }, 3 * 12 * 30 * 24 * 3600)
                     const { PASSWORD: pw, USERNAME: usr, ID_PROFIL, IMAGE: img, ID_PARTENAIRE: idp, ID_TYPE_PARTENAIRE, COUNTRY_ID: ctr, ...other } = user
                     res.status(RESPONSE_CODES.CREATED).json({
@@ -269,6 +277,90 @@ const createPartenaire = async (req, res) => {
                     })
           }
 }
+
+const  UpdatePartenaire= async (req, res) => {
+    try {
+             
+              const {NOM_ORGANISATION, TELEPHONE, NIF, EMAIL, ADRESSE_COMPLETE, LATITUDE, LONGITUDE} = req.body
+              const { ID_PARTENAIRE_SERVICE}=req.params
+              const { LOGO, BACKGROUND_IMAGE } = req.files || {}
+              const partenaireService = (await query('SELECT * FROM partenaire_service WHERE ID_PARTENAIRE_SERVICE = ?', [ID_PARTENAIRE_SERVICE]))[0]
+              console.log(partenaireService.BACKGROUND_IMAGE)
+              const validation = new Validation({ ...req.body, ...req.files },
+                        {
+                                  LOGO: {
+                                            image: 21000000,
+                                            
+                                  },
+                                  BACKGROUND_IMAGE: {
+                                            image: 21000000
+                                  },
+                        },
+                        {
+                                  LOGO: {
+                                            image: "La taille invalide"
+                                  },
+                                  BACKGROUND_IMAGE: {
+                                            image: "La taille invalide"
+                                  },
+                        }
+              )
+              await validation.run();
+              const isValide = await validation.isValidate()
+              const errors = await validation.getErrors()
+              if (!isValide) {
+                        return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
+                                  statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
+                                  httpStatus: RESPONSE_STATUS.UNPROCESSABLE_ENTITY,
+                                  message: "Probleme de validation des donnees",
+                                  result: errors
+                        })
+              }
+              const partenaireUpload = new PartenaireUpload()
+              var backgoundImage = null
+              
+               if(LOGO){
+                const { fileInfo: fileInfo_1 } = await partenaireUpload.upload(LOGO, false)
+                const logoImage =`${req.protocol}://${req.get("host")}${IMAGES_DESTINATIONS.partenaires}/${fileInfo_1.fileName}`;
+               }
+                
+
+              if (BACKGROUND_IMAGE) {
+                        const { fileInfo: fileInfo_2 } = await partenaireUpload.upload(BACKGROUND_IMAGE, false)
+                        backgoundImage = `${req.protocol}://${req.get("host")}${IMAGES_DESTINATIONS.partenaires}/${fileInfo_2.fileName}`;
+              }
+              const {insertId} = await userPartenaireModel.changeService(
+             
+                        NOM_ORGANISATION,
+                        TELEPHONE,
+                        NIF,
+                        EMAIL,
+                        ADRESSE_COMPLETE,
+                        LATITUDE,
+                        LONGITUDE,
+                        LOGO?logoImage:partenaireService.LOGO,
+                        BACKGROUND_IMAGE?backgoundImage:partenaireService.BACKGROUND_IMAGE,
+                        ID_PARTENAIRE_SERVICE
+                        
+
+              )
+              const service = (await userPartenaireModel.findByIdPartenai(insertId))[0]
+              res.status(RESPONSE_CODES.CREATED).json({
+                        statusCode: RESPONSE_CODES.CREATED,
+                        httpStatus: RESPONSE_STATUS.CREATED,
+                        message: "La modification est fait avec succès",
+                        result: service
+              })
+    }catch (error) {
+              console.log(error)
+              res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                        statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                        httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                        message: "Enregistrement echoue",
+              })
+    }
+}
+
 const getAllPartenaire = async (req, res) => {
           try {
                     const getImageUri = (fileName, folder) => {
@@ -614,5 +706,6 @@ module.exports = {
           findAll,
           findAllShop,
           UpdateShop,
-          findAllResto
+          findAllResto,
+          UpdatePartenaire
 }

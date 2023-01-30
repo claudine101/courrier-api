@@ -677,14 +677,11 @@ const getAllRestoCommandes = async (req, res) => {
                     }
                     var commandesIds = []
                     const commandes = await commandeModel.getUserRestoCommandes(req.userId)
-                    console.log(commandes)
                     commandes.forEach(commande => commandesIds.push(commande.ID_COMMANDE))
-                    console.log(commandesIds)
                     var details = 0
                     if (commandesIds.length > 0) {
                               details = await commandeModel.getManyCommandesRestoDetails(commandesIds)
                     }
-                    console.log(details)
                     const commandesDetails = commandes.map(commande => {
                               var TOTAL_COMMANDE = 0
                               const myDetails = details.filter(d => d.ID_COMMANDE == commande.ID_COMMANDE)
@@ -975,16 +972,89 @@ const getLivraisonDetails = async (req, res) => {
           }
 }
 
+const getCommandesPartenaireRestaurant = async (req, res) => {
+          try {
+                    const getImageUri = (fileName) => {
+                              if (!fileName) return null
+                              if (fileName.indexOf("http") === 0) return fileName
+                              return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+                    }
+
+                    const { ID_PARTENAIRE_SERVICE } = req.params
+                    var commandesIds = []
+                    const commandes = await commandeModel.getUserCommandesPartenaireRestaurant(ID_PARTENAIRE_SERVICE)
+                    commandes.forEach(commande => commandesIds.push(commande.ID_COMMANDE))
+                    var details = 0
+                    if (commandesIds.length > 0) {
+                              details = await commandeModel.getManyCommandesRestaurantDetails(commandesIds)
+                    }
+                    const commandesDetails = commandes.map(commande => {
+                              var TOTAL_COMMANDE = 0
+                              const myDetails = details.filter(d => d.ID_COMMANDE == commande.ID_COMMANDE)
+                              myDetails.forEach(detail => TOTAL_COMMANDE += detail.QUANTITE * detail.PRIX)
+                              return {
+                                        ...commande,
+                                        ITEMS: myDetails.length,
+                                        TOTAL: TOTAL_COMMANDE,
+                                        details: myDetails.map(detail => ({
+                                                  ...detail,
+                                                  IMAGE_1: getImageUri(detail.IMAGE_1)
+                                        }))
+                              }
+                    })
+                    res.status(RESPONSE_CODES.OK).json({
+                              statusCode: RESPONSE_CODES.OK,
+                              httpStatus: RESPONSE_STATUS.OK,
+                              message: "succès",
+                              result: commandesDetails
+                    })
+
+          }
+          catch (error) {
+                    console.log(error)
+                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                              message: "Erreur interne du serveur, réessayer plus tard",
+
+                    })
+          }
+}
+
+const getCountCommandesByPartenaireRestau = async (req, res) => {
+          try {
+                    const getImageUri = (fileName) => {
+                              if (!fileName) return null
+                              if (fileName.indexOf("http") === 0) return fileName
+                              return `${req.protocol}://${req.get("host")}/uploads/products/${fileName}`
+                    }
+                    const { ID_PARTENAIRE_SERVICE } = req.params
+                    const commandes = await commandeModel.getUserCountByPartenaireRestaurant(ID_PARTENAIRE_SERVICE)
+                    res.status(RESPONSE_CODES.OK).json({
+                              statusCode: RESPONSE_CODES.OK,
+                              httpStatus: RESPONSE_STATUS.OK,
+                              message: "succès",
+                              result: commandes
+                    })
+          }
+          catch (error) {
+                    console.log(error)
+                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                              message: "Erreur interne du serveur, réessayer plus tard",
+
+                    })
+          }
+}
+
 module.exports = {
           createAllCommandes,
           getCommandes,
-          createAllCommandes,
           getStatus,
           getCommandeStatus,
           findOneCommande,
           commandeDetail,
-          commandePartenaire,
-          createRestoCommandes,
           getAllRestoCommandes,
           getPartenaireCommandes,
           getStatusResto,
@@ -992,5 +1062,11 @@ module.exports = {
           getCountCommandesByPartenaire,
           getCommandesPartenaire,
           getUpdateStatus,
-          getLivraisonDetails
+          getLivraisonDetails,
+          commandePartenaire,
+          createRestoCommandes,
+          // getCountCommandes,
+          // getCountRestoCommandes,
+          getCommandesPartenaireRestaurant,
+          getCountCommandesByPartenaireRestau
 }

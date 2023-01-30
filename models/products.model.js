@@ -40,7 +40,7 @@ const findproduct = async (id, category, subCategory, limit = 10, offset = 0) =>
           }
 }
 
-const findproducts = async (q, category, subCategory, partenaireService, limit = 10, offset = 0) => {
+const findproducts = async (q, category, subCategory, partenaireService,  limit = 10, offset = 0, min_prix, max_prix) => {
 
           try {
                     var binds = []
@@ -80,6 +80,20 @@ const findproducts = async (q, category, subCategory, partenaireService, limit =
                               sqlQuery += " AND ep.ID_PARTENAIRE_SERVICE = ? "
                               binds.push(partenaireService)
                     }
+                    if (min_prix && !max_prix) {
+                              sqlQuery += " AND ep.PRIX >= ? "
+                              binds.push(min_prix)
+                    } else if (!min_prix && max_prix) {
+                              sqlQuery += " AND ep.PRIX <= ? "
+                              binds.push(max_prix)
+
+                    } else if (min_prix && max_prix) {
+
+                              sqlQuery += "AND ep.PRIX BETWEEN min_prix=? AND max_prix=?"
+                              binds.push(min_prix && max_prix)
+
+                    }
+
                     sqlQuery += ` ORDER BY ep.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
                     return query(sqlQuery, binds);
           }
@@ -213,6 +227,16 @@ const findproductsResearch = async (q, category, subCategory, limit = 10, offset
 
           }
 }
+const updateOne = async (NOTE, COMMENTAIRE, ID_NOTE) => {
+          try {
+                    var sql = "UPDATE `ecommerce_produit_notes` SET NOTE=?,COMMENTAIRE=? WHERE ID_NOTE=?"
+                    return query(sql, [NOTE, COMMENTAIRE, ID_NOTE])
+          }
+          catch (error) {
+                    throw error
+          }
+
+}
 const findone = async (ID_PRODUIT, limit = 10, offset = 0) => {
 
           try {
@@ -320,7 +344,7 @@ const getdetail = async (ID_PRODUIT_PARTENAIRE) => {
 
 const findById = async (id) => {
           try {
-                    var sqlQuery = "SELECT epn.ID_NOTE, epn.NOTE,epn.COMMENTAIRE,epn.ID_PRODUIT,u.NOM,u.PRENOM, epn.ID_USER,epn.DATE_INSERTION,u.IMAGE FROM ecommerce_produit_notes epn LEFT JOIN users u ON epn.ID_USER=u.ID_USER   WHERE epn.ID_NOTE=?";
+                    var sqlQuery = "SELECT epn.ID_NOTE,epn.ID_NOTE,epn.NOTE,epn.COMMENTAIRE,epn.ID_PRODUIT,u.NOM,u.PRENOM, epn.ID_USER,epn.DATE_INSERTION,u.IMAGE FROM ecommerce_produit_notes epn LEFT JOIN users u ON epn.ID_USER=u.ID_USER   WHERE epn.ID_NOTE=?";
                     return query(sqlQuery, [id]);
 
           }
@@ -328,6 +352,15 @@ const findById = async (id) => {
                     throw error
           }
 }
+
+const findByIdNote = async (id) => {
+          try {
+                    return query("SELECT * FROM `ecommerce_produit_notes` WHERE ID_NOTE=?", [id]);
+          } catch (error) {
+                    throw error;
+          }
+};
+
 const findBYidProduitPartenaire = async (id, limit = 10, offset = 0) => {
           try {
                     var sqlQuery = "SELECT epn.NOTE,epn.COMMENTAIRE,epn.ID_PRODUIT,u.NOM,u.PRENOM,"
@@ -341,19 +374,34 @@ const findBYidProduitPartenaire = async (id, limit = 10, offset = 0) => {
                     throw error
           }
 }
-const findnoteProduitPartenaire = async (ID_PRODUIT_PARTENAIRE, id) => {
+const findnoteProduitPartenaire = async (ID_PRODUIT) => {
           try {
-                    var sqlQuery = "SELECT epn.NOTE,epn.COMMENTAIRE,epn.ID_PRODUIT_PARTENAIRE,u.NOM,u.PRENOM,"
+                    var sqlQuery = "SELECT epn.NOTE,epn.COMMENTAIRE,epn.ID_PRODUIT,u.NOM,u.PRENOM, u.NOM, u.PRENOM,"
                     sqlQuery += " epn.ID_USER,epn.DATE_INSERTION,u.IMAGE FROM ecommerce_produit_notes epn LEFT JOIN"
-                    sqlQuery += " users u ON epn.ID_USER=u.ID_USER   WHERE epn.ID_PRODUIT=? AND  epn.ID_USER=?"
-                    //sqlQuery+=` ORDER BY epn.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
-                    return query(sqlQuery, [ID_PRODUIT_PARTENAIRE, id]);
+                    sqlQuery += " users u ON epn.ID_USER=u.ID_USER  WHERE epn.ID_PRODUIT=? "
+                    sqlQuery += ` ORDER BY epn.DATE_INSERTION DESC`;
+                    return query(sqlQuery, [ID_PRODUIT]);
 
           }
           catch (error) {
                     throw error
           }
 }
+const findNoteUser = async (id) => {
+          try {
+                    var sqlQuery = "SELECT epn.NOTE,epn.ID_NOTE,epn.COMMENTAIRE,epn.ID_PRODUIT,u.NOM,u.PRENOM,"
+                    sqlQuery += " epn.ID_USER,epn.DATE_INSERTION,u.IMAGE FROM ecommerce_produit_notes epn LEFT JOIN"
+                    sqlQuery += " users u ON epn.ID_USER=u.ID_USER   WHERE epn.ID_USER=?"
+                    sqlQuery += ` ORDER BY epn.DATE_INSERTION DESC`;
+                    return query(sqlQuery, [id]);
+
+          }
+          catch (error) {
+                    throw error
+          }
+}
+
+
 
 
 
@@ -457,6 +505,21 @@ const updateImage = async (IMAGES, index, ID_PRODUIT) => {
                     throw error;
           }
 }
+
+const findByServiceProduits = async (ID_PARTENAIRE_SERVICE) => {
+          try {
+                    var binds = [ID_PARTENAIRE_SERVICE]
+                    var sqlQuery = " SELECT ep.ID_PRODUIT, COUNT(ep.ID_PARTENAIRE_SERVICE) AS NBRE_PRODUITS FROM ecommerce_produits ep"
+                    sqlQuery += " LEFT JOIN partenaire_service ps ON ps.ID_PARTENAIRE_SERVICE=ep.ID_PARTENAIRE_SERVICE"
+                    sqlQuery += "  WHERE ep.ID_PARTENAIRE_SERVICE= ? GROUP BY ep.ID_PARTENAIRE_SERVICE "
+                    return query(sqlQuery, binds);
+
+          }
+          catch (error) {
+                    throw error
+
+          }
+}
 module.exports = {
           findproducts,
           findproductCommande,
@@ -480,4 +543,11 @@ module.exports = {
           findnoteProduitPartenaire,
           getdetail,
           findCategoriesPartnaire,
+          findByServiceProduits,
+          findNoteUser,
+          updateOne,
+          findByIdNote
+
+
+
 }
