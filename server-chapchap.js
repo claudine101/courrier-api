@@ -29,6 +29,7 @@ const productsRouter = require("./routes/products.routes");
 const wishlistRouter = require("./routes/wishlist.routes");
 const stockRouter = require("./routes/stock.router");
 const productTotalRouter = require("./routes/product.total.router");
+const commandeLivreurRouter = require("./routes/commande.livreur.router")
 dotenv.config({ path: path.join(__dirname, "./.env") });
 
 const { Server } = require("socket.io");
@@ -60,6 +61,7 @@ app.use("/wishlist", wishlistRouter)
 app.use("/produit", stockRouter)
 
 app.use("/producucts/total", productTotalRouter)
+app.use("/commande/livreur", commandeLivreurRouter)
 
 
 app.all("*", (req, res) => {
