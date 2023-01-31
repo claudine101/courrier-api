@@ -96,7 +96,6 @@ const login = async (req, res) => {
 const createUser = async (req, res) => {
           try {
                     const { NOM, PRENOM, EMAIL, USERNAME, PASSWORD, SEXE, DATE_NAISSANCE, COUNTRY_ID, ADRESSE, TELEPHONE_1, TELEPHONE_2, PUSH_NOTIFICATION_TOKEN, DEVICE } = req.body
-                    console.log(req.body)
                     const { IMAGE } = req.files || {}
                     const validation = new Validation({ ...req.body, ...req.files },
                               {
@@ -176,7 +175,7 @@ const createUser = async (req, res) => {
                               TELEPHONE_2,
                               filename ? filename : null
                     )
-                    const { partenaireId } = await userPartenaireModel.createOnePartenaire(insertId)
+                    const { insertId: ID_PARTENAIRE } = await userPartenaireModel.createOnePartenaire(insertId)
                     const user = (await userPartenaireModel.findById(insertId))[0]
                     const notification = (await query('SELECT ID_NOTIFICATION_TOKEN FROM notification_tokens WHERE TOKEN = ? AND ID_USER = ?', [PUSH_NOTIFICATION_TOKEN, user.ID_USER]))[0]
                                 if (!notification && PUSH_NOTIFICATION_TOKEN) {
@@ -190,6 +189,7 @@ const createUser = async (req, res) => {
                               message: "Enregistrement est fait avec succès",
                               result: {
                                         ...other,
+                                        ID_PARTENAIRE,
                                         token
                               }
                     })
