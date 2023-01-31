@@ -9,11 +9,11 @@ const findAll = async () => {
           }
 };
 
-const createCommandes = async (PAYEMENT_ID, ID_PARTENAIRE_SERVICE, ID_USER, DATE_LIVRAISON, CODE_UNIQUE, TOTAL, ID_DETAILS_LIVRAISON, ID_STATUT = 1) => {
+const createCommandes = async (PAYEMENT_ID, ID_PARTENAIRE_SERVICE, ID_USER, DATE_LIVRAISON, CODE_UNIQUE, TOTAL, ID_DETAILS_LIVRAISON, ID_STATUT = 1, ID_DRIVER_COURSE) => {
         try {
-                var sqlQuery = "INSERT INTO ecommerce_commandes(PAYEMENT_ID, ID_PARTENAIRE_SERVICE, ID_USER, DATE_LIVRAISON, CODE_UNIQUE, TOTAL, ID_DETAILS_LIVRAISON, ID_STATUT)";
-                sqlQuery += "VALUES(?, ?, ?, ?, ?, ?, ?, ?)"
-                return query(sqlQuery, [PAYEMENT_ID, ID_PARTENAIRE_SERVICE, ID_USER, DATE_LIVRAISON, CODE_UNIQUE, TOTAL, ID_DETAILS_LIVRAISON, ID_STATUT]);
+                var sqlQuery = "INSERT INTO ecommerce_commandes(PAYEMENT_ID, ID_PARTENAIRE_SERVICE, ID_USER, DATE_LIVRAISON, CODE_UNIQUE, TOTAL, ID_DETAILS_LIVRAISON, ID_STATUT, ID_DRIVER_COURSE)";
+                sqlQuery += "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                return query(sqlQuery, [PAYEMENT_ID, ID_PARTENAIRE_SERVICE, ID_USER, DATE_LIVRAISON, CODE_UNIQUE, TOTAL, ID_DETAILS_LIVRAISON, ID_STATUT, ID_DRIVER_COURSE]);
         } catch (error) {
                 throw error
         }
@@ -471,11 +471,11 @@ const getNewStatusUpdate = async (ID_COMMANDE) => {
         }
 };
 
-const createCommandesResto = async (PAYEMENT_ID, ID_PARTENAIRE_SERVICE, ID_USER, DATE_LIVRAISON, CODE_UNIQUE, TOTAL, ID_DETAILS_LIVRAISON, ID_STATUT = 1) => {
+const createCommandesResto = async (PAYEMENT_ID, ID_PARTENAIRE_SERVICE, ID_USER, DATE_LIVRAISON, CODE_UNIQUE, TOTAL, ID_DETAILS_LIVRAISON, ID_STATUT = 1, ID_DRIVER_COURSE) => {
         try {
-                var sqlQuery = "INSERT INTO restaurant_commandes(PAYEMENT_ID, ID_PARTENAIRE_SERVICE, ID_USER, DATE_LIVRAISON, CODE_UNIQUE, TOTAL, ID_DETAILS_LIVRAISON, ID_STATUT)";
-                sqlQuery += "VALUES(?, ?, ?, ?, ?, ?, ?, ?)"
-                return query(sqlQuery, [PAYEMENT_ID, ID_PARTENAIRE_SERVICE, ID_USER, DATE_LIVRAISON, CODE_UNIQUE, TOTAL, ID_DETAILS_LIVRAISON, ID_STATUT]);
+                var sqlQuery = "INSERT INTO restaurant_commandes(PAYEMENT_ID, ID_PARTENAIRE_SERVICE, ID_USER, DATE_LIVRAISON, CODE_UNIQUE, TOTAL, ID_DETAILS_LIVRAISON, ID_STATUT, ID_DRIVER_COURSE)";
+                sqlQuery += "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                return query(sqlQuery, [PAYEMENT_ID, ID_PARTENAIRE_SERVICE, ID_USER, DATE_LIVRAISON, CODE_UNIQUE, TOTAL, ID_DETAILS_LIVRAISON, ID_STATUT, ID_DRIVER_COURSE]);
         } catch (error) {
                 throw error
         }

@@ -13,6 +13,8 @@ const axios = require('axios').default
 const paymentModel = require("../models/payment.model")
 const express = require('express');
 const IDS_COMMANDES_STATUTS = require('../constants/IDS_COMMANDES_STATUTS');
+const randomInt = require('../utils/randomInt');
+const sendPushNotifications = require('../utils/sendPushNotifications');
 
 const createAllCommandes = async (req, res) => {
           try {
@@ -118,6 +120,26 @@ const createAllCommandes = async (req, res) => {
                               const grouped = Object.values(groups);
                               const { insertId: PAYEMENT_ID } = await paymentModel.createOne(service, 1, numero, null, TOTAL, TXNI_D, 0)
                               const { insertId: ID_DETAILS_LIVRAISON } = await commandeModel.createDetailLivraison(req.userId, shipping_info.NOM, shipping_info.PRENOM, shipping_info.ADRESSE, shipping_info.TELEPHONE, shipping_info.AVENUE, shipping_info.ID_COUNTRY)
+                              const livreursQuery = `
+                              SELECT pl.ID_LIVREUR,
+                                        p.ID_USER
+                              FROM personne_livreurs pl
+                                        LEFT JOIN partenaire_service ps ON ps.ID_PARTENAIRE_SERVICE = pl.ID_PARTENAIRE_SERVICE
+                                        LEFT JOIN partenaires P ON P.ID_PARTENAIRE = ps.ID_PARTENAIRE
+                              `
+                              const livreurs = await query(livreursQuery)
+                              const livreur = livreurs[randomInt(0, livreurs.length-1)]
+                              const partenaireService = (await query('SELECT ps.ADRESSE_COMPLETE, ps.ID_PARTENAIRE, p.ID_USER FROM partenaire_service ps LEFT JOIN partenaires p ON p.ID_PARTENAIRE = ps.ID_PARTENAIRE WHERE ID_PARTENAIRE_SERVICE = ?', [grouped[0].ID_PARTENAIRE_SERVICE]))[0]
+                              var sqlQuery = `
+                              INSERT INTO driver_course(
+                                        ID_CATEGORIE_COURSE,
+                                        ID_LIVREUR,
+                                        ADDRESSE_PICKER,
+                                        ADRESSE_DEST
+                              )
+                              VALUES(?, ?, ?, ?)
+                              `
+                              const { insertId: ID_DRIVER_COURSE } = await query(sqlQuery, [1, livreur.ID_LIVREUR, partenaireService.ADRESSE_COMPLETE, shipping_info.ADRESSE])
                               const commandesIds = []
                               await Promise.all(grouped.map(async (commande) => {
                                         const CODE_UNIQUE = await getReferenceCode()
@@ -133,7 +155,8 @@ const createAllCommandes = async (req, res) => {
                                                   CODE_UNIQUE,
                                                   TOTAL,
                                                   ID_DETAILS_LIVRAISON,
-                                                  1
+                                                  1,
+                                                  ID_DRIVER_COURSE
                                         )
                                         commandesIds.push(insertId)
                                         commande.products.forEach(commande => {
@@ -147,7 +170,6 @@ const createAllCommandes = async (req, res) => {
                                         })
                               }))
                               await commandeModel.createCommandeDetails(ecommerce_commande_details);
-
                               res.status(RESPONSE_CODES.CREATED).json({
                                         statusCode: RESPONSE_CODES.CREATED,
                                         httpStatus: RESPONSE_STATUS.CREATED,
@@ -499,8 +521,6 @@ const createRestoCommandes = async (req, res) => {
                               return `${req.protocol}://${req.get("host")}/uploads/menu/${fileName}`
                     }
                     const { shipping_info, commandes, numero, service } = req.body
-                    console.log(req.body)
-                    console.log(req.userId)
                     const validation = new Validation(
                               shipping_info,
                               {
@@ -613,6 +633,26 @@ const createRestoCommandes = async (req, res) => {
                               const grouped = Object.values(groups);
                               const { insertId: PAYEMENT_ID } = await paymentModel.createOne(service, 1, numero, null, TOTAL, TXNI_D, 0)
                               const { insertId: ID_DETAILS_LIVRAISON } = await commandeModel.createDetailLivraison(req.userId, shipping_info.N0M, shipping_info.PRENOM, shipping_info.ADRESSE, shipping_info.TELEPHONE, shipping_info.AVENUE, shipping_info.ID_COUNTRY)
+                              const livreursQuery = `
+                              SELECT pl.ID_LIVREUR,
+                                        p.ID_USER
+                              FROM personne_livreurs pl
+                                        LEFT JOIN partenaire_service ps ON ps.ID_PARTENAIRE_SERVICE = pl.ID_PARTENAIRE_SERVICE
+                                        LEFT JOIN partenaires P ON P.ID_PARTENAIRE = ps.ID_PARTENAIRE
+                              `
+                              const livreurs = await query(livreursQuery)
+                              const livreur = livreurs[randomInt(0, livreurs.length-1)]
+                              const partenaireService = (await query('SELECT ps.ADRESSE_COMPLETE, ps.ID_PARTENAIRE, p.ID_USER FROM partenaire_service ps LEFT JOIN partenaires p ON p.ID_PARTENAIRE = ps.ID_PARTENAIRE WHERE ID_PARTENAIRE_SERVICE = ?', [grouped[0].ID_PARTENAIRE_SERVICE]))[0]
+                              var sqlQuery = `
+                              INSERT INTO driver_course(
+                                        ID_CATEGORIE_COURSE,
+                                        ID_LIVREUR,
+                                        ADDRESSE_PICKER,
+                                        ADRESSE_DEST
+                              )
+                              VALUES(?, ?, ?, ?)
+                              `
+                              const { insertId: ID_DRIVER_COURSE } = await query(sqlQuery, [1, livreur.ID_LIVREUR, partenaireService.ADRESSE_COMPLETE, shipping_info.ADRESSE])
                               const commandesIds = []
                               await Promise.all(grouped.map(async (commande) => {
                                         const CODE_UNIQUE = await getReferenceCode()
@@ -628,7 +668,8 @@ const createRestoCommandes = async (req, res) => {
                                                   CODE_UNIQUE,
                                                   TOTAL,
                                                   ID_DETAILS_LIVRAISON,
-                                                  1
+                                                  1,
+                                                  ID_DRIVER_COURSE
                                         )
                                         commandesIds.push(insertId)
                                         commande.products.forEach(commande => {
@@ -946,14 +987,22 @@ const getLivraisonDetails = async (req, res) => {
                     const livraisonSqlQuery = `
                     SELECT d.*,
                               u.NOM CLIENT_NOM,
-                              u.PRENOM CLIENT_PRENOM
+                              u.PRENOM CLIENT_PRENOM,
+                              c.ID_DRIVER_COURSE
                     FROM ecommerce_commandes c
                               LEFT JOIN driver_details_livraison d ON d.ID_DETAILS_LIVRAISON = c.ID_DETAILS_LIVRAISON
                               LEFT JOIN users u ON u.ID_USER = c.ID_USER
                     WHERE c.ID_COMMANDE = ?
                     `
                     const livraison = (await query(livraisonSqlQuery, [ID_COMMANDE]))[0]
-                    const livreur = null
+                    const livreurSqlQuery = `
+                    SELECT pl.*,
+                              dc.ADDRESSE_PICKER
+                    FROM driver_course dc
+                              LEFT JOIN personne_livreurs pl ON pl.ID_LIVREUR = dc.ID_LIVREUR
+                    WHERE ID_DRIVER_COURSE = ?
+                    `
+                    const livreur = (await query(livreurSqlQuery, [livraison.ID_DRIVER_COURSE]))[0]
                     res.status(RESPONSE_CODES.OK).json({
                               statusCode: RESPONSE_CODES.OK,
                               httpStatus: RESPONSE_STATUS.OK,
