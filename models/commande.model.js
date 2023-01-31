@@ -520,7 +520,7 @@ const getUserCountRestoCommandes = async (ID_USER) => {
 const getUserCommandesPartenaireRestaurant = async (ID_PARTENAIRE_SERVICE,q, limit = 10, offset = 0) => {
         try {
                   var binds = [ID_PARTENAIRE_SERVICE]
-                  var sqlQuery = "SELECT co.ID_STATUT, co.ID_COMMANDE, co.CODE_UNIQUE, co.DATE_COMMANDE, ecs.DESCRIPTION STATUT_DESCRIPTION, ecs.NEXT_STATUS FROM restaurant_commandes co "
+                  var sqlQuery = "SELECT co.*, ecs.DESCRIPTION STATUT_DESCRIPTION, ecs.NEXT_STATUS FROM restaurant_commandes co "
                   sqlQuery += " LEFT JOIN restaurant_commande_statut ecs ON ecs.ID_STATUT = co.ID_STATUT "
                   sqlQuery += " WHERE co.ID_PARTENAIRE_SERVICE = ? AND co.ID_STATUT != 1 ORDER BY co.DATE_COMMANDE DESC "
                   sqlQuery += `LIMIT ${offset}, ${limit}`

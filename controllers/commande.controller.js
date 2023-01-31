@@ -996,7 +996,6 @@ const getCommandesPartenaireRestaurant = async (req, res) => {
                               return {
                                         ...commande,
                                         ITEMS: myDetails.length,
-                                        TOTAL: TOTAL_COMMANDE,
                                         details: myDetails.map(detail => ({
                                                   ...detail,
                                                   IMAGE_1: getImageUri(detail.IMAGE_1)
