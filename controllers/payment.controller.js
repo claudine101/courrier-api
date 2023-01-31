@@ -53,7 +53,7 @@ const confirmEconet = async (req, res) => {
                               const commandes = await query("SELECT ID_COMMANDE, ID_USER, ID_PARTENAIRE_SERVICE, ID_DRIVER_COURSE  FROM  restaurant_commandes WHERE PAYEMENT_ID = ? ", [payment.PAYEMENT_ID])
                               await query("UPDATE restaurant_commandes SET ID_STATUT = 2 WHERE PAYEMENT_ID = ?", [payment.PAYEMENT_ID])
                               await Promise.all(commandes.map(async commande => {
-                                        await saveStatus(commande.ID_COMMANDE, req.userId, 2)
+                                        await saveStatusResto(commande.ID_COMMANDE, req.userId, 2)
                                         const partenaireService = (await query('SELECT ps.ADRESSE_COMPLETE, ps.ID_PARTENAIRE, p.ID_USER FROM partenaire_service ps LEFT JOIN partenaires p ON p.ID_PARTENAIRE = ps.ID_PARTENAIRE WHERE ID_PARTENAIRE_SERVICE = ?', [commande.ID_PARTENAIRE_SERVICE]))[0]
                                         const livreursQuery = `
                                         SELECT pl.ID_LIVREUR,

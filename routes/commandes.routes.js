@@ -23,7 +23,8 @@ commandeRouter.get('/status/resto/:ID_COMMANDE', commandeController.getStatusRes
 commandeRouter.get('/status/:ID_COMMANDE', commandeController.getCommandeStatus)
 commandeRouter.get('/get/partenaire', commandeController.getPartenaireCommandes)
 
-commandeRouter.put('/status/update/:ID_COMMANDE', commandeController.getUpdateStatus)
+commandeRouter.put('/status/update/ecommerce/:ID_COMMANDE', commandeController.getUpdateStatus)
+commandeRouter.put('/status/update/resto/:ID_COMMANDE', commandeController.updateRestoStatus)
 commandeRouter.get('/ecommerce/livraison/:ID_COMMANDE', commandeController.getLivraisonDetails)
 
 
