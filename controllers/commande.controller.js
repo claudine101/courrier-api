@@ -872,6 +872,7 @@ const getCommandesPartenaire = async (req, res) => {
                     const { ID_PARTENAIRE_SERVICE } = req.params
                     var commandesIds = []
                     const commandes = await commandeModel.getUserCommandesPartenaire(ID_PARTENAIRE_SERVICE)
+                    
                     commandes.forEach(commande => commandesIds.push(commande.ID_COMMANDE))
                     var details = 0
                     if (commandesIds.length > 0) {
