@@ -190,6 +190,7 @@ const createpartenaire = (ID_PARTENAIRE, ID_SERVICE, ID_TYPE_PARTENAIRE, NOM_ORG
     }
 }
 const createpartenaireLivreur = (ID_PARTENAIRE,ID_TYPE_PARTENAIRE,ID_SERVICE,TELEPHONE,NOM_ORGANISATION,NIF, EMAIL,LOGO, BACKGROUND_IMAGE) => {
+    console.log(ID_PARTENAIRE,ID_TYPE_PARTENAIRE,ID_SERVICE,TELEPHONE,NOM_ORGANISATION,NIF, EMAIL,LOGO, BACKGROUND_IMAGE)
     try {
         var sqlQuery = "INSERT INTO partenaire_service (ID_PARTENAIRE,ID_TYPE_PARTENAIRE,ID_SERVICE,TELEPHONE,NOM_ORGANISATION,NIF,EMAIL,LOGO,BACKGROUND_IMAGE)";
         sqlQuery += "values (?,?,?,?,?,?,?,?,?)";
@@ -256,6 +257,20 @@ const CreatePartenaireService = (ID_PARTENAIRE, ID_SERVICE, PARTENAIRE_SERVICE_S
     }
 }
 
+const getServcePersonne = async (ID_SERVICE_CATEGORIE) => {
+    try {
+        var binds = [ID_SERVICE_CATEGORIE]
+        var sqlQuery = `SELECT *
+                        FROM services
+                        WHERE ID_SERVICE_CATEGORIE = ?`
+        return query(sqlQuery, binds);
+    }
+    catch (error) {
+        throw error
+    }
+
+}
+
 module.exports = {
     findBy,
     createOne,
@@ -273,6 +288,6 @@ module.exports = {
     changeService,
     createpartenaireLivreur,
     insertLivreur,
-    findByIdPartenaireService
-    
+    findByIdPartenaireService,
+    getServcePersonne
 }

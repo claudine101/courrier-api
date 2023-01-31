@@ -17,4 +17,6 @@ userPartenaireRouter.put('/Updateshop/:ID_PARTENAIRE_SERVICE', userPartenairecon
 
 userPartenaireRouter.get('/Resto', userPartenairecontroller.findAllResto)
 userPartenaireRouter.get('/produits/:id', userPartenairecontroller.getProduits) 
+
+userPartenaireRouter.get('/service/personne/:ID_SERVICE_CATEGORIE', userPartenairecontroller.getServicePersonne) 
 module.exports = userPartenaireRouter
