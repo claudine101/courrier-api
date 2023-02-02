@@ -9,60 +9,33 @@ const ip = require('ip')
 const fileUpload = require("express-fileupload");
 const RESPONSE_CODES = require("./constants/RESPONSE_CODES");
 const RESPONSE_STATUS = require("./constants/RESPONSE_STATUS");
-const testRouter = require("./routes/test.routes");
-const usersRouter = require("./routes/users.routes");
-const partenaireProduitRouter = require("./routes/partenaire.produit.routes");
-const partenaireRouter = require("./routes/partenaire.routes");
-const serviceRouter = require("./routes/service.routes");
-const approvisionnementRouter = require("./routes/approvisionnement.routes");
-const userPartenaireRouter = require("./routes/users.partenaire.routes");
-const restoMenuRouter =require("./routes/resto.menu.routes");
-const restoCommandeRouter = require("./routes/resto.commandes.routes");
-const menuRouter = require("./routes/restaurant.menu.routes");
-const partenaireTypeRouter = require("./routes/partenaire.type.routes")
-const repasRouter = require("./routes/restaurant.repas.routes");
-const driverCourseRouter = require("./routes/driver.course.routes");
 const app = express();
 const bindUser = require("./middleware/bindUser");
-const commandeRouter = require("./routes/commandes.routes");
-const productsRouter = require("./routes/products.routes");
-const wishlistRouter = require("./routes/wishlist.routes");
-const stockRouter = require("./routes/stock.router");
-const productTotalRouter = require("./routes/product.total.router");
-const commandeLivreurRouter = require("./routes/commande.livreur.router")
 dotenv.config({ path: path.join(__dirname, "./.env") });
 
 const { Server } = require("socket.io");
-const paymentRouter = require("./routes/payment.routes");
+const ecommerceRouter = require("./routes/ecommerce/ecommerceRouter");
+const authRouter = require("./routes/auth/authRouter");
+const serviceRouter = require("./routes/service/serviceRouter");
+const partenaireRouter = require("./routes/partenaire/partenaireRouter");
+const restoRouter = require("./routes/resto/restoRouter");
+const service_personneRouter = require("./routes/service_personne/service_personneRouter");
+const paymentRouter = require("./routes/payment/paymentRouter");
 
 app.use(cors());
 app.use(express.static(__dirname + "/public"));
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(fileUpload());
+
 app.all('*', bindUser)
-app.use('/test', testRouter)
-app.use('/users', usersRouter)
-app.use('/partenaire', userPartenaireRouter)
+app.use('/auth', authRouter)
+app.use('/ecommerce', ecommerceRouter)
+app.use('/resto', restoRouter)
+app.use('/partenaires', partenaireRouter)
 app.use('/services', serviceRouter)
-app.use('/partenaire/type', partenaireTypeRouter)
-app.use('/partenaire/service', partenaireRouter)
-app.use('/partenaire/produit', partenaireProduitRouter)
-app.use('/partenaire/stock/approvisionnement', approvisionnementRouter)
-app.use("/commandes", commandeRouter)
-app.use("/resto/commandes", restoCommandeRouter)
-app.use("/products", productsRouter)
-app.use("/resto/menu",restoMenuRouter)
-
-app.use("/resto/repas", repasRouter)
-app.use("/driver/course", driverCourseRouter)
-app.use("/payments", paymentRouter)
-app.use("/wishlist", wishlistRouter)
-app.use("/produit", stockRouter)
-
-app.use("/producucts/total", productTotalRouter)
-app.use("/commande/livreur", commandeLivreurRouter)
-
+app.use('/service_personne', service_personneRouter)
+app.use('/payment', paymentRouter)
 
 app.all("*", (req, res) => {
           res.status(RESPONSE_CODES.NOT_FOUND).json({
