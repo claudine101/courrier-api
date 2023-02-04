@@ -86,7 +86,38 @@ const createProduit = async (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE = n
                     throw error
           }
 }
+const findproductsWishlist = async (limit = 10, offset = 0,userId) => {
+    try {
+              var binds = [userId]
+              var sqlQuery = `
+              SELECT ep.*,
+                        ps.NOM_ORGANISATION,
+                        ps.ID_TYPE_PARTENAIRE,
+                        ps.ID_PARTENAIRE,
+                        ps.ID_PARTENAIRE_SERVICE,
+                        ps.ADRESSE_COMPLETE,
+                        ps.ID_SERVICE,
+                        ps.LOGO,
+                        ps.BACKGROUND_IMAGE,
+                        ps.EMAIL,
+                        ps.TELEPHONE,
+                        epc.NOM NOM_CATEGORIE,
+                        ewp.ID_WISHLIST
+              FROM ecommerce_produits ep
+                        LEFT JOIN partenaire_service ps ON ps.ID_PARTENAIRE_SERVICE = ep.ID_PARTENAIRE_SERVICE
+                        LEFT JOIN partenaires par ON par.ID_PARTENAIRE = ps.ID_PARTENAIRE
+                        LEFT JOIN ecommerce_produit_categorie epc ON epc.ID_CATEGORIE_PRODUIT = ep.ID_CATEGORIE_PRODUIT
+                        LEFT JOIN ecommerce_wishlist_produit ewp ON ewp.ID_PRODUIT=ep.ID_PRODUIT 
+              WHERE 1 AND ewp.ID_USER=?
+              `
+            sqlQuery += ` ORDER BY ep.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
+              return query(sqlQuery, binds);
+    }
+    catch (error) {
+              throw error
 
+    }
+}
 const createwishlist = async (ID_PRODUIT,ID_USER,id) => {
     try {
               var sqlQuery = `
@@ -103,5 +134,6 @@ const createwishlist = async (ID_PRODUIT,ID_USER,id) => {
 module.exports = {
           findproducts,
           createProduit,
-          createwishlist
+          createwishlist,
+          findproductsWishlist
 }

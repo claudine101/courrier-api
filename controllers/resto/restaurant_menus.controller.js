@@ -9,7 +9,7 @@ const { query } = require("../../utils/db");
 const getAllmenu = async (req, res) => {
           try {
                     const { q, category, subCategory, partenaireService, limit, offset } = req.query
-                    var Allmenus = await restaurant_menus_model.findAllmenu(q, category, subCategory, partenaireService, limit, offset)
+                    var Allmenus = await restaurant_menus_model.findAllmenu(q, category, subCategory, partenaireService, limit, offset,req.userId)
                     const menus = Allmenus.map(menu => {
                               return {
                                         produit: {
@@ -17,6 +17,7 @@ const getAllmenu = async (req, res) => {
                                                   NOM: menu.NOM,
                                                   ID_PARTENAIRE_SERVICE: menu.ID_PARTENAIRE_SERVICE,
                                                   IMAGE: menu.IMAGE_1,
+                                                  ID_WISHLIST:menu.ID_WISHLIST
                                         },
                                         partenaire: {
                                                   NOM_ORGANISATION: menu.NOM_ORGANISATION,
@@ -64,6 +65,102 @@ const getAllmenu = async (req, res) => {
                     })
           }
 };
+const WishlistMenu= async (req, res) => {
+    try {
+              const {limit, offset } = req.query
+              var Wishlistmenus = await restaurant_menus_model.findwishlistmenu(limit, offset,req.userId)
+              const menus = Wishlistmenus.map(menu => {
+                        return {
+                                  produit: {
+                                            ID_RESTAURANT_MENU: menu.ID_RESTAURANT_MENU,
+                                            NOM: menu.NOM,
+                                            ID_PARTENAIRE_SERVICE: menu.ID_PARTENAIRE_SERVICE,
+                                            IMAGE: menu.IMAGE_1,
+                                            ID_WISHLIST:menu.ID_WISHLIST
+                                  },
+                                  partenaire: {
+                                            NOM_ORGANISATION: menu.NOM_ORGANISATION,
+                                            ID_PARTENAIRE: menu.ID_PARTENAIRE,
+                                            ID_TYPE_PARTENAIRE: menu.ID_TYPE_PARTENAIRE,
+                                            NOM: menu.NOM_USER,
+                                            PRENOM: menu.PRENOM,
+                                            ADRESSE_COMPLETE: menu.ADRESSE_COMPLETE,
+                                            ID_SERVICE: menu.ID_SERVICE,
+                                            LOGO: menu.LOGO,
+                                            BACKGROUND_IMAGE: menu.BACKGROUND_IMAGE,
+                                            EMAIL: menu.EMAIL,
+                                            TELEPHONE: menu.TELEPHONE,
+                                            ID_PARTENAIRE_SERVICE: menu.ID_PARTENAIRE_SERVICE,
+                                  },
+                                  produit_partenaire: {
+                                            ID_PARTENAIRE_SERVICE: menu.ID_PARTENAIRE_SERVICE,
+                                            NOM_ORGANISATION: menu.NOM_ORGANISATION,
+                                            NOM: menu.NOM_PRODUIT_PARTENAIRE,
+                                            DESCRIPTION: menu.DESCRIPTION,
+                                            IMAGE_1: menu.IMAGE_1,
+                                            IMAGE_2: menu.IMAGE_2,
+                                            IMAGE_3: menu.IMAGE_3,
+                                            TAILLE: menu.NOM_TAILLE,
+                                            PRIX: menu.PRIX
+                                  },
+                                  categorie: {
+                                            ID_CATEGORIE_MENU: menu.ID_CATEGORIE_MENU,
+                                            NOM: menu.NOM_CATEGORIE
+                                  },
+                        }
+              })
+              res.status(RESPONSE_CODES.OK).json({
+                        statusCode: RESPONSE_CODES.OK,
+                        httpStatus: RESPONSE_CODES.OK,
+                        message: "Liste des  menus restaurants",
+                        result: menus
+              })
+    } catch (error) {
+              console.log(error)
+              res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                        statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                        httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                        message: "Erreur interne du serveur, réessayer plus tard",
+              })
+    }
+};
+const createRestaurant_wishlist_menu = async (req, res) => {
+    try {
+
+        const { ID_RESTAURANT_MENU } = req.params
+        const wishlist = (await query('SELECT * FROM restaurant_wishlist_menu WHERE ID_USER=? AND ID_RESTAURANT_MENU=?', [req.userId,ID_RESTAURANT_MENU]))[0]
+    
+        if (wishlist) {
+            await query('DELETE FROM  restaurant_wishlist_menu WHERE  ID_RESTAURANT_MENU=? AND ID_USER=? ', [ID_RESTAURANT_MENU, req.userId])
+            res.status(RESPONSE_CODES.CREATED).json({
+                statusCode: RESPONSE_CODES.CREATED,
+                httpStatus: RESPONSE_STATUS.CREATED,
+                message: "La suppression du wishlist",
+
+            })
+
+        } else {
+            const { insertId } = await restaurant_menus_model.createwishlist(
+                ID_RESTAURANT_MENU,
+                req.userId
+            )
+            res.status(RESPONSE_CODES.CREATED).json({
+                statusCode: RESPONSE_CODES.CREATED,
+                httpStatus: RESPONSE_STATUS.CREATED,
+                message: "Enregistrement est fait avec succès",
+            })
+        }
+
+
+    } catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+        })
+    }
+}
 
 const getCategories = async (req, res) => {
           try {
@@ -300,5 +397,7 @@ module.exports = {
           getAllmenu,
           getCategories,
           createMenu,
-          getMenuVariants
+          getMenuVariants,
+          createRestaurant_wishlist_menu,
+          WishlistMenu
 }

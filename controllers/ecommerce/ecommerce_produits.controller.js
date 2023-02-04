@@ -334,6 +334,82 @@ const getSousCategories = async (req, res) => {
 }
 
 
+
+const getWishilistProduct = async (req, res) => {
+    try {
+        const {limit, offset } = req.query
+        const WishlistProducts = await ecommerce_produits_model.findproductsWishlist(limit, offset, req.userId)
+        const products = WishlistProducts.map(product => {
+            return {
+                produit: {
+                    ID_PRODUIT: product.ID_PRODUIT,
+                    NOM: product.NOM,
+                    ID_PRODUIT_PARTENAIRE: product.ID_PRODUIT_PARTENAIRE,
+                    IMAGE: product.IMAGE_1,
+                    ID_WISHLIST: product.ID_WISHLIST,
+                },
+                partenaire: {
+                    NOM_ORGANISATION: product.NOM_ORGANISATION,
+                    ID_PARTENAIRE: product.ID_PARTENAIRE,
+                    ID_TYPE_PARTENAIRE: product.ID_TYPE_PARTENAIRE,
+                    NOM: product.NOM_USER,
+                    PRENOM: product.PRENOM,
+                    ADRESSE_COMPLETE: product.ADRESSE_COMPLETE,
+                    ID_SERVICE: product.ID_SERVICE,
+                    LOGO: product.LOGO,
+                    BACKGROUND_IMAGE: product.BACKGROUND_IMAGE,
+                    EMAIL: product.EMAIL,
+                    TELEPHONE: product.TELEPHONE,
+                    ID_PARTENAIRE_SERVICE: product.ID_PARTENAIRE_SERVICE,
+                },
+                produit_partenaire: {
+                    ID_PARTENAIRE_SERVICE: product.ID_PARTENAIRE_SERVICE,
+                    NOM_ORGANISATION: product.NOM_ORGANISATION,
+                    NOM: product.NOM_PRODUIT_PARTENAIRE,
+                    DESCRIPTION: product.DESCRIPTION,
+                    IMAGE_1: product.IMAGE_1,
+                    IMAGE_2: product.IMAGE_2,
+                    IMAGE_3: product.IMAGE_3,
+                    TAILLE: product.NOM_TAILLE,
+                    PRIX: product.PRIX
+                },
+                categorie: {
+                    ID_CATEGORIE_PRODUIT: product.ID_CATEGORIE_PRODUIT,
+                    NOM: product.NOM_CATEGORIE
+                },
+                sous_categorie: {
+                    ID_PRODUIT_SOUS_CATEGORIE: product.ID_PRODUIT_SOUS_CATEGORIE,
+                    NOM: product.NOM_SOUS_CATEGORIE
+                },
+                stock: {
+                    ID_PRODUIT_STOCK: product.ID_PRODUIT_STOCK,
+                    QUANTITE_STOCKE: product.QUANTITE_TOTAL,
+                    QUANTITE_RESTANTE: product.QUANTITE_RESTANTE,
+                    QUANTITE_VENDUE: product.QUANTITE_VENDUS
+                }
+            }
+        }
+        )
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Liste des produits Wishlist",
+            result: products
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
+
+
+
 const getProductVariants = async (req, res) => {
     try {
         const { ID_PRODUIT } = req.params
@@ -384,5 +460,6 @@ module.exports = {
     getCategories,
     getSousCategories,
     getProductVariants,
-    createEcommerce_wishlist_produit
+    createEcommerce_wishlist_produit,
+    getWishilistProduct
 }
