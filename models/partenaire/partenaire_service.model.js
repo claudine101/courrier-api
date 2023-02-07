@@ -41,6 +41,10 @@ const findAll = async (ID_SERVICE_CATEGORIE, q, limit = 10, offset = 0,) => {
                               sqlQuery += " AND sc.ID_SERVICE_CATEGORIE = ? "
                               binds.push(ID_SERVICE_CATEGORIE)
                     }
+                    if(q && q !=""){
+                        sqlQuery += "AND ps.NOM_ORGANISATION LIKE ?";
+                        binds.push(`%${q}%`);
+                    }
                     sqlQuery += ` ORDER BY ps.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
                     return query(sqlQuery, binds)
           } catch (error) {
