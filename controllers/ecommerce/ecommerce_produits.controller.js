@@ -280,7 +280,7 @@ const createEcommerce_wishlist_produit = async (req, res) => {
 
         const { ID_PRODUIT } = req.params
         const wishlist = (await query('SELECT * FROM ecommerce_wishlist_produit WHERE ID_USER = ? AND ID_PRODUIT=?', [req.userId, ID_PRODUIT]))[0]
-    
+
         if (wishlist) {
             await query('DELETE FROM ecommerce_wishlist_produit WHERE  ID_PRODUIT=? AND ID_USER=? ', [ID_PRODUIT, req.userId])
             res.status(RESPONSE_CODES.CREATED).json({
@@ -322,8 +322,7 @@ const getSousCategories = async (req, res) => {
             message: "Liste des categories",
             result: categories
         })
-    }
-    catch (error) {
+    } catch (error) {
         console.log(error)
         res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
             statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
@@ -333,11 +332,51 @@ const getSousCategories = async (req, res) => {
     }
 }
 
+const getnotesProduit = async (req, res) => {
+    try {
+        const { ID_PRODUIT,limit, offset } = req.query
+        const notes = await ecommerce_produits_model.findNotes(ID_PRODUIT,limit, offset)
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Liste des notes et commentaires",
+            result: notes
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Listing failed",
+        })
+    }
+}
+const getuserNotes= async (req, res) => {
+    try {
+        //console.log(req.userId)
+        const {ID_PRODUIT} = req.query
+        const notes = await ecommerce_produits_model.finduserNotes(req.userId,ID_PRODUIT)
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Liste des notes et commentaires",
+            result: notes
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Listing failed",
+        })
+    }
+}
+
 
 
 const getWishilistProduct = async (req, res) => {
     try {
-        const {limit, offset } = req.query
+        const { limit, offset } = req.query
         const WishlistProducts = await ecommerce_produits_model.findproductsWishlist(limit, offset, req.userId)
         const products = WishlistProducts.map(product => {
             return {
@@ -408,6 +447,32 @@ const getWishilistProduct = async (req, res) => {
     }
 }
 
+const createnotesProduit = async (req, res) => {
+    try {
+
+        const { ID_PRODUIT, NOTE, COMMENTAIRE } = req.body
+        const { insertId } = await ecommerce_produits_model.createnotes(
+            req.userId,
+            ID_PRODUIT,
+            NOTE,
+            COMMENTAIRE
+        )
+        res.status(RESPONSE_CODES.CREATED).json({
+            statusCode: RESPONSE_CODES.CREATED,
+            httpStatus: RESPONSE_STATUS.CREATED,
+            message: "Enregistrement est fait avec succès",
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+        })
+    }
+}
+
 
 
 const getProductVariants = async (req, res) => {
@@ -461,5 +526,8 @@ module.exports = {
     getSousCategories,
     getProductVariants,
     createEcommerce_wishlist_produit,
-    getWishilistProduct
+    getWishilistProduct,
+    createnotesProduit,
+    getnotesProduit,
+    getuserNotes
 }
