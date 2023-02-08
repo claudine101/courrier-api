@@ -11,8 +11,8 @@ const restaurant_commandes_routes = express.Router()
  */
 restaurant_commandes_routes.post('/', restaurant_commandes_controller.createRestoCommande)
 restaurant_commandes_routes.get('/', restaurant_commandes_controller.getRestoCommandes)
-restaurant_commandes_routes.get('/livraison/:ID_COMMANDE', ecommerce_commandes_controller.getLivraisonDetails)
-restaurant_commandes_routes.get('/status_historiques/:ID_COMMANDE', ecommerce_commandes_controller.getCommandeStatusHistory)
+restaurant_commandes_routes.get('/livraison/:ID_COMMANDE', restaurant_commandes_controller.getLivraisonDetails)
+restaurant_commandes_routes.get('/status_historiques/:ID_COMMANDE', restaurant_commandes_controller.getCommandeStatusHistory)
 restaurant_commandes_routes.put('/update_status/:ID_COMMANDE', restaurant_commandes_controller.updateRestoStatus)
 
 module.exports = restaurant_commandes_routes

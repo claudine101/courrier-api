@@ -1,3 +1,4 @@
+const express = require('express')
 const Validation = require("../../class/Validation")
 const RESPONSE_CODES = require("../../constants/RESPONSE_CODES")
 const RESPONSE_STATUS = require("../../constants/RESPONSE_STATUS")
@@ -7,6 +8,12 @@ const commandes_payement = require('../../models/payment/commandes_payement.mode
 const { createDetailLivraison } = require("../../models/livraison/driver_details_livraison.model")
 const getReferenceCode = require("../../utils/getReferenceCode")
 const randomInt = require("../../utils/randomInt")
+
+/**
+ * Permet de créer une commande dans ecommerce
+ * @param {express.Request} req
+ * @param {express.Response} res 
+ */
 
 const createRestoCommande = async (req, res) => {
           try {
@@ -266,8 +273,98 @@ const updateRestoStatus = async (req, res) => {
           }
 }
 
+/**
+ * Permet de récuperer les details de livraison et du livreur d'une commande
+ * @author Vanny Boy <vanny@mediabox.bi>
+ * @date 8/02/2023
+ * @param {express.Request} req 
+ * @param {express.Response} res
+ */
+const getLivraisonDetails = async (req, res) => {
+        try {
+                  const { ID_COMMANDE } = req.params
+                  const livraisonSqlQuery = `
+                  SELECT d.*,
+                            u.NOM CLIENT_NOM,
+                            u.PRENOM CLIENT_PRENOM,
+                            c.ID_DRIVER_COURSE
+                  FROM restaurant_commandes c
+                            LEFT JOIN driver_details_livraison d ON d.ID_DETAILS_LIVRAISON = c.ID_DETAILS_LIVRAISON
+                            LEFT JOIN users u ON u.ID_USER = c.ID_USER
+                  WHERE c.ID_COMMANDE = ?
+                  `
+                  const livraison = (await query(livraisonSqlQuery, [ID_COMMANDE]))[0]
+                  const livreurSqlQuery = `
+                  SELECT pl.*,
+                            dc.ADDRESSE_PICKER
+                  FROM driver_course dc
+                            LEFT JOIN personne_livreurs pl ON pl.ID_LIVREUR = dc.ID_LIVREUR
+                  WHERE ID_DRIVER_COURSE = ?
+                  `
+                  const livreur = (await query(livreurSqlQuery, [livraison.ID_DRIVER_COURSE]))[0]
+                  res.status(RESPONSE_CODES.OK).json({
+                            statusCode: RESPONSE_CODES.OK,
+                            httpStatus: RESPONSE_STATUS.OK,
+                            message: "Livraison et livreur de la commannde",
+                            result: {
+                                      livraison,
+                                      livreur
+                            }
+                  })
+        } catch (error) {
+                  console.log(error)
+                  res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                            message: "Erreur interne du serveur, réessayer plus tard",
+                  })
+        }
+}
+
+/**
+ * Permet de récuperer les historiques de statut d'une commande
+ * @author Vanny Boy <vanny@mediabox.bi>
+ * @date 8/02/2023
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
+const getCommandeStatusHistory = async (req, res) => {
+        try {
+                  const { ID_COMMANDE } = req.params
+                  const status = await query("SELECT * FROM restaurant_commande_statut ORDER BY ID_STATUT")
+                  const commandesStatus = await query("SELECT * FROM restaurant_commande_statut_historiques WHERE ID_COMMANDE = ? ORDER BY DATE_INSERTION ASC", [ID_COMMANDE])
+
+                  const details = commandesStatus.map(history => {
+                            const stt = status.find(hist => hist.ID_STATUT == history.ID_STATUT)
+                            return {
+                                      ...history,
+                                      ...stt
+                            }
+                  })
+                  const uncompletedStatus = status.filter(stt => details.filter(stt2 => stt.ID_STATUT == stt2.ID_STATUT).length == 0)
+                  res.status(RESPONSE_CODES.OK).json({
+                            statusCode: RESPONSE_CODES.OK,
+                            httpStatus: RESPONSE_STATUS.OK,
+                            message: "Historiques des status d'une commande",
+                            result: [
+                                      ...details.map(t => ({ ...t, completed: true })),
+                                      ...uncompletedStatus.map(t => ({ ...t, completed: false }))
+                            ]
+                  })
+        } catch (error) {
+                  console.log(error)
+                  res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                            message: "Erreur interne du serveur, réessayer plus tard",
+                  })
+        }
+}
+
 module.exports = {
           getRestoCommandes,
           updateRestoStatus,
-          createRestoCommande
+          createRestoCommande,
+          getLivraisonDetails,
+          getCommandeStatusHistory
 }
