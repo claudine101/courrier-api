@@ -124,6 +124,65 @@ const WishlistMenu= async (req, res) => {
               })
     }
 };
+const getnotesMenus = async (req, res) => {
+    try {
+        
+        const {ID_RESTAURANT_MENU,limit, offset } = req.query
+        const notes = await restaurant_menus_model.findNotes(ID_RESTAURANT_MENU,limit, offset)
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Liste des notes et commentaires",
+            result: notes
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+        })
+    }
+}
+const getuserNotes = async (req, res) => {
+    try {
+        const { ID_RESTAURANT_MENU } = req.query
+        const notes = (await restaurant_menus_model.finduserNotes(req.userId,ID_RESTAURANT_MENU))[0]
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Liste des notes et commentaires",
+            result: notes
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+        })
+    }
+}
+const updateNote = async (req, res) => {
+    try {
+        const {ID_NOTE}=req.params
+        const { NOTE,COMMENTAIRE } = req.body
+       const { insertId } = await restaurant_menus_model.changeNote(NOTE,COMMENTAIRE,ID_NOTE
+        )
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Modification avec success",
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+        })
+    }
+}
 const createRestaurant_wishlist_menu = async (req, res) => {
     try {
 
@@ -348,6 +407,31 @@ const createMenu = async (req, res) => {
                     })
           }
 }
+const createNotes = async (req, res) => {
+    try {
+
+        const { ID_RESTAURANT_MENU, NOTE, COMMENTAIRE } = req.body
+        const { insertId } = await restaurant_menus_model.createnotes(
+            req.userId,
+            ID_RESTAURANT_MENU,
+            NOTE,
+            COMMENTAIRE
+        )
+        res.status(RESPONSE_CODES.CREATED).json({
+            statusCode: RESPONSE_CODES.CREATED,
+            httpStatus: RESPONSE_STATUS.CREATED,
+            message: "Enregistrement est fait avec succès",
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+        })
+    }
+}
 
 const getMenuVariants = async (req, res) => {
           try {
@@ -399,5 +483,10 @@ module.exports = {
           createMenu,
           getMenuVariants,
           createRestaurant_wishlist_menu,
-          WishlistMenu
+          WishlistMenu,
+          createNotes,
+          getnotesMenus,
+          getuserNotes,
+          updateNote
+
 }

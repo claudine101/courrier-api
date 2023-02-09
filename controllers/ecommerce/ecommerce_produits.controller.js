@@ -347,7 +347,7 @@ const getnotesProduit = async (req, res) => {
         res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
             statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
             httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-            message: "Listing failed",
+            message: "Erreur interne du serveur, réessayer plus tard",
         })
     }
 }
@@ -366,7 +366,7 @@ const getuserNotes = async (req, res) => {
         res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
             statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
             httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-            message: "Listing failed",
+            message: "Erreur interne du serveur, réessayer plus tard",
         })
     }
 }
