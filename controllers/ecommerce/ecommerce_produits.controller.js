@@ -280,7 +280,7 @@ const createEcommerce_wishlist_produit = async (req, res) => {
 
         const { ID_PRODUIT } = req.params
         const wishlist = (await query('SELECT * FROM ecommerce_wishlist_produit WHERE ID_USER = ? AND ID_PRODUIT=?', [req.userId, ID_PRODUIT]))[0]
-    
+
         if (wishlist) {
             await query('DELETE FROM ecommerce_wishlist_produit WHERE  ID_PRODUIT=? AND ID_USER=? ', [ID_PRODUIT, req.userId])
             res.status(RESPONSE_CODES.CREATED).json({
@@ -337,7 +337,7 @@ const getSousCategories = async (req, res) => {
 
 const getWishilistProduct = async (req, res) => {
     try {
-        const {limit, offset } = req.query
+        const { limit, offset } = req.query
         const WishlistProducts = await ecommerce_produits_model.findproductsWishlist(limit, offset, req.userId)
         const products = WishlistProducts.map(product => {
             return {
@@ -453,6 +453,159 @@ const getProductVariants = async (req, res) => {
         })
     }
 }
+
+const modifierProduit = async (req, res) => {
+    try {
+        const {
+            ID_PARTENAIRE_SERVICE,
+            ID_CATEGORIE_PRODUIT,
+            ID_PRODUIT_SOUS_CATEGORIE,
+            NOM,
+            DESCRIPTION,
+            MONTANT,
+            variants: varStr,
+            inventories: invStr,
+            IMAGE_1: IMAGE_1_DEFAULT,
+            IMAGE_2: IMAGE_2_DEFAULT,
+            IMAGE_3: IMAGE_3_DEFAULT
+        } = req.body
+        const { ID_PRODUCT } = req.params
+
+        var variants, inventories
+        if (varStr) variants = JSON.parse(varStr)
+        if (invStr) inventories = JSON.parse(invStr)
+        const { IMAGE_1, IMAGE_2, IMAGE_3 } = req.files || {}
+
+        const validation = new Validation(
+            { ...req.body, ...req.files },
+            {
+                // IMAGE_1: {
+                //     required: true,
+                //     image: 21000000
+                // },
+                ID_CATEGORIE_PRODUIT: {
+                    required: true
+                },
+                // IMAGE_2: {
+                //     image: 21000000
+                // },
+                // IMAGE_3: {
+                //     image: 21000000
+                // },
+                NOM: {
+                    required: true,
+                    length: [1, 100],
+                },
+                DESCRIPTION: {
+                    length: [1, 3000],
+                },
+                MONTANT: {
+                    required: true,
+                },
+            },
+            {
+                // IMAGE_1: {
+                //     required: "Image d'un produit est obligatoire",
+                //     image: "Veuillez choisir une image valide",
+                //     size: "L'image est trop volumineux"
+                // },
+                // IMAGE_2: {
+                //     image: "Veuillez choisir une image valide",
+                //     size: "L'image est trop volumineux"
+                // },
+                // IMAGE_3: {
+                //     image: "Veuillez choisir une image valide",
+                //     size: "L'image est trop volumineux"
+                // },
+                ID_CATEGORIE_PRODUIT: {
+                    exists: "categorie invalide",
+                },
+                ID_PRODUIT_SOUS_CATEGORIE: {
+                    exists: "sous categorie invalide",
+                },
+                NOM: {
+                    required: "nom du produit  est obligatoire",
+                    length: "Nom du produit invalide"
+                },
+                DESCRIPTION: {
+                    required: "Vérifier la taille de votre description(max: 3000 caractères)",
+                },
+            }
+        );
+        await validation.run();
+        const isValid = await validation.isValidate()
+        const errors = await validation.getErrors()
+        if (!isValid) {
+            return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
+                statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
+                httpStatus: RESPONSE_STATUS.UNPROCESSABLE_ENTITY,
+                message: "Probleme de validation des donnees",
+                result: errors
+            })
+        }
+        const productUpload = new ProductUpload()
+        var filename_1
+        var filename_2
+        var filename_3
+        if (IMAGE_1) {
+            const { fileInfo: fileInfo_1, thumbInfo } = await productUpload.upload(IMAGE_1, false)
+            filename_1 = `${req.protocol}://${req.get("host")}${IMAGES_DESTINATIONS.products}/${fileInfo_1.fileName}`
+        } else if (IMAGE_1_DEFAULT) {
+            filename_1 = IMAGE_1_DEFAULT
+        } else {
+            filename_1 = null
+        }
+
+        if (IMAGE_2) {
+            const { fileInfo: fileInfo_2, thumbInfo: thumbInfo_2 } = await productUpload.upload(IMAGE_2, false)
+            filename_2 = `${req.protocol}://${req.get("host")}${IMAGES_DESTINATIONS.products}/${fileInfo_2.fileName}`
+        } else if (IMAGE_2_DEFAULT) {
+            filename_2 = IMAGE_2_DEFAULT
+        } else {
+            filename_2 = null
+        }
+
+        if (IMAGE_3) {
+            const { fileInfo: fileInfo_3, thumbInfo: thumbInfo_3 } = await productUpload.upload(IMAGE_3, false)
+            filename_3 = `${req.protocol}://${req.get("host")}${IMAGES_DESTINATIONS.products}/${fileInfo_3.fileName}`
+        } else if (IMAGE_3_DEFAULT) {
+            filename_3 = IMAGE_3_DEFAULT
+        } else {
+            filename_3 = null
+        }
+
+        const { insertId: ID_PRODUIT } = await ecommerce_produits_model.updateProduit(
+            ID_CATEGORIE_PRODUIT,
+            ID_PRODUIT_SOUS_CATEGORIE ? ID_PRODUIT_SOUS_CATEGORIE : null,
+            NOM,
+            MONTANT,
+            DESCRIPTION ? DESCRIPTION : null,
+            ID_PARTENAIRE_SERVICE,
+            filename_1 ? filename_1 : null,
+            filename_2 ? filename_2 : null,
+            filename_3 ? filename_3 : null,
+            ID_PRODUCT
+        )
+
+
+        res.status(RESPONSE_CODES.CREATED).json({
+            statusCode: RESPONSE_CODES.CREATED,
+            httpStatus: RESPONSE_STATUS.CREATED,
+            message: "La modification du produit est fait avec succès",
+            result: {
+                ID_PRODUIT
+            }
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
 module.exports = {
     getAllProducts,
     createProduit,
@@ -461,5 +614,6 @@ module.exports = {
     getSousCategories,
     getProductVariants,
     createEcommerce_wishlist_produit,
-    getWishilistProduct
+    getWishilistProduct,
+    modifierProduit
 }
