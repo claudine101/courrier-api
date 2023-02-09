@@ -112,6 +112,17 @@ const finduserNotes= async ( userId,ID_PRODUIT) => {
             throw error
   }
 }
+const changeNote= async (NOTE,COMMENTAIRE,ID_NOTE) => {
+
+  try {
+            
+        var sqlQuery =`UPDATE ecommerce_produit_notes SET NOTE=?,COMMENTAIRE=? WHERE ID_NOTE=?`
+          return query(sqlQuery,[NOTE,COMMENTAIRE,ID_NOTE])
+  } catch (error) {
+            throw error
+  }
+}
+
 
 const findproductsWishlist = async (limit = 10, offset = 0, userId) => {
   try {
@@ -177,5 +188,6 @@ module.exports = {
   findproductsWishlist,
   createnotes,
   findNotes,
-  finduserNotes
+  finduserNotes,
+  changeNote
 }

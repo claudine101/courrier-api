@@ -334,8 +334,8 @@ const getSousCategories = async (req, res) => {
 
 const getnotesProduit = async (req, res) => {
     try {
-        const { ID_PRODUIT,limit, offset } = req.query
-        const notes = await ecommerce_produits_model.findNotes(ID_PRODUIT,limit, offset)
+        const { ID_PRODUIT, limit, offset } = req.query
+        const notes = await ecommerce_produits_model.findNotes(ID_PRODUIT, limit, offset)
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_STATUS.OK,
@@ -351,11 +351,10 @@ const getnotesProduit = async (req, res) => {
         })
     }
 }
-const getuserNotes= async (req, res) => {
+const getuserNotes = async (req, res) => {
     try {
-        //console.log(req.userId)
-        const {ID_PRODUIT} = req.query
-        const notes = await ecommerce_produits_model.finduserNotes(req.userId,ID_PRODUIT)
+        const { ID_PRODUIT } = req.query
+        const notes = (await ecommerce_produits_model.finduserNotes(req.userId, ID_PRODUIT))[0]
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_STATUS.OK,
@@ -371,9 +370,6 @@ const getuserNotes= async (req, res) => {
         })
     }
 }
-
-
-
 const getWishilistProduct = async (req, res) => {
     try {
         const { limit, offset } = req.query
@@ -472,7 +468,44 @@ const createnotesProduit = async (req, res) => {
         })
     }
 }
-
+const updateNote = async (req, res) => {
+    try {
+        const {ID_NOTE}=req.params
+        const { NOTE,COMMENTAIRE } = req.body
+       const { insertId } = await ecommerce_produits_model.changeNote(NOTE,COMMENTAIRE,ID_NOTE
+        )
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Modification avec success",
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+        })
+    }
+}
+const deleteNote= async (req, res) => {
+    try {
+        const {ID_NOTE}=req.params
+         await query('DELETE FROM ecommerce_produit_notes WHERE ID_NOTE=?', [ID_NOTE])
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Suppression avec success",
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+        })
+    }
+}
 
 
 const getProductVariants = async (req, res) => {
@@ -529,5 +562,7 @@ module.exports = {
     getWishilistProduct,
     createnotesProduit,
     getnotesProduit,
-    getuserNotes
+    getuserNotes,
+    updateNote,
+    deleteNote
 }
