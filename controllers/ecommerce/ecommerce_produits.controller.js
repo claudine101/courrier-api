@@ -354,12 +354,31 @@ const getnotesProduit = async (req, res) => {
 const getuserNotes = async (req, res) => {
     try {
         const { ID_PRODUIT } = req.query
-        const notes = (await ecommerce_produits_model.finduserNotes(req.userId, ID_PRODUIT))[0]
+        const notes = await ecommerce_produits_model.finduserNotes(ID_PRODUIT)
+        const userNote = notes.find(note => note.ID_USER == req.userId)
+       
+        var noteGroup = {}
+        var moyenne = 0
+        for (var i = 1; i <= 5; i++) {
+            const revueNote = notes.filter(note => note.NOTE == i)
+            moyenne += revueNote.length * i
+            noteGroup[i] = {
+                nombre:revueNote.length,
+                pourcentage:(revueNote.length *100)/notes.length
+            }
+        }
+        const avg = moyenne / notes.length
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_STATUS.OK,
             message: "Liste des notes et commentaires",
-            result: notes
+            result: {
+                userNote,
+                avg,
+                noteGroup,
+                total:notes.length
+                
+            }
         })
     } catch (error) {
         console.log(error)
@@ -470,9 +489,9 @@ const createnotesProduit = async (req, res) => {
 }
 const updateNote = async (req, res) => {
     try {
-        const {ID_NOTE}=req.params
-        const { NOTE,COMMENTAIRE } = req.body
-       const { insertId } = await ecommerce_produits_model.changeNote(NOTE,COMMENTAIRE,ID_NOTE
+        const { ID_NOTE } = req.params
+        const { NOTE, COMMENTAIRE } = req.body
+        const { insertId } = await ecommerce_produits_model.changeNote(NOTE, COMMENTAIRE, ID_NOTE
         )
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
@@ -488,10 +507,10 @@ const updateNote = async (req, res) => {
         })
     }
 }
-const deleteNote= async (req, res) => {
+const deleteNote = async (req, res) => {
     try {
-        const {ID_NOTE}=req.params
-         await query('DELETE FROM ecommerce_produit_notes WHERE ID_NOTE=?', [ID_NOTE])
+        const { ID_NOTE } = req.params
+        await query('DELETE FROM ecommerce_produit_notes WHERE ID_NOTE=?', [ID_NOTE])
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_STATUS.OK,

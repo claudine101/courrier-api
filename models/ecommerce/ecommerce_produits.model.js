@@ -86,40 +86,40 @@ const createProduit = async (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE = n
     throw error
   }
 }
-const findNotes = async ( ID_PRODUIT,limit = 10, offset = 0,) => {
+const findNotes = async (ID_PRODUIT, limit = 10, offset = 0,) => {
   try {
-            var binds = [ID_PRODUIT]
-            var sqlQuery = `
+    var binds = [ID_PRODUIT]
+    var sqlQuery = `
             SELECT epn.NOTE,epn.COMMENTAIRE,u.NOM,u.PRENOM,epn.DATE_INSERTION FROM ecommerce_produit_notes epn
             LEFT JOIN users u ON epn.ID_USER=u.ID_USER WHERE 1 AND epn.ID_PRODUIT=?
             `
-           sqlQuery += ` ORDER BY epn.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
-            return query(sqlQuery, binds)
+    sqlQuery += ` ORDER BY epn.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
+    return query(sqlQuery, binds)
   } catch (error) {
-            throw error
+    throw error
   }
 }
-const finduserNotes= async ( userId,ID_PRODUIT) => {
+const finduserNotes = async (ID_PRODUIT) => {
   try {
-            var binds = [ID_PRODUIT,userId,]
-            var sqlQuery = `
-            SELECT epn.ID_NOTE,epn.NOTE,epn.COMMENTAIRE,u.NOM,u.PRENOM,epn.DATE_INSERTION FROM ecommerce_produit_notes epn
-            LEFT JOIN users u ON epn.ID_USER=u.ID_USER WHERE 1 AND epn.ID_PRODUIT=? AND epn.ID_USER=?
+    var binds = [ID_PRODUIT]
+    var sqlQuery = `
+            SELECT u.ID_USER,epn.ID_NOTE,epn.NOTE,epn.COMMENTAIRE,u.NOM,u.PRENOM,epn.DATE_INSERTION FROM ecommerce_produit_notes epn
+            LEFT JOIN users u ON epn.ID_USER=u.ID_USER WHERE 1 AND epn.ID_PRODUIT=?
             `
-          
-            return query(sqlQuery, binds)
+
+    return query(sqlQuery, binds)
   } catch (error) {
-            throw error
+    throw error
   }
 }
-const changeNote= async (NOTE,COMMENTAIRE,ID_NOTE) => {
+const changeNote = async (NOTE, COMMENTAIRE, ID_NOTE) => {
 
   try {
-            
-        var sqlQuery =`UPDATE ecommerce_produit_notes SET NOTE=?,COMMENTAIRE=? WHERE ID_NOTE=?`
-          return query(sqlQuery,[NOTE,COMMENTAIRE,ID_NOTE])
+
+    var sqlQuery = `UPDATE ecommerce_produit_notes SET NOTE=?,COMMENTAIRE=? WHERE ID_NOTE=?`
+    return query(sqlQuery, [NOTE, COMMENTAIRE, ID_NOTE])
   } catch (error) {
-            throw error
+    throw error
   }
 }
 
@@ -163,7 +163,7 @@ const createwishlist = async (ID_PRODUIT, ID_USER, id) => {
               VALUES (?,?)
               `
     return query(sqlQuery, [ID_PRODUIT, ID_USER, id])
-  }catch (error) {
+  } catch (error) {
     throw error
   }
 }

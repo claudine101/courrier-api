@@ -65,6 +65,24 @@ const getAllmenu = async (req, res) => {
                     })
           }
 };
+const deleteNote= async (req, res) => {
+    try {
+        const {ID_NOTE}=req.params
+         await query('DELETE FROM  restaurant_menus_notes WHERE ID_NOTE=?', [ID_NOTE])
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Suppression avec success",
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+        })
+    }
+}
 const WishlistMenu= async (req, res) => {
     try {
               const {limit, offset } = req.query
@@ -487,6 +505,7 @@ module.exports = {
           createNotes,
           getnotesMenus,
           getuserNotes,
-          updateNote
+          updateNote,
+          deleteNote
 
 }
