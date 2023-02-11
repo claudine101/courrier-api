@@ -71,12 +71,12 @@ const findNotes = async (ID_RESTAURANT_MENU, limit = 10, offset = 0,) => {
                 throw error
         }
 }
-const finduserNotes = async (userId, ID_RESTAURANT_MENU) => {
+const finduserNotes = async (ID_RESTAURANT_MENU) => {
         try {
-                var binds = [ID_RESTAURANT_MENU, userId,]
+                var binds = [ID_RESTAURANT_MENU]
                 var sqlQuery = `
-                SELECT rmn.ID_NOTE,rmn.NOTE,rmn.COMMENTAIRE,u.NOM,u.PRENOM,rmn.DATE_INSERTION FROM restaurant_menus_notes rmn LEFT 
-                JOIN users u ON rmn.ID_USER=u.ID_USER WHERE 1 AND rmn.ID_RESTAURANT_MENU=? AND rmn.ID_USER=?
+                SELECT rmn.ID_NOTE,rmn.NOTE,rmn.ID_USER,rmn.COMMENTAIRE,u.NOM,u.PRENOM,rmn.DATE_INSERTION FROM restaurant_menus_notes rmn LEFT 
+                JOIN users u ON rmn.ID_USER=u.ID_USER WHERE 1 AND rmn.ID_RESTAURANT_MENU=?
                   `
 
                 return query(sqlQuery, binds)

@@ -162,15 +162,53 @@ const getnotesMenus = async (req, res) => {
         })
     }
 }
+// const getuserNotes = async (req, res) => {
+//     try {
+//         const { ID_RESTAURANT_MENU } = req.query
+//         const notes = await restaurant_menus_model.finduserNotes(ID_RESTAURANT_MENU)
+//         res.status(RESPONSE_CODES.OK).json({
+//             statusCode: RESPONSE_CODES.OK,
+//             httpStatus: RESPONSE_STATUS.OK,
+//             message: "Liste des notes et commentaires",
+//             result: notes
+//         })
+//     } catch (error) {
+//         console.log(error)
+//         res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+//             statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+//             httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+//             message: "Erreur interne du serveur, réessayer plus tard",
+//         })
+//     }
+// }
 const getuserNotes = async (req, res) => {
     try {
         const { ID_RESTAURANT_MENU } = req.query
-        const notes = (await restaurant_menus_model.finduserNotes(req.userId,ID_RESTAURANT_MENU))[0]
+        const notes = await restaurant_menus_model.finduserNotes(ID_RESTAURANT_MENU)
+        const userNote = notes.find(note => note.ID_USER == req.userId)
+       
+        var noteGroup = {}
+        var moyenne = 0
+        for (var i = 1; i <= 5; i++) {
+            const revueNote = notes.filter(note => note.NOTE == i)
+            moyenne += revueNote.length * i
+            noteGroup[i] = {
+                nombre:revueNote.length,
+                pourcentage:(revueNote.length *100)/notes.length
+            }
+        }
+        const avg = moyenne / notes.length
         res.status(RESPONSE_CODES.OK).json({
             statusCode: RESPONSE_CODES.OK,
             httpStatus: RESPONSE_STATUS.OK,
             message: "Liste des notes et commentaires",
-            result: notes
+            result: {
+                userNote,
+                avg,
+                noteGroup,
+                total:notes.length
+                
+            }
         })
     } catch (error) {
         console.log(error)
