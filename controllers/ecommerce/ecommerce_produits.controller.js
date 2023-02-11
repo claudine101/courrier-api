@@ -5,6 +5,7 @@ const RESPONSE_CODES = require("../../constants/RESPONSE_CODES")
 const RESPONSE_STATUS = require("../../constants/RESPONSE_STATUS")
 const ecommerce_produits_model = require("../../models/ecommerce/ecommerce_produits.model")
 const { query } = require("../../utils/db")
+const moment = require("moment")
 
 /**
  * Controller pour afficher les produits et produits par fitre faites par un utilisateur
@@ -415,7 +416,7 @@ const getProductVariants = async (req, res) => {
         const { ID_PRODUIT } = req.params
         const allVariants = await query('SELECT * FROM ecommerce_produit_variants WHERE ID_PRODUIT = ?', [ID_PRODUIT])
         const allOptions = await query('SELECT * FROM ecommerce_variant_values WHERE ID_PRODUIT = ?', [ID_PRODUIT])
-        const allCombinaisons = await query('SELECT * FROM ecommerce_variant_combination WHERE ID_PRODUIT = ?', [ID_PRODUIT])
+        const allCombinaisons = await query('SELECT * FROM ecommerce_variant_combination WHERE DATE_SUPPRESSION IS NULL AND ID_PRODUIT = ?', [ID_PRODUIT])
         const combinaisonsIds = allCombinaisons.map(comb => comb.ID_COMBINATION)
         var allCombinaisonsOptions = []
         if (combinaisonsIds.length > 0) {
@@ -463,19 +464,18 @@ const modifierProduit = async (req, res) => {
             NOM,
             DESCRIPTION,
             MONTANT,
-            variants: varStr,
-            inventories: invStr,
+            invetoryEdit:editStr,
+            invetoryDelete:deleteStr,
             IMAGE_1: IMAGE_1_DEFAULT,
             IMAGE_2: IMAGE_2_DEFAULT,
             IMAGE_3: IMAGE_3_DEFAULT
         } = req.body
         const { ID_PRODUCT } = req.params
 
-        var variants, inventories
-        if (varStr) variants = JSON.parse(varStr)
-        if (invStr) inventories = JSON.parse(invStr)
+        var invetoryEdit, invetoryDelete
+        if (editStr) invetoryEdit = JSON.parse(editStr)
+        if (deleteStr) invetoryDelete = JSON.parse(deleteStr)
         const { IMAGE_1, IMAGE_2, IMAGE_3 } = req.files || {}
-
         const validation = new Validation(
             { ...req.body, ...req.files },
             {
@@ -587,6 +587,14 @@ const modifierProduit = async (req, res) => {
             ID_PRODUCT
         )
 
+        if(invetoryEdit && invetoryEdit.length > 0){
+            await Promise.all(invetoryEdit.map( async env=>{
+                await query("UPDATE ecommerce_variant_combination SET QUANTITE=?, PRIX=? WHERE ID_COMBINATION=? ", [env.quantity, env.price, env.id])
+            }))
+        }
+        if(invetoryDelete && invetoryDelete.length > 0){
+            await query("UPDATE ecommerce_variant_combination SET DATE_SUPPRESSION=? WHERE 	ID_COMBINATION IN(?) ",[moment(new Date()).format("YYYY-MM-DD HH:mm:ss"), invetoryDelete])
+        }
 
         res.status(RESPONSE_CODES.CREATED).json({
             statusCode: RESPONSE_CODES.CREATED,
@@ -594,6 +602,30 @@ const modifierProduit = async (req, res) => {
             message: "La modification du produit est fait avec succès",
             result: {
                 ID_PRODUIT
+            }
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
+
+const deleteProduit = async (req, res) => {
+    try {
+        const { ID_PRODUCT } = req.params
+            await query("UPDATE ecommerce_produits SET DATE_SUPPRESSION=? WHERE ID_PRODUIT=? ",[moment(new Date()).format("YYYY-MM-DD HH:mm:ss"), ID_PRODUCT])
+
+        res.status(RESPONSE_CODES.CREATED).json({
+            statusCode: RESPONSE_CODES.CREATED,
+            httpStatus: RESPONSE_STATUS.CREATED,
+            message: "La suppression du produit est fait avec succès",
+            result: {
+                ID_PRODUCT
             }
         })
     } catch (error) {
@@ -615,5 +647,6 @@ module.exports = {
     getProductVariants,
     createEcommerce_wishlist_produit,
     getWishilistProduct,
-    modifierProduit
+    modifierProduit,
+    deleteProduit
 }

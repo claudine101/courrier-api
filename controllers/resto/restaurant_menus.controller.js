@@ -5,6 +5,7 @@ const RESPONSE_CODES = require("../../constants/RESPONSE_CODES");
 const RESPONSE_STATUS = require("../../constants/RESPONSE_STATUS");
 const restaurant_menus_model = require("../../models/resto/restaurant_menus.model");
 const { query } = require("../../utils/db");
+const moment = require("moment")
 
 const getAllmenu = async (req, res) => {
           try {
@@ -354,7 +355,7 @@ const getMenuVariants = async (req, res) => {
                     const { ID_RESTAURANT_MENU } = req.params
                     const allVariants = await query('SELECT * FROM  restaurant_menu_variants WHERE ID_RESTAURANT_MENU = ?', [ID_RESTAURANT_MENU])
                     const allOptions = await query('SELECT * FROM restaurant_variant_values WHERE ID_RESTAURANT_MENU = ?', [ID_RESTAURANT_MENU])
-                    const allCombinaisons = await query('SELECT * FROM  restaurant_variant_combination WHERE ID_RESTAURANT_MENU = ?', [ID_RESTAURANT_MENU])
+                    const allCombinaisons = await query('SELECT * FROM  restaurant_variant_combination WHERE DATE_SUPPRESSION IS NULL AND ID_RESTAURANT_MENU = ?', [ID_RESTAURANT_MENU])
                     const combinaisonsIds = allCombinaisons.map(comb => comb.ID_COMBINATION)
                     var allCombinaisonsOptions = []
                     if (combinaisonsIds.length > 0) {
@@ -393,11 +394,194 @@ const getMenuVariants = async (req, res) => {
           }
 }
 
+const modifierMenu = async (req, res) => {
+    try {
+              const {
+                        ID_CATEGORIE_MENU,
+                        ID_PARTENAIRE_SERVICE,
+                        PRIX,
+                        NOM,
+                        DESCRIPTION,
+                        invetoryEdit:editStr,
+                        invetoryDelete:deleteStr,
+                        IMAGE_1: IMAGE_1_DEFAULT,
+                        IMAGE_2: IMAGE_2_DEFAULT,
+                        IMAGE_3: IMAGE_3_DEFAULT
+              } = req.body
+
+              const {ID_RESTAURANT_MENU} = req.params
+
+              var invetoryEdit, invetoryDelete
+              if (editStr) invetoryEdit = JSON.parse(editStr)
+              if (deleteStr) invetoryDelete = JSON.parse(deleteStr)
+              const { IMAGE_1, IMAGE_2, IMAGE_3 } = req.files || {}
+              const validation = new Validation(
+                        { ...req.body, ...req.files },
+                        {
+                                //   IMAGE_1: {
+                                //             required: true,
+                                //             image: 21000000
+                                //   },
+                                //   ID_CATEGORIE_MENU: {
+                                //             required: true
+                                //   },
+                                //   IMAGE_2: {
+                                //             image: 21000000
+                                //   },
+                                //   IMAGE_3: {
+                                //             image: 21000000
+                                //   },
+                                  NOM: {
+                                            required: true,
+                                            length: [1, 100],
+                                  },
+                                  DESCRIPTION: {
+                                            length: [1, 3000],
+                                  },
+                                  PRIX: {
+                                            required: true,
+                                  },
+                        },
+                        {
+                                //   IMAGE_1: {
+                                //             required: "Image d'un produit est obligatoire",
+                                //             image: "Veuillez choisir une image valide",
+                                //             size: "L'image est trop volumineux"
+                                //   },
+                                //   IMAGE_2: {
+                                //             image: "Veuillez choisir une image valide",
+                                //             size: "L'image est trop volumineux"
+                                //   },
+                                //   IMAGE_3: {
+                                //             image: "Veuillez choisir une image valide",
+                                //             size: "L'image est trop volumineux"
+                                //   },
+                                  ID_CATEGORIE_MENU: {
+                                            exists: "categorie invalide",
+                                  },
+
+                                  NOM: {
+                                            required: "nom du produit  est obligatoire",
+                                            length: "Nom du produit invalide"
+                                  },
+                                  DESCRIPTION: {
+                                            required: "Vérifier la taille de votre description(max: 3000 caractères)",
+                                  },
+                        }
+              );
+              await validation.run();
+              const isValid = await validation.isValidate()
+              const errors = await validation.getErrors()
+              if (!isValid) {
+                        return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
+                                  statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
+                                  httpStatus: RESPONSE_STATUS.UNPROCESSABLE_ENTITY,
+                                  message: "Probleme de validation des donnees",
+                                  result: errors
+                        })
+              }
+              const productUpload = new ProductUpload()
+                var filename_1
+                var filename_2
+                var filename_3
+                if (IMAGE_1) {
+                    const { fileInfo: fileInfo_1, thumbInfo } = await productUpload.upload(IMAGE_1, false)
+                    filename_1 = `${req.protocol}://${req.get("host")}${IMAGES_DESTINATIONS.products}/${fileInfo_1.fileName}`
+                } else if (IMAGE_1_DEFAULT) {
+                    filename_1 = IMAGE_1_DEFAULT
+                } else {
+                    filename_1 = null
+                }
+
+                if (IMAGE_2) {
+                    const { fileInfo: fileInfo_2, thumbInfo: thumbInfo_2 } = await productUpload.upload(IMAGE_2, false)
+                    filename_2 = `${req.protocol}://${req.get("host")}${IMAGES_DESTINATIONS.products}/${fileInfo_2.fileName}`
+                } else if (IMAGE_2_DEFAULT) {
+                    filename_2 = IMAGE_2_DEFAULT
+                } else {
+                    filename_2 = null
+                }
+
+                if (IMAGE_3) {
+                    const { fileInfo: fileInfo_3, thumbInfo: thumbInfo_3 } = await productUpload.upload(IMAGE_3, false)
+                    filename_3 = `${req.protocol}://${req.get("host")}${IMAGES_DESTINATIONS.products}/${fileInfo_3.fileName}`
+                } else if (IMAGE_3_DEFAULT) {
+                    filename_3 = IMAGE_3_DEFAULT
+                } else {
+                    filename_3 = null
+                }
+
+              const { insertId: ID_RESTAURANT } = await restaurant_menus_model.updateMenu(
+                        ID_CATEGORIE_MENU,
+                        ID_PARTENAIRE_SERVICE,
+                        PRIX,
+                        NOM,
+                        DESCRIPTION ? DESCRIPTION : null,
+                        filename_1 ? filename_1 : null,
+                        filename_2 ? filename_2 : null,
+                        filename_3 ? filename_3 : null,
+                        ID_RESTAURANT_MENU
+              )
+
+              if(invetoryEdit && invetoryEdit.length > 0){
+                await Promise.all(invetoryEdit.map( async env=>{
+                    await query("UPDATE restaurant_variant_combination SET PRIX=? WHERE ID_COMBINATION=? ", [env.price, env.id])
+                }))
+            }
+
+            if(invetoryDelete && invetoryDelete.length > 0){
+                await query("UPDATE restaurant_variant_combination SET DATE_SUPPRESSION=? WHERE ID_COMBINATION IN(?) ",[moment(new Date()).format("YYYY-MM-DD HH:mm:ss"), invetoryDelete])
+            }
+
+              res.status(RESPONSE_CODES.CREATED).json({
+                        statusCode: RESPONSE_CODES.CREATED,
+                        httpStatus: RESPONSE_STATUS.CREATED,
+                        message: "La modififcation du menu est fait avec succès",
+                        // result: {
+                        //           ID_RESTAURANT_MENU
+                        // }
+              })
+    } catch (error) {
+              console.log(error)
+              res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                        statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                        httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                        message: "Enregistrement echoue",
+              })
+    }
+}
+
+const deleteMenu = async (req, res) => {
+    try {
+        const { ID_RESTAURANT_MENU } = req.params
+            await query("UPDATE restaurant_menus SET DATE_SUPPRESSION=? WHERE ID_RESTAURANT_MENU=? ",[moment(new Date()).format("YYYY-MM-DD HH:mm:ss"), ID_RESTAURANT_MENU])
+
+        res.status(RESPONSE_CODES.CREATED).json({
+            statusCode: RESPONSE_CODES.CREATED,
+            httpStatus: RESPONSE_STATUS.CREATED,
+            message: "La suppression du menu est fait avec succès",
+            result: {
+                ID_RESTAURANT_MENU
+            }
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+
+        })
+    }
+}
+
 module.exports = {
           getAllmenu,
           getCategories,
           createMenu,
           getMenuVariants,
           createRestaurant_wishlist_menu,
-          WishlistMenu
+          WishlistMenu,
+          modifierMenu,
+          deleteMenu
 }

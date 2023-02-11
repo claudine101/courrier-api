@@ -24,7 +24,7 @@ const findproducts = async (q, category, subCategory, partenaireService,  limit 
                               LEFT JOIN ecommerce_produit_categorie epc ON epc.ID_CATEGORIE_PRODUIT = ep.ID_CATEGORIE_PRODUIT
                               LEFT JOIN ecommerce_produit_sous_categorie epsc ON epsc.ID_PRODUIT_SOUS_CATEGORIE = ep.ID_PRODUIT_SOUS_CATEGORIE
                               LEFT JOIN ecommerce_wishlist_produit ewp ON ewp.ID_PRODUIT=ep.ID_PRODUIT AND ewp.ID_USER=?
-                    WHERE 1
+                    WHERE ep.DATE_SUPPRESSION IS NULL
                     `
                     if (q && q != "") {
                               sqlQuery +=
