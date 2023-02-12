@@ -354,6 +354,7 @@ const getnotesProduit = async (req, res) => {
 const getuserNotes = async (req, res) => {
     try {
         const { ID_PRODUIT } = req.query
+        const hasCommande = (await query('SELECT ec.ID_COMMANDE FROM ecommerce_commande_details ecd LEFT JOIN ecommerce_commandes ec ON ec.ID_COMMANDE= ecd.ID_COMMANDE WHERE ecd.ID_PRODUIT = ? AND ec.ID_USER = ? LIMIT 1', [ID_PRODUIT, req.userId]))[0]
         const notes = await ecommerce_produits_model.finduserNotes(ID_PRODUIT)
         const userNote = notes.find(note => note.ID_USER == req.userId)
        
@@ -376,8 +377,8 @@ const getuserNotes = async (req, res) => {
                 userNote,
                 avg,
                 noteGroup,
-                total:notes.length
-                
+                total:notes.length,
+                hasCommande
             }
         })
     } catch (error) {
