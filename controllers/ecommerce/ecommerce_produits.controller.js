@@ -282,6 +282,7 @@ const createEcommerce_wishlist_produit = async (req, res) => {
         const { ID_PRODUIT } = req.params
         const wishlist = (await query('SELECT * FROM ecommerce_wishlist_produit WHERE ID_USER = ? AND ID_PRODUIT=?', [req.userId, ID_PRODUIT]))[0]
 
+
         if (wishlist) {
             await query('DELETE FROM ecommerce_wishlist_produit WHERE  ID_PRODUIT=? AND ID_USER=? ', [ID_PRODUIT, req.userId])
             res.status(RESPONSE_CODES.CREATED).json({
@@ -323,8 +324,7 @@ const getSousCategories = async (req, res) => {
             message: "Liste des categories",
             result: categories
         })
-    }
-    catch (error) {
+    } catch (error) {
         console.log(error)
         res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
             statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
@@ -334,8 +334,64 @@ const getSousCategories = async (req, res) => {
     }
 }
 
-
-
+const getnotesProduit = async (req, res) => {
+    try {
+        const { ID_PRODUIT, limit, offset } = req.query
+        const notes = await ecommerce_produits_model.findNotes(ID_PRODUIT, limit, offset)
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Liste des notes et commentaires",
+            result: notes
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+        })
+    }
+}
+const getuserNotes = async (req, res) => {
+    try {
+        const { ID_PRODUIT } = req.query
+        const hasCommande = (await query('SELECT ec.ID_COMMANDE FROM ecommerce_commande_details ecd LEFT JOIN ecommerce_commandes ec ON ec.ID_COMMANDE= ecd.ID_COMMANDE WHERE ecd.ID_PRODUIT = ? AND ec.ID_USER = ? LIMIT 1', [ID_PRODUIT, req.userId]))[0]
+        const notes = await ecommerce_produits_model.finduserNotes(ID_PRODUIT)
+        const userNote = notes.find(note => note.ID_USER == req.userId)
+       
+        var noteGroup = {}
+        var moyenne = 0
+        for (var i = 1; i <= 5; i++) {
+            const revueNote = notes.filter(note => note.NOTE == i)
+            moyenne += revueNote.length * i
+            noteGroup[i] = {
+                nombre:revueNote.length,
+                pourcentage:(revueNote.length *100)/notes.length
+            }
+        }
+        const avg = moyenne / notes.length
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Liste des notes et commentaires",
+            result: {
+                userNote,
+                avg,
+                noteGroup,
+                total:notes.length,
+                hasCommande
+            }
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+        })
+    }
+}
 const getWishilistProduct = async (req, res) => {
     try {
         const { limit, offset } = req.query
@@ -409,6 +465,69 @@ const getWishilistProduct = async (req, res) => {
     }
 }
 
+const createnotesProduit = async (req, res) => {
+    try {
+
+        const { ID_PRODUIT, NOTE, COMMENTAIRE } = req.body
+        const { insertId } = await ecommerce_produits_model.createnotes(
+            req.userId,
+            ID_PRODUIT,
+            NOTE,
+            COMMENTAIRE
+        )
+        res.status(RESPONSE_CODES.CREATED).json({
+            statusCode: RESPONSE_CODES.CREATED,
+            httpStatus: RESPONSE_STATUS.CREATED,
+            message: "Enregistrement est fait avec succès",
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+        })
+    }
+}
+const updateNote = async (req, res) => {
+    try {
+        const { ID_NOTE } = req.params
+        const { NOTE, COMMENTAIRE } = req.body
+        const { insertId } = await ecommerce_produits_model.changeNote(NOTE, COMMENTAIRE, ID_NOTE
+        )
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Modification avec success",
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+        })
+    }
+}
+const deleteNote = async (req, res) => {
+    try {
+        const { ID_NOTE } = req.params
+        await query('DELETE FROM ecommerce_produit_notes WHERE ID_NOTE=?', [ID_NOTE])
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Suppression avec success",
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+        })
+    }
+}
 
 
 const getProductVariants = async (req, res) => {
@@ -647,6 +766,11 @@ module.exports = {
     getProductVariants,
     createEcommerce_wishlist_produit,
     getWishilistProduct,
+    createnotesProduit,
+    getnotesProduit,
+    getuserNotes,
+    updateNote,
+    deleteNote,
     modifierProduit,
     deleteProduit
 }

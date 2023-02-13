@@ -66,6 +66,24 @@ const getAllmenu = async (req, res) => {
                     })
           }
 };
+const deleteNote= async (req, res) => {
+    try {
+        const {ID_NOTE}=req.params
+         await query('DELETE FROM  restaurant_menus_notes WHERE ID_NOTE=?', [ID_NOTE])
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Suppression avec success",
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+        })
+    }
+}
 const WishlistMenu= async (req, res) => {
     try {
               const {limit, offset } = req.query
@@ -125,6 +143,87 @@ const WishlistMenu= async (req, res) => {
               })
     }
 };
+const getnotesMenus = async (req, res) => {
+    try {
+        
+        const {ID_RESTAURANT_MENU,limit, offset } = req.query
+        const notes = await restaurant_menus_model.findNotes(ID_RESTAURANT_MENU,limit, offset)
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Liste des notes et commentaires",
+            result: notes
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+        })
+    }
+}
+
+const getuserNotes = async (req, res) => {
+    try {
+        const { ID_RESTAURANT_MENU } = req.query
+        const hasCommande = (await query('SELECT ec.ID_COMMANDE FROM restaurant_commandes_details ecd LEFT JOIN restaurant_commandes ec ON ec.ID_COMMANDE= ecd.ID_COMMANDE WHERE ecd.ID_RESTAURANT_MENU = ? AND ec.ID_USER = ? LIMIT 1', [ID_RESTAURANT_MENU, req.userId]))[0]
+        const notes = await restaurant_menus_model.finduserNotes(ID_RESTAURANT_MENU)
+        const userNote = notes.find(note => note.ID_USER == req.userId)
+       
+        var noteGroup = {}
+        var moyenne = 0
+        for (var i = 1; i <= 5; i++) {
+            const revueNote = notes.filter(note => note.NOTE == i)
+            moyenne += revueNote.length * i
+            noteGroup[i] = {
+                nombre:revueNote.length,
+                pourcentage:(revueNote.length *100)/notes.length
+            }
+        }
+        const avg = moyenne / notes.length
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Liste des notes et commentaires",
+            result: {
+                userNote,
+                avg,
+                noteGroup,
+                total:notes.length,
+                hasCommande
+                
+            }
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+        })
+    }
+}
+const updateNote = async (req, res) => {
+    try {
+        const {ID_NOTE}=req.params
+        const { NOTE,COMMENTAIRE } = req.body
+       const { insertId } = await restaurant_menus_model.changeNote(NOTE,COMMENTAIRE,ID_NOTE
+        )
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Modification avec success",
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+        })
+    }
+}
 const createRestaurant_wishlist_menu = async (req, res) => {
     try {
 
@@ -348,6 +447,31 @@ const createMenu = async (req, res) => {
                               message: "Enregistrement echoue",
                     })
           }
+}
+const createNotes = async (req, res) => {
+    try {
+
+        const { ID_RESTAURANT_MENU, NOTE, COMMENTAIRE } = req.body
+        const { insertId } = await restaurant_menus_model.createnotes(
+            req.userId,
+            ID_RESTAURANT_MENU,
+            NOTE,
+            COMMENTAIRE
+        )
+        res.status(RESPONSE_CODES.CREATED).json({
+            statusCode: RESPONSE_CODES.CREATED,
+            httpStatus: RESPONSE_STATUS.CREATED,
+            message: "Enregistrement est fait avec succès",
+        })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+        })
+    }
 }
 
 const getMenuVariants = async (req, res) => {
@@ -582,6 +706,11 @@ module.exports = {
           getMenuVariants,
           createRestaurant_wishlist_menu,
           WishlistMenu,
+          createNotes,
+          getnotesMenus,
+          getuserNotes,
+          updateNote,
+          deleteNote,
           modifierMenu,
           deleteMenu
 }

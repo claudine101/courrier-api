@@ -1,6 +1,6 @@
 const { query } = require("../../utils/db");
 
-const findproducts = async (q, category, subCategory, partenaireService,  limit = 10, offset = 0,userId, min_prix, max_prix) => {
+const findproducts = async (q, category, subCategory, partenaireService, limit = 10, offset = 0, userId, min_prix, max_prix) => {
           try {
                     var binds = [userId]
                     var sqlQuery = `
@@ -88,10 +88,48 @@ const createProduit = async (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE = n
                     throw error
           }
 }
-const findproductsWishlist = async (limit = 10, offset = 0,userId) => {
-    try {
-              var binds = [userId]
-              var sqlQuery = `
+const findNotes = async (ID_PRODUIT, limit = 10, offset = 0,) => {
+          try {
+                    var binds = [ID_PRODUIT]
+                    var sqlQuery = `
+            SELECT epn.NOTE,epn.COMMENTAIRE,u.NOM,u.PRENOM,epn.DATE_INSERTION FROM ecommerce_produit_notes epn
+            LEFT JOIN users u ON epn.ID_USER=u.ID_USER WHERE 1 AND epn.ID_PRODUIT=?
+            `
+                    sqlQuery += ` ORDER BY epn.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
+                    return query(sqlQuery, binds)
+          } catch (error) {
+                    throw error
+          }
+}
+const finduserNotes = async (ID_PRODUIT) => {
+          try {
+                    var binds = [ID_PRODUIT]
+                    var sqlQuery = `
+            SELECT u.ID_USER,epn.ID_NOTE,epn.NOTE,epn.COMMENTAIRE,u.NOM,u.PRENOM,epn.DATE_INSERTION FROM ecommerce_produit_notes epn
+            LEFT JOIN users u ON epn.ID_USER=u.ID_USER WHERE 1 AND epn.ID_PRODUIT=?
+            `
+
+                    return query(sqlQuery, binds)
+          } catch (error) {
+                    throw error
+          }
+}
+const changeNote = async (NOTE, COMMENTAIRE, ID_NOTE) => {
+
+          try {
+
+                    var sqlQuery = `UPDATE ecommerce_produit_notes SET NOTE=?,COMMENTAIRE=? WHERE ID_NOTE=?`
+                    return query(sqlQuery, [NOTE, COMMENTAIRE, ID_NOTE])
+          } catch (error) {
+                    throw error
+          }
+}
+
+
+const findproductsWishlist = async (limit = 10, offset = 0, userId) => {
+          try {
+                    var binds = [userId]
+                    var sqlQuery = `
               SELECT ep.*,
                         ps.NOM_ORGANISATION,
                         ps.ID_TYPE_PARTENAIRE,
@@ -112,30 +150,42 @@ const findproductsWishlist = async (limit = 10, offset = 0,userId) => {
                         LEFT JOIN ecommerce_wishlist_produit ewp ON ewp.ID_PRODUIT=ep.ID_PRODUIT 
               WHERE 1 AND ewp.ID_USER=?
               `
-            sqlQuery += ` ORDER BY ep.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
-              return query(sqlQuery, binds);
-    }
-    catch (error) {
-              throw error
+                    sqlQuery += ` ORDER BY ep.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
+                    return query(sqlQuery, binds);
+          }
+          catch (error) {
+                    throw error
 
-    }
+          }
 }
-const createwishlist = async (ID_PRODUIT,ID_USER,id) => {
-    try {
-              var sqlQuery = `
+const createwishlist = async (ID_PRODUIT, ID_USER, id) => {
+          try {
+                    var sqlQuery = `
               INSERT INTO  ecommerce_wishlist_produit(ID_PRODUIT,ID_USER)
               VALUES (?,?)
               `
-              return query(sqlQuery, [ID_PRODUIT,ID_USER,id])
-    }
-    catch (error) {
-              throw error
-    }
+                    return query(sqlQuery, [ID_PRODUIT, ID_USER, id])
+          } catch (error) {
+                    throw error
+          }
+}
+const createnotes = async (ID_USER, ID_PRODUIT, NOTE, COMMENTAIRE) => {
+          try {
+                    var sqlQuery = `
+            INSERT INTO  ecommerce_produit_notes(ID_USER,ID_PRODUIT,NOTE,COMMENTAIRE)
+            VALUES (?,?,?,?)
+            `
+                    return query(sqlQuery, [ID_USER, ID_PRODUIT, NOTE, COMMENTAIRE])
+          } catch (error) {
+                    throw error
+          }
 }
 
+
+
 const updateProduit = async (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, NOM, PRIX, DESCRIPTION, ID_PARTENAIRE_SERVICE, IMAGE_1, IMAGE_2, IMAGE_3, ID_PRODUCT) => {
-  try {
-            var sqlQuery = `
+          try {
+                    var sqlQuery = `
                           UPDATE ecommerce_produits
               SET ID_CATEGORIE_PRODUIT = ?,
                       ID_PRODUIT_SOUS_CATEGORIE = ?,
@@ -148,11 +198,11 @@ const updateProduit = async (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, NO
                       IMAGE_3 = ?
               WHERE ID_PRODUIT = ?
             `
-            return query(sqlQuery, [ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, NOM, PRIX, DESCRIPTION, ID_PARTENAIRE_SERVICE, IMAGE_1, IMAGE_2, IMAGE_3, ID_PRODUCT])
-  }
-  catch (error) {
-            throw error
-  }
+                    return query(sqlQuery, [ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, NOM, PRIX, DESCRIPTION, ID_PARTENAIRE_SERVICE, IMAGE_1, IMAGE_2, IMAGE_3, ID_PRODUCT])
+          }
+          catch (error) {
+                    throw error
+          }
 }
 
 module.exports = {
@@ -160,5 +210,12 @@ module.exports = {
           createProduit,
           createwishlist,
           findproductsWishlist,
-          updateProduit
+          updateProduit,
+          createProduit,
+          createwishlist,
+          findproductsWishlist,
+          createnotes,
+          findNotes,
+          finduserNotes,
+          changeNote
 }
