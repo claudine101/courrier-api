@@ -162,28 +162,11 @@ const getnotesMenus = async (req, res) => {
         })
     }
 }
-// const getuserNotes = async (req, res) => {
-//     try {
-//         const { ID_RESTAURANT_MENU } = req.query
-//         const notes = await restaurant_menus_model.finduserNotes(ID_RESTAURANT_MENU)
-//         res.status(RESPONSE_CODES.OK).json({
-//             statusCode: RESPONSE_CODES.OK,
-//             httpStatus: RESPONSE_STATUS.OK,
-//             message: "Liste des notes et commentaires",
-//             result: notes
-//         })
-//     } catch (error) {
-//         console.log(error)
-//         res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-//             statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-//             httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-//             message: "Erreur interne du serveur, réessayer plus tard",
-//         })
-//     }
-// }
+
 const getuserNotes = async (req, res) => {
     try {
         const { ID_RESTAURANT_MENU } = req.query
+        const hasCommande = (await query('SELECT ec.ID_COMMANDE FROM restaurant_commandes_details ecd LEFT JOIN restaurant_commandes ec ON ec.ID_COMMANDE= ecd.ID_COMMANDE WHERE ecd.ID_RESTAURANT_MENU = ? AND ec.ID_USER = ? LIMIT 1', [ID_RESTAURANT_MENU, req.userId]))[0]
         const notes = await restaurant_menus_model.finduserNotes(ID_RESTAURANT_MENU)
         const userNote = notes.find(note => note.ID_USER == req.userId)
        
@@ -206,7 +189,8 @@ const getuserNotes = async (req, res) => {
                 userNote,
                 avg,
                 noteGroup,
-                total:notes.length
+                total:notes.length,
+                hasCommande
                 
             }
         })
