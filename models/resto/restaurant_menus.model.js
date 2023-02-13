@@ -22,7 +22,7 @@ const findAllmenu = async (q, category, subCategory, partenaireService, limit = 
                                   LEFT JOIN partenaires par ON par.ID_PARTENAIRE = ps.ID_PARTENAIRE
                                   LEFT JOIN restaurant_categorie_menu resc ON resc.ID_CATEGORIE_MENU = menu.ID_CATEGORIE_MENU
                                   LEFT JOIN restaurant_wishlist_menu rwm ON rwm.ID_RESTAURANT_MENU=menu.ID_RESTAURANT_MENU AND rwm.ID_USER=?
-                          WHERE 1
+                          WHERE menu.DATE_SUPPRESSION IS NULL
                           `
                     if (q && q != "") {
                               sqlQuery +=
@@ -113,9 +113,19 @@ const createwishlist = async (ID_RESTAURANT_MENU,ID_USER,id) => {
         }
     }
 
+    const updateMenu = (ID_CATEGORIE_MENU, ID_PARTENAIRE_SERVICE, PRIX, NOM, DESCRIPTION, IMAGE_1, IMAGE_2, IMAGE_3,ID_RESTAURANT_MENU) => {
+        try {
+                  var sqlQuery = "UPDATE restaurant_menus SET ID_CATEGORIE_MENU=?, ID_PARTENAIRE_SERVICE=?,PRIX=?,NOM=?,DESCRIPTION=?,IMAGE_1=?,IMAGE_2=?,IMAGE_3=? WHERE ID_RESTAURANT_MENU=?";
+                  return query(sqlQuery, [ID_CATEGORIE_MENU, ID_PARTENAIRE_SERVICE, PRIX, NOM, DESCRIPTION, IMAGE_1, IMAGE_2, IMAGE_3,ID_RESTAURANT_MENU])
+        } catch (error) {
+                  throw error
+        }
+};
+
 module.exports = {
           findAllmenu,
           createMenu,
           createwishlist,
-          findwishlistmenu
+          findwishlistmenu,
+          updateMenu
 }

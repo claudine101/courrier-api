@@ -16,13 +16,15 @@ const findproducts = async (q, category, subCategory, partenaireService,  limit 
                               ps.EMAIL,
                               ps.TELEPHONE,
                               epc.NOM NOM_CATEGORIE,
+                              epsc.NOM NOM_SOUS_CATEGORIE,
                               ewp.ID_WISHLIST
                     FROM ecommerce_produits ep
                               LEFT JOIN partenaire_service ps ON ps.ID_PARTENAIRE_SERVICE = ep.ID_PARTENAIRE_SERVICE
                               LEFT JOIN partenaires par ON par.ID_PARTENAIRE = ps.ID_PARTENAIRE
                               LEFT JOIN ecommerce_produit_categorie epc ON epc.ID_CATEGORIE_PRODUIT = ep.ID_CATEGORIE_PRODUIT
+                              LEFT JOIN ecommerce_produit_sous_categorie epsc ON epsc.ID_PRODUIT_SOUS_CATEGORIE = ep.ID_PRODUIT_SOUS_CATEGORIE
                               LEFT JOIN ecommerce_wishlist_produit ewp ON ewp.ID_PRODUIT=ep.ID_PRODUIT AND ewp.ID_USER=?
-                    WHERE 1
+                    WHERE ep.DATE_SUPPRESSION IS NULL
                     `
                     if (q && q != "") {
                               sqlQuery +=
@@ -131,9 +133,32 @@ const createwishlist = async (ID_PRODUIT,ID_USER,id) => {
     }
 }
 
+const updateProduit = async (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, NOM, PRIX, DESCRIPTION, ID_PARTENAIRE_SERVICE, IMAGE_1, IMAGE_2, IMAGE_3, ID_PRODUCT) => {
+  try {
+            var sqlQuery = `
+                          UPDATE ecommerce_produits
+              SET ID_CATEGORIE_PRODUIT = ?,
+                      ID_PRODUIT_SOUS_CATEGORIE = ?,
+                      NOM = ?,
+                      PRIX = ?,
+                      DESCRIPTION = ?,
+                      ID_PARTENAIRE_SERVICE = ?,
+                      IMAGE_1 = ?,
+                      IMAGE_2 = ?,
+                      IMAGE_3 = ?
+              WHERE ID_PRODUIT = ?
+            `
+            return query(sqlQuery, [ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE, NOM, PRIX, DESCRIPTION, ID_PARTENAIRE_SERVICE, IMAGE_1, IMAGE_2, IMAGE_3, ID_PRODUCT])
+  }
+  catch (error) {
+            throw error
+  }
+}
+
 module.exports = {
           findproducts,
           createProduit,
           createwishlist,
-          findproductsWishlist
+          findproductsWishlist,
+          updateProduit
 }
