@@ -374,6 +374,7 @@ const createMenu = async (req, res) => {
                               const { fileInfo: fileInfo_3, thumbInfo: thumbInfo_3 } = await productUpload.upload(IMAGE_3, false)
                               filename_3 = fileInfo_3
                     }
+                    
                     const { insertId: ID_RESTAURANT_MENU } = await restaurant_menus_model.createMenu(
                               ID_CATEGORIE_MENU,
                               ID_PARTENAIRE_SERVICE,

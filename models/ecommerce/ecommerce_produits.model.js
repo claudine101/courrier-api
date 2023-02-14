@@ -66,7 +66,7 @@ const findproducts = async (q, category, subCategory, partenaireService, limit =
           }
 }
 
-const createProduit = async (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE = null, NOM, PRIX, DESCRIPTION, ID_PARTENAIRE_SERVICE, IMAGE_1, IMAGE_2, IMAGE_3) => {
+const createProduit = async (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE = null, NOM, PRIX, DESCRIPTION, ID_PARTENAIRE_SERVICE, IMAGE_1, IMAGE_2, IMAGE_3, QUANTITE_TOTAL) => {
           try {
                     var sqlQuery = `
                     INSERT INTO ecommerce_produits(
@@ -78,11 +78,12 @@ const createProduit = async (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE = n
                               ID_PARTENAIRE_SERVICE,
                               IMAGE_1,
                               IMAGE_2,
-                              IMAGE_3
+                              IMAGE_3,
+                              QUANTITE_TOTAL
                     )
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? , ?)
                     `
-                    return query(sqlQuery, [ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE = null, NOM, PRIX, DESCRIPTION, ID_PARTENAIRE_SERVICE, IMAGE_1, IMAGE_2, IMAGE_3])
+                    return query(sqlQuery, [ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE = null, NOM, PRIX, DESCRIPTION, ID_PARTENAIRE_SERVICE, IMAGE_1, IMAGE_2, IMAGE_3, QUANTITE_TOTAL])
           }
           catch (error) {
                     throw error
