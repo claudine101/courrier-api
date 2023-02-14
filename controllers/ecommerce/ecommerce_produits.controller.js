@@ -15,6 +15,7 @@ const getAllProducts = async (req, res) => {
     try {
         const { q, category, subCategory, partenaireService, limit, offset } = req.query
         const allProducts = await ecommerce_produits_model.findproducts(q, category, subCategory, partenaireService, limit, offset, req.userId)
+        
         const products = allProducts.map(product => {
             return {
                 produit: {
@@ -23,6 +24,8 @@ const getAllProducts = async (req, res) => {
                     ID_PRODUIT_PARTENAIRE: product.ID_PRODUIT_PARTENAIRE,
                     IMAGE: product.IMAGE_1,
                     ID_WISHLIST: product.ID_WISHLIST,
+                    ID_NOTE: product.ID_NOTE,
+                    AVG: product.MOYENNE
                 },
                 partenaire: {
                     NOM_ORGANISATION: product.NOM_ORGANISATION,
@@ -359,15 +362,15 @@ const getuserNotes = async (req, res) => {
         const hasCommande = (await query('SELECT ec.ID_COMMANDE FROM ecommerce_commande_details ecd LEFT JOIN ecommerce_commandes ec ON ec.ID_COMMANDE= ecd.ID_COMMANDE WHERE ecd.ID_PRODUIT = ? AND ec.ID_USER = ? LIMIT 1', [ID_PRODUIT, req.userId]))[0]
         const notes = await ecommerce_produits_model.finduserNotes(ID_PRODUIT)
         const userNote = notes.find(note => note.ID_USER == req.userId)
-       
+
         var noteGroup = {}
         var moyenne = 0
         for (var i = 1; i <= 5; i++) {
             const revueNote = notes.filter(note => note.NOTE == i)
             moyenne += revueNote.length * i
             noteGroup[i] = {
-                nombre:revueNote.length,
-                pourcentage:(revueNote.length *100)/notes.length
+                nombre: revueNote.length,
+                pourcentage: (revueNote.length * 100) / notes.length
             }
         }
         const avg = moyenne / notes.length
@@ -379,7 +382,7 @@ const getuserNotes = async (req, res) => {
                 userNote,
                 avg,
                 noteGroup,
-                total:notes.length,
+                total: notes.length,
                 hasCommande
             }
         })
@@ -583,8 +586,8 @@ const modifierProduit = async (req, res) => {
             NOM,
             DESCRIPTION,
             MONTANT,
-            invetoryEdit:editStr,
-            invetoryDelete:deleteStr,
+            invetoryEdit: editStr,
+            invetoryDelete: deleteStr,
             IMAGE_1: IMAGE_1_DEFAULT,
             IMAGE_2: IMAGE_2_DEFAULT,
             IMAGE_3: IMAGE_3_DEFAULT
@@ -706,13 +709,13 @@ const modifierProduit = async (req, res) => {
             ID_PRODUCT
         )
 
-        if(invetoryEdit && invetoryEdit.length > 0){
-            await Promise.all(invetoryEdit.map( async env=>{
+        if (invetoryEdit && invetoryEdit.length > 0) {
+            await Promise.all(invetoryEdit.map(async env => {
                 await query("UPDATE ecommerce_variant_combination SET QUANTITE=?, PRIX=? WHERE ID_COMBINATION=? ", [env.quantity, env.price, env.id])
             }))
         }
-        if(invetoryDelete && invetoryDelete.length > 0){
-            await query("UPDATE ecommerce_variant_combination SET DATE_SUPPRESSION=? WHERE 	ID_COMBINATION IN(?) ",[moment(new Date()).format("YYYY-MM-DD HH:mm:ss"), invetoryDelete])
+        if (invetoryDelete && invetoryDelete.length > 0) {
+            await query("UPDATE ecommerce_variant_combination SET DATE_SUPPRESSION=? WHERE 	ID_COMBINATION IN(?) ", [moment(new Date()).format("YYYY-MM-DD HH:mm:ss"), invetoryDelete])
         }
 
         res.status(RESPONSE_CODES.CREATED).json({
@@ -737,7 +740,7 @@ const modifierProduit = async (req, res) => {
 const deleteProduit = async (req, res) => {
     try {
         const { ID_PRODUCT } = req.params
-            await query("UPDATE ecommerce_produits SET DATE_SUPPRESSION=? WHERE ID_PRODUIT=? ",[moment(new Date()).format("YYYY-MM-DD HH:mm:ss"), ID_PRODUCT])
+        await query("UPDATE ecommerce_produits SET DATE_SUPPRESSION=? WHERE ID_PRODUIT=? ", [moment(new Date()).format("YYYY-MM-DD HH:mm:ss"), ID_PRODUCT])
 
         res.status(RESPONSE_CODES.CREATED).json({
             statusCode: RESPONSE_CODES.CREATED,

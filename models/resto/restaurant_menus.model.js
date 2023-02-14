@@ -16,13 +16,14 @@ const findAllmenu = async (q, category, subCategory, partenaireService, limit = 
                                   ps.EMAIL,
                                   ps.TELEPHONE,
                                   resc.NOM NOM_CATEGORIE,
-                                  rwm.ID_WISHLIST
-                          FROM restaurant_menus menu
+                                  rwm.ID_WISHLIST,
+                                  AVG(rmn.NOTE) AS MOYENNE FROM restaurant_menus menu 
+                                  LEFT JOIN  restaurant_menus_notes rmn  ON rmn.ID_RESTAURANT_MENU =menu.ID_RESTAURANT_MENU 
                                   LEFT JOIN partenaire_service ps ON ps.ID_PARTENAIRE_SERVICE = menu.ID_PARTENAIRE_SERVICE
                                   LEFT JOIN partenaires par ON par.ID_PARTENAIRE = ps.ID_PARTENAIRE
                                   LEFT JOIN restaurant_categorie_menu resc ON resc.ID_CATEGORIE_MENU = menu.ID_CATEGORIE_MENU
                                   LEFT JOIN restaurant_wishlist_menu rwm ON rwm.ID_RESTAURANT_MENU=menu.ID_RESTAURANT_MENU AND rwm.ID_USER=?
-                          WHERE menu.DATE_SUPPRESSION IS NULL
+                          WHERE menu.DATE_SUPPRESSION IS NULL GROUP BY menu.ID_RESTAURANT_MENU
                           `
                 if (q && q != "") {
                         sqlQuery +=
@@ -160,12 +161,12 @@ const createwishlist = async (ID_RESTAURANT_MENU, ID_USER, id) => {
         }
 }
 
-    const updateMenu = (ID_CATEGORIE_MENU, ID_PARTENAIRE_SERVICE, PRIX, NOM, DESCRIPTION, IMAGE_1, IMAGE_2, IMAGE_3,ID_RESTAURANT_MENU) => {
+const updateMenu = (ID_CATEGORIE_MENU, ID_PARTENAIRE_SERVICE, PRIX, NOM, DESCRIPTION, IMAGE_1, IMAGE_2, IMAGE_3, ID_RESTAURANT_MENU) => {
         try {
-                  var sqlQuery = "UPDATE restaurant_menus SET ID_CATEGORIE_MENU=?, ID_PARTENAIRE_SERVICE=?,PRIX=?,NOM=?,DESCRIPTION=?,IMAGE_1=?,IMAGE_2=?,IMAGE_3=? WHERE ID_RESTAURANT_MENU=?";
-                  return query(sqlQuery, [ID_CATEGORIE_MENU, ID_PARTENAIRE_SERVICE, PRIX, NOM, DESCRIPTION, IMAGE_1, IMAGE_2, IMAGE_3,ID_RESTAURANT_MENU])
+                var sqlQuery = "UPDATE restaurant_menus SET ID_CATEGORIE_MENU=?, ID_PARTENAIRE_SERVICE=?,PRIX=?,NOM=?,DESCRIPTION=?,IMAGE_1=?,IMAGE_2=?,IMAGE_3=? WHERE ID_RESTAURANT_MENU=?";
+                return query(sqlQuery, [ID_CATEGORIE_MENU, ID_PARTENAIRE_SERVICE, PRIX, NOM, DESCRIPTION, IMAGE_1, IMAGE_2, IMAGE_3, ID_RESTAURANT_MENU])
         } catch (error) {
-                  throw error
+                throw error
         }
 };
 
@@ -178,5 +179,5 @@ module.exports = {
         findNotes,
         finduserNotes,
         changeNote,
-          updateMenu
+        updateMenu
 }

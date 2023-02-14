@@ -17,14 +17,18 @@ const findproducts = async (q, category, subCategory, partenaireService, limit =
                               ps.TELEPHONE,
                               epc.NOM NOM_CATEGORIE,
                               epsc.NOM NOM_SOUS_CATEGORIE,
-                              ewp.ID_WISHLIST
-                    FROM ecommerce_produits ep
+                              ewp.ID_WISHLIST,
+                              epn.NOTE,
+                              epn.ID_NOTE,
+                              AVG(epn.NOTE) AS MOYENNE FROM ecommerce_produits ep 
+                              LEFT JOIN ecommerce_produit_notes epn ON epn.ID_PRODUIT= ep.ID_PRODUIT
                               LEFT JOIN partenaire_service ps ON ps.ID_PARTENAIRE_SERVICE = ep.ID_PARTENAIRE_SERVICE
                               LEFT JOIN partenaires par ON par.ID_PARTENAIRE = ps.ID_PARTENAIRE
                               LEFT JOIN ecommerce_produit_categorie epc ON epc.ID_CATEGORIE_PRODUIT = ep.ID_CATEGORIE_PRODUIT
                               LEFT JOIN ecommerce_produit_sous_categorie epsc ON epsc.ID_PRODUIT_SOUS_CATEGORIE = ep.ID_PRODUIT_SOUS_CATEGORIE
+                              
                               LEFT JOIN ecommerce_wishlist_produit ewp ON ewp.ID_PRODUIT=ep.ID_PRODUIT AND ewp.ID_USER=?
-                    WHERE ep.DATE_SUPPRESSION IS NULL
+                    WHERE ep.DATE_SUPPRESSION IS NULL GROUP BY ep.ID_PRODUIT
                     `
                     if (q && q != "") {
                               sqlQuery +=
