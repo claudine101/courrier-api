@@ -61,7 +61,7 @@ const findServicesCategories = async (req, res) => {
 const getEcommerceServiceCounts = async (req, res) => {
           try {
                     const { ID_PARTENAIRE_SERVICE } = req.params
-                    const items = (await query('SELECT COUNT(ep.ID_PARTENAIRE_SERVICE) AS items FROM ecommerce_produits ep WHERE ep.ID_PARTENAIRE_SERVICE= ?', [ID_PARTENAIRE_SERVICE]))[0]
+                    const items = (await query('SELECT COUNT(ep.ID_PARTENAIRE_SERVICE) AS items FROM ecommerce_produits ep WHERE ep.DATE_SUPPRESSION IS NULL AND ep.ID_PARTENAIRE_SERVICE= ?', [ID_PARTENAIRE_SERVICE]))[0]
                     const commandes = (await query(`SELECT COUNT(ID_COMMANDE) commandes FROM ecommerce_commandes WHERE ID_PARTENAIRE_SERVICE = ? AND ID_STATUT NOT IN (${IDS_COMMANDES_STATUTS.ETTENTE_PAIEMENET}, ${IDS_COMMANDES_STATUTS.LIVRE})`, [ID_PARTENAIRE_SERVICE]))[0]
                     res.status(RESPONSE_CODES.OK).json({
                               statusCode: RESPONSE_CODES.OK,
@@ -84,7 +84,7 @@ const getEcommerceServiceCounts = async (req, res) => {
 const getRestoServiceCounts = async (req, res) => {
           try {
                     const { ID_PARTENAIRE_SERVICE } = req.params
-                    const items = (await query('SELECT COUNT(ep.ID_PARTENAIRE_SERVICE) AS items FROM restaurant_menus ep WHERE ep.ID_PARTENAIRE_SERVICE= ?', [ID_PARTENAIRE_SERVICE]))[0]
+                    const items = (await query('SELECT COUNT(ep.ID_PARTENAIRE_SERVICE) AS items FROM restaurant_menus ep WHERE ep.DATE_SUPPRESSION IS NULL AND ep.ID_PARTENAIRE_SERVICE= ?', [ID_PARTENAIRE_SERVICE]))[0]
                     const commandes = (await query(`SELECT COUNT(ID_COMMANDE) commandes FROM restaurant_commandes WHERE ID_PARTENAIRE_SERVICE = ? AND ID_STATUT NOT IN (${IDS_COMMANDES_STATUTS.ETTENTE_PAIEMENET}, ${IDS_COMMANDES_STATUTS.LIVRE})`, [ID_PARTENAIRE_SERVICE]))[0]
                     res.status(RESPONSE_CODES.OK).json({
                               statusCode: RESPONSE_CODES.OK,
