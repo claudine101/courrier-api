@@ -118,6 +118,7 @@ const findAll = async (req, res) => {
           try {
                     const { ID_SERVICE_CATEGORIE, q, limit, offset } = req.query
                     const partenaires = await partenaire_service_model.findAll(ID_SERVICE_CATEGORIE, q, limit, offset)
+                    console.log(partenaires)
                     res.status(RESPONSE_CODES.OK).json({
                               statusCode: RESPONSE_CODES.OK,
                               httpStatus: RESPONSE_STATUS.OK,

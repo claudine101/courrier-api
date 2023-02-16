@@ -15,7 +15,6 @@ const getAllProducts = async (req, res) => {
     try {
         const { q, category, subCategory, partenaireService, limit, offset } = req.query
         const allProducts = await ecommerce_produits_model.findproducts(q, category, subCategory, partenaireService, limit, offset, req.userId)
-        
         const products = allProducts.map(product => {
             return {
                 produit: {
