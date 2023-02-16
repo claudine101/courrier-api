@@ -50,7 +50,7 @@ const findById = async (ID_USER, ID_SERVICE) => {
  */
 const findPartenaireServices = async (idPartenaire) => {
           try {
-                    var sqlQuery = " SELECT * FROM partenaire_service WHERE ID_PARTENAIRE = ?"
+                    var sqlQuery = " SELECT * FROM partenaire_service WHERE DATE_SUPPRESSION IS NULL AND ID_PARTENAIRE = ?"
                     return query(sqlQuery, [idPartenaire]);
           }catch (error) {
                     throw error

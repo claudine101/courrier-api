@@ -7,6 +7,7 @@ const RESPONSE_STATUS = require("../../constants/RESPONSE_STATUS")
 const services_model = require('../../models/service/services.model')
 const partenaire_service_model = require('../../models/partenaire/partenaire_service.model')
 const { query } = require('../../utils/db')
+const moment = require("moment")
 
 /**
  * Permet de trouver les services d'un partenaire
@@ -237,10 +238,35 @@ const modifierPartenaireService = async (req, res) => {
         }
 }
 
+const deletePartenaireService = async (req, res) => {
+        try {
+            const { ID_PARTENAIRE_SERVICE } = req.params
+                await query("UPDATE partenaire_service SET DATE_SUPPRESSION=? WHERE ID_PARTENAIRE_SERVICE=? ",[moment(new Date()).format("YYYY-MM-DD HH:mm:ss"), ID_PARTENAIRE_SERVICE])
+    
+            res.status(RESPONSE_CODES.CREATED).json({
+                statusCode: RESPONSE_CODES.CREATED,
+                httpStatus: RESPONSE_STATUS.CREATED,
+                message: "La suppression de la boutique est fait avec succès",
+                result: {
+                        ID_PARTENAIRE_SERVICE
+                }
+            })
+        } catch (error) {
+            console.log(error)
+            res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                message: "Erreur interne du serveur, réessayer plus tard",
+    
+            })
+        }
+    }
+
 
 module.exports = {
         findPartenaireServices,
         createPartenaireService,
         findAll,
-        modifierPartenaireService
+        modifierPartenaireService,
+        deletePartenaireService
 }
