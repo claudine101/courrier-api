@@ -359,15 +359,15 @@ const getuserNotes = async (req, res) => {
         const hasCommande = (await query('SELECT ec.ID_COMMANDE FROM ecommerce_commande_details ecd LEFT JOIN ecommerce_commandes ec ON ec.ID_COMMANDE= ecd.ID_COMMANDE WHERE ecd.ID_PRODUIT = ? AND ec.ID_USER = ? LIMIT 1', [ID_PRODUIT, req.userId]))[0]
         const notes = await ecommerce_produits_model.finduserNotes(ID_PRODUIT)
         const userNote = notes.find(note => note.ID_USER == req.userId)
-       
+
         var noteGroup = {}
         var moyenne = 0
         for (var i = 1; i <= 5; i++) {
             const revueNote = notes.filter(note => note.NOTE == i)
             moyenne += revueNote.length * i
             noteGroup[i] = {
-                nombre:revueNote.length,
-                pourcentage:(revueNote.length *100)/notes.length
+                nombre: revueNote.length,
+                pourcentage: (revueNote.length * 100) / notes.length
             }
         }
         const avg = moyenne / notes.length
@@ -379,7 +379,7 @@ const getuserNotes = async (req, res) => {
                 userNote,
                 avg,
                 noteGroup,
-                total:notes.length,
+                total: notes.length,
                 hasCommande
             }
         })
@@ -583,8 +583,8 @@ const modifierProduit = async (req, res) => {
             NOM,
             DESCRIPTION,
             MONTANT,
-            invetoryEdit:editStr,
-            invetoryDelete:deleteStr,
+            invetoryEdit: editStr,
+            invetoryDelete: deleteStr,
             IMAGE_1: IMAGE_1_DEFAULT,
             IMAGE_2: IMAGE_2_DEFAULT,
             IMAGE_3: IMAGE_3_DEFAULT
@@ -706,13 +706,13 @@ const modifierProduit = async (req, res) => {
             ID_PRODUCT
         )
 
-        if(invetoryEdit && invetoryEdit.length > 0){
-            await Promise.all(invetoryEdit.map( async env=>{
+        if (invetoryEdit && invetoryEdit.length > 0) {
+            await Promise.all(invetoryEdit.map(async env => {
                 await query("UPDATE ecommerce_variant_combination SET QUANTITE=?, PRIX=? WHERE ID_COMBINATION=? ", [env.quantity, env.price, env.id])
             }))
         }
-        if(invetoryDelete && invetoryDelete.length > 0){
-            await query("UPDATE ecommerce_variant_combination SET DATE_SUPPRESSION=? WHERE 	ID_COMBINATION IN(?) ",[moment(new Date()).format("YYYY-MM-DD HH:mm:ss"), invetoryDelete])
+        if (invetoryDelete && invetoryDelete.length > 0) {
+            await query("UPDATE ecommerce_variant_combination SET DATE_SUPPRESSION=? WHERE 	ID_COMBINATION IN(?) ", [moment(new Date()).format("YYYY-MM-DD HH:mm:ss"), invetoryDelete])
         }
 
         res.status(RESPONSE_CODES.CREATED).json({
@@ -737,7 +737,7 @@ const modifierProduit = async (req, res) => {
 const deleteProduit = async (req, res) => {
     try {
         const { ID_PRODUCT } = req.params
-            await query("UPDATE ecommerce_produits SET DATE_SUPPRESSION=? WHERE ID_PRODUIT=? ",[moment(new Date()).format("YYYY-MM-DD HH:mm:ss"), ID_PRODUCT])
+        await query("UPDATE ecommerce_produits SET DATE_SUPPRESSION=? WHERE ID_PRODUIT=? ", [moment(new Date()).format("YYYY-MM-DD HH:mm:ss"), ID_PRODUCT])
 
         res.status(RESPONSE_CODES.CREATED).json({
             statusCode: RESPONSE_CODES.CREATED,
@@ -757,6 +757,99 @@ const deleteProduit = async (req, res) => {
         })
     }
 }
+
+const getpartenairesNotes = async (req, res) => {
+    try {
+        const { ID_PARTENAIRE_SERVICE } = req.params
+        const partenaireNotes = await ecommerce_produits_model.findPartenaireNotes(ID_PARTENAIRE_SERVICE)
+        console.log(partenaireNotes)
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Liste des notes et commentaires",
+            result: partenaireNotes
+        })
+
+    } catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+        })
+    }
+}
+
+const getOneProduct = async (req, res) => {
+    try {
+        const { ID_PRODUCT } = req.params
+        const product = (await ecommerce_produits_model.findOneproducts(req.userId, ID_PRODUCT))[0]
+        const oneProduit = {
+            produit: {
+                ID_PRODUIT: product.ID_PRODUIT,
+                NOM: product.NOM,
+                ID_PRODUIT_PARTENAIRE: product.ID_PRODUIT_PARTENAIRE,
+                IMAGE: product.IMAGE_1,
+                ID_WISHLIST: product.ID_WISHLIST,
+            },
+            partenaire: {
+                NOM_ORGANISATION: product.NOM_ORGANISATION,
+                ID_PARTENAIRE: product.ID_PARTENAIRE,
+                ID_TYPE_PARTENAIRE: product.ID_TYPE_PARTENAIRE,
+                NOM: product.NOM_USER,
+                PRENOM: product.PRENOM,
+                ADRESSE_COMPLETE: product.ADRESSE_COMPLETE,
+                ID_SERVICE: product.ID_SERVICE,
+                LOGO: product.LOGO,
+                BACKGROUND_IMAGE: product.BACKGROUND_IMAGE,
+                EMAIL: product.EMAIL,
+                TELEPHONE: product.TELEPHONE,
+                ID_PARTENAIRE_SERVICE: product.ID_PARTENAIRE_SERVICE,
+            },
+            produit_partenaire: {
+                ID_PARTENAIRE_SERVICE: product.ID_PARTENAIRE_SERVICE,
+                NOM_ORGANISATION: product.NOM_ORGANISATION,
+                NOM: product.NOM_PRODUIT_PARTENAIRE,
+                DESCRIPTION: product.DESCRIPTION,
+                IMAGE_1: product.IMAGE_1,
+                IMAGE_2: product.IMAGE_2,
+                IMAGE_3: product.IMAGE_3,
+                TAILLE: product.NOM_TAILLE,
+                PRIX: product.PRIX
+            },
+            categorie: {
+                ID_CATEGORIE_PRODUIT: product.ID_CATEGORIE_PRODUIT,
+                NOM: product.NOM_CATEGORIE
+            },
+            sous_categorie: {
+                ID_PRODUIT_SOUS_CATEGORIE: product.ID_PRODUIT_SOUS_CATEGORIE,
+                NOM: product.NOM_SOUS_CATEGORIE
+            },
+            stock: {
+                ID_PRODUIT_STOCK: product.ID_PRODUIT_STOCK,
+                QUANTITE_STOCKE: product.QUANTITE_TOTAL,
+                QUANTITE_RESTANTE: product.QUANTITE_RESTANTE,
+                QUANTITE_VENDUE: product.QUANTITE_VENDUS
+            }
+        }
+        
+res.status(RESPONSE_CODES.OK).json({
+    statusCode: RESPONSE_CODES.OK,
+    httpStatus: RESPONSE_STATUS.OK,
+    message: "Liste des produits",
+    result: oneProduit
+})
+    }
+    catch (error) {
+    console.log(error)
+    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+        statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+        httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+        message: "Erreur interne du serveur, réessayer plus tard",
+
+    })
+}
+}
 module.exports = {
     getAllProducts,
     createProduit,
@@ -772,5 +865,7 @@ module.exports = {
     updateNote,
     deleteNote,
     modifierProduit,
-    deleteProduit
+    deleteProduit,
+    getpartenairesNotes,
+    getOneProduct
 }

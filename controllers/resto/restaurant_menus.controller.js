@@ -699,6 +699,85 @@ const deleteMenu = async (req, res) => {
     }
 }
 
+const getpartenaireNotes = async (req, res) => {
+    try {
+        const { ID_PARTENAIRE_SERVICE } = req.params
+        const partenaireNotes = await restaurant_menus_model.findpartenaireNotes(ID_PARTENAIRE_SERVICE)
+   
+        res.status(RESPONSE_CODES.OK).json({
+            statusCode: RESPONSE_CODES.OK,
+            httpStatus: RESPONSE_STATUS.OK,
+            message: "Liste des notes et commentaires",
+            result: partenaireNotes
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+            message: "Erreur interne du serveur, réessayer plus tard",
+        })
+    }
+}
+
+const getOnemenu = async (req, res) => {
+    try {
+              const {ID_RESTAURANT_MENU} = req.params
+              var menu = (await restaurant_menus_model.findOnemenu(req.userId,ID_RESTAURANT_MENU))[0]
+                        const oneMenu= {
+                                  produit: {
+                                            ID_RESTAURANT_MENU: menu.ID_RESTAURANT_MENU,
+                                            NOM: menu.NOM,
+                                            ID_PARTENAIRE_SERVICE: menu.ID_PARTENAIRE_SERVICE,
+                                            IMAGE: menu.IMAGE_1,
+                                            ID_WISHLIST:menu.ID_WISHLIST
+                                  },
+                                  partenaire: {
+                                            NOM_ORGANISATION: menu.NOM_ORGANISATION,
+                                            ID_PARTENAIRE: menu.ID_PARTENAIRE,
+                                            ID_TYPE_PARTENAIRE: menu.ID_TYPE_PARTENAIRE,
+                                            NOM: menu.NOM_USER,
+                                            PRENOM: menu.PRENOM,
+                                            ADRESSE_COMPLETE: menu.ADRESSE_COMPLETE,
+                                            ID_SERVICE: menu.ID_SERVICE,
+                                            LOGO: menu.LOGO,
+                                            BACKGROUND_IMAGE: menu.BACKGROUND_IMAGE,
+                                            EMAIL: menu.EMAIL,
+                                            TELEPHONE: menu.TELEPHONE,
+                                            ID_PARTENAIRE_SERVICE: menu.ID_PARTENAIRE_SERVICE,
+                                  },
+                                  produit_partenaire: {
+                                            ID_PARTENAIRE_SERVICE: menu.ID_PARTENAIRE_SERVICE,
+                                            NOM_ORGANISATION: menu.NOM_ORGANISATION,
+                                            NOM: menu.NOM_PRODUIT_PARTENAIRE,
+                                            DESCRIPTION: menu.DESCRIPTION,
+                                            IMAGE_1: menu.IMAGE_1,
+                                            IMAGE_2: menu.IMAGE_2,
+                                            IMAGE_3: menu.IMAGE_3,
+                                            TAILLE: menu.NOM_TAILLE,
+                                            PRIX: menu.PRIX
+                                  },
+                                  categorie: {
+                                            ID_CATEGORIE_MENU: menu.ID_CATEGORIE_MENU,
+                                            NOM: menu.NOM_CATEGORIE
+                                  },
+                        }
+              res.status(RESPONSE_CODES.OK).json({
+                        statusCode: RESPONSE_CODES.OK,
+                        httpStatus: RESPONSE_CODES.OK,
+                        message: "Liste des  menus restaurants",
+                        result: oneMenu
+              })
+    } catch (error) {
+              console.log(error)
+              res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                        statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                        httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                        message: "Erreur interne du serveur, réessayer plus tard",
+              })
+    }
+};
+
 module.exports = {
           getAllmenu,
           getCategories,
@@ -712,5 +791,7 @@ module.exports = {
           updateNote,
           deleteNote,
           modifierMenu,
-          deleteMenu
+          deleteMenu,
+          getpartenaireNotes,
+          getOnemenu
 }

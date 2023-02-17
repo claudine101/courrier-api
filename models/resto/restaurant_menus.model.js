@@ -169,6 +169,58 @@ const createwishlist = async (ID_RESTAURANT_MENU, ID_USER, id) => {
         }
 };
 
+const findpartenaireNotes = async (ID_PARTENAIRE_SERVICE) => {
+        try {
+                var binds = [ID_PARTENAIRE_SERVICE]
+                var sqlQuery = `SELECT rn.*,
+                u.NOM,
+                u.PRENOM
+        FROM restaurant_menus_notes rn
+                LEFT JOIN restaurant_menus rm ON rn.ID_RESTAURANT_MENU = rm.ID_RESTAURANT_MENU
+                LEFT JOIN partenaire_service ps ON ps.ID_PARTENAIRE_SERVICE = rm.ID_PARTENAIRE_SERVICE
+                LEFT JOIN partenaires part ON part.ID_PARTENAIRE = ps.ID_PARTENAIRE
+                LEFT JOIN users u ON u.ID_USER = part.ID_USER
+        WHERE ps.ID_PARTENAIRE_SERVICE = ?`
+
+                return query(sqlQuery, binds)
+        } catch (error) {
+                throw error
+        }
+}
+
+const findOnemenu = async (userId, ID_RESTAURANT_MENU ) => {
+        try {
+                var binds = [userId, ID_RESTAURANT_MENU]
+                var sqlQuery = `
+                                  SELECT menu.*,
+                                  ps.NOM_ORGANISATION,
+                                  ps.ID_TYPE_PARTENAIRE,
+                                  ps.ID_PARTENAIRE,
+                                  ps.ID_PARTENAIRE_SERVICE,
+                                  ps.ADRESSE_COMPLETE,
+                                  ps.ID_SERVICE,
+                                  ps.LOGO,
+                                  ps.BACKGROUND_IMAGE,
+                                  ps.EMAIL,
+                                  ps.TELEPHONE,
+                                  resc.NOM NOM_CATEGORIE,
+                                  rwm.ID_WISHLIST
+                          FROM restaurant_menus menu
+                                  LEFT JOIN partenaire_service ps ON ps.ID_PARTENAIRE_SERVICE = menu.ID_PARTENAIRE_SERVICE
+                                  LEFT JOIN partenaires par ON par.ID_PARTENAIRE = ps.ID_PARTENAIRE
+                                  LEFT JOIN restaurant_categorie_menu resc ON resc.ID_CATEGORIE_MENU = menu.ID_CATEGORIE_MENU
+                                  LEFT JOIN restaurant_wishlist_menu rwm ON rwm.ID_RESTAURANT_MENU=menu.ID_RESTAURANT_MENU AND rwm.ID_USER=?
+                          WHERE menu.DATE_SUPPRESSION IS NULL AND menu.ID_RESTAURANT_MENU=?
+                          `
+                sqlQuery += ` ORDER BY menu.DATE_INSERTION DESC`;
+                return query(sqlQuery, binds);
+        }
+        catch (error) {
+                throw error
+
+        }
+}
+
 module.exports = {
         findAllmenu,
         createMenu,
@@ -178,5 +230,7 @@ module.exports = {
         findNotes,
         finduserNotes,
         changeNote,
-          updateMenu
+          updateMenu,
+          findpartenaireNotes,
+          findOnemenu
 }

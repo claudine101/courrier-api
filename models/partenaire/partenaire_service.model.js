@@ -32,9 +32,10 @@ const findAll = async (ID_SERVICE_CATEGORIE, q, limit = 10, offset = 0,) => {
           try {
                     var binds = []
                     var sqlQuery = `
-                    SELECT ps.*, sc.ID_SERVICE_CATEGORIE FROM partenaire_service ps
+                    SELECT ps.*, sc.ID_SERVICE_CATEGORIE, ebs.ID_BOUTIQUE_SUIVIS FROM partenaire_service ps
                     LEFT JOIN services s ON s.ID_SERVICE = ps.ID_SERVICE
                     LEFT JOIN services_categories sc ON sc.ID_SERVICE_CATEGORIE = s.ID_SERVICE_CATEGORIE
+                    LEFT JOIN ecommerce_boutique_suivis ebs ON ebs.ID_PARTENAIRE_SERVICE=ps.ID_PARTENAIRE_SERVICE
                     WHERE 1
                     `
                     if(ID_SERVICE_CATEGORIE) {

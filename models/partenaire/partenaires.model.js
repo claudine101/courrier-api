@@ -16,6 +16,19 @@ const createOnePartenaire = (ID_USER) => {
           }
 }
 
+const createBoutiqueSuivis = async (ID_PARTENAIRE_SERVICE, ID_USER) => {
+        try {
+                  var sqlQuery = `
+            INSERT INTO ecommerce_boutique_suivis(ID_PARTENAIRE_SERVICE,ID_USER)
+            VALUES (?,?)
+            `
+                  return query(sqlQuery, [ID_PARTENAIRE_SERVICE, ID_USER])
+        } catch (error) {
+                  throw error
+        }
+}
+
 module.exports = {
-          createOnePartenaire
+          createOnePartenaire,
+          createBoutiqueSuivis
 }
