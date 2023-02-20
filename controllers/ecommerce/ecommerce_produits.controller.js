@@ -60,10 +60,7 @@ const getAllProducts = async (req, res) => {
                     NOM: product.NOM_SOUS_CATEGORIE
                 },
                 stock: {
-                    ID_PRODUIT_STOCK: product.ID_PRODUIT_STOCK,
-                    QUANTITE_STOCKE: product.QUANTITE_TOTAL,
-                    QUANTITE_RESTANTE: product.QUANTITE_RESTANTE,
-                    QUANTITE_VENDUE: product.QUANTITE_VENDUS
+                    QUANTITE_TOTAL:product.	QUANTITE_TOTAL
                 }
             }
         }
@@ -181,6 +178,12 @@ const createProduit = async (req, res) => {
             const { fileInfo: fileInfo_3, thumbInfo: thumbInfo_3 } = await productUpload.upload(IMAGE_3, false)
             filename_3 = fileInfo_3
         }
+        var quantite_total = 0
+        if (inventories && inventories.length > 0) {
+            inventories.forEach(inventory => {
+                quantite_total += parseInt(inventory.quantity) 
+            })
+        }
         const { insertId: ID_PRODUIT } = await ecommerce_produits_model.createProduit(
             ID_CATEGORIE_PRODUIT,
             ID_PRODUIT_SOUS_CATEGORIE ? ID_PRODUIT_SOUS_CATEGORIE : null,
@@ -190,7 +193,8 @@ const createProduit = async (req, res) => {
             ID_PARTENAIRE_SERVICE,
             `${req.protocol}://${req.get("host")}${IMAGES_DESTINATIONS.products}/${fileInfo_1.fileName}`,
             filename_2 ? `${req.protocol}://${req.get("host")}${IMAGES_DESTINATIONS.products}/${filename_2.fileName}` : null,
-            filename_3 ? `${req.protocol}://${req.get("host")}${IMAGES_DESTINATIONS.products}/${filename_3.fileName}` : null
+            filename_3 ? `${req.protocol}://${req.get("host")}${IMAGES_DESTINATIONS.products}/${filename_3.fileName}` : null,
+            quantite_total ? quantite_total : 1
         )
         if (variants && variants.length > 0) {
             await Promise.all(variants.map(async variant => {
@@ -222,6 +226,7 @@ const createProduit = async (req, res) => {
             const newCombinaisons = await query('SELECT * FROM ecommerce_variant_combination WHERE ID_PRODUIT = ?', [ID_PRODUIT])
             const values = await query('SELECT * FROM ecommerce_variant_values WHERE ID_PRODUIT = ?', [ID_PRODUIT])
             var ecommerce_variant_combination_values = []
+
             newCombinaisons.forEach(combinaison => {
                 const myInventory = inventories.find(inv => inv.id == combinaison.FRONTEND_COMBINAISON_ID)
                 const itemsWithIds = myInventory.items.map(item => {

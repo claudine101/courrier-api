@@ -25,7 +25,7 @@ const findAllCommandes = async (ID_PARTENAIRE_SERVICE, ID_USER, q, limit = 10, o
 const getManyCommandesRestaurantDetails = async (commandesIds) => {
           try {
                     var binds = [commandesIds]
-                    var sqlQuery = " SELECT cd.ID_COMMANDE, cd.ID_COMMANDE_DETAIL, cd.QUANTITE, cd.MONTANT, cd.SOMME, ep.NOM, ep.IMAGE_1 FROM restaurant_commandes_details cd"
+                    var sqlQuery = " SELECT cd.ID_COMMANDE, cd.ID_COMMANDE_DETAIL, cd.QUANTITE, cd.ID_RESTAURANT_MENU, cd.MONTANT, cd.SOMME, ep.NOM, ep.IMAGE_1 FROM restaurant_commandes_details cd"
                     sqlQuery += "  LEFT JOIN  restaurant_menus ep ON ep.ID_RESTAURANT_MENU=cd.ID_RESTAURANT_MENU WHERE ID_COMMANDE IN (?)"
                     return query(sqlQuery, binds)
           }catch (error) {

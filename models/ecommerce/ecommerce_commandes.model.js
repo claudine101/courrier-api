@@ -25,7 +25,7 @@ const getAllCommandes = async (ID_PARTENAIRE_SERVICE, ID_USER, q, limit = 10, of
 const getManyCommandesDetails = async (commandesIds) => {
           try {
                     var binds = [commandesIds]
-                    var sqlQuery = " SELECT cd.ID_COMMANDE, cd.ID_COMMANDE_DETAIL, cd.QUANTITE, cd.PRIX, cd.SOMME, ep.NOM, ep.IMAGE_1 FROM ecommerce_commande_details cd"
+                    var sqlQuery = " SELECT cd.ID_COMMANDE, cd.ID_PRODUIT, cd.ID_COMMANDE_DETAIL, cd.QUANTITE, cd.PRIX, cd.SOMME, ep.NOM, ep.IMAGE_1 FROM ecommerce_commande_details cd"
                     sqlQuery += "  LEFT JOIN ecommerce_produits ep ON ep.ID_PRODUIT=cd.ID_PRODUIT WHERE ID_COMMANDE IN (?)"
                     return query(sqlQuery, binds)
 
@@ -54,7 +54,7 @@ const createCommandes = async (PAYEMENT_ID, ID_PARTENAIRE_SERVICE, ID_USER, DATE
   
 const createCommandeDetails = async (ecommerce_commande_details) => {
           try {
-                    var sqlQuery = "INSERT INTO ecommerce_commande_details(ID_COMMANDE, ID_PRODUIT, QUANTITE, PRIX, SOMME)";
+                    var sqlQuery = "INSERT INTO ecommerce_commande_details(ID_COMMANDE, ID_PRODUIT, QUANTITE, PRIX, SOMME, ID_COMBINATION)";
                     sqlQuery += "VALUES ?"
                     return query(sqlQuery, [ecommerce_commande_details]);
           } catch (error) {

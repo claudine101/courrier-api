@@ -343,111 +343,112 @@ const createMenu = async (req, res) => {
                     exists: "categorie invalide",
                 },
 
-                NOM: {
-                    required: "nom du produit  est obligatoire",
-                    length: "Nom du produit invalide"
-                },
-                DESCRIPTION: {
-                    required: "Vérifier la taille de votre description(max: 3000 caractères)",
-                },
-            }
-        );
-        await validation.run();
-        const isValid = await validation.isValidate()
-        const errors = await validation.getErrors()
-        if (!isValid) {
-            return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
-                statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
-                httpStatus: RESPONSE_STATUS.UNPROCESSABLE_ENTITY,
-                message: "Probleme de validation des donnees",
-                result: errors
-            })
-        }
-        const productUpload = new ProductUpload()
-        var filename_2
-        var filename_3
-        const { fileInfo: fileInfo_1, thumbInfo: thumbInfo_1 } = await productUpload.upload(IMAGE_1, false)
-        if (IMAGE_2) {
-            const { fileInfo: fileInfo_2, thumbInfo: thumbInfo_2 } = await productUpload.upload(IMAGE_2, false)
-            filename_2 = fileInfo_2
-        }
-        if (IMAGE_3) {
-            const { fileInfo: fileInfo_3, thumbInfo: thumbInfo_3 } = await productUpload.upload(IMAGE_3, false)
-            filename_3 = fileInfo_3
-        }
-        const { insertId: ID_RESTAURANT_MENU } = await restaurant_menus_model.createMenu(
-            ID_CATEGORIE_MENU,
-            ID_PARTENAIRE_SERVICE,
-            PRIX,
-            NOM,
-            DESCRIPTION,
-            `${req.protocol}://${req.get("host")}${IMAGES_DESTINATIONS.products}/${fileInfo_1.fileName}`,
-            filename_2 ? `${req.protocol}://${req.get("host")}${IMAGES_DESTINATIONS.products}/${filename_2.fileName}` : null,
-            filename_3 ? `${req.protocol}://${req.get("host")}${IMAGES_DESTINATIONS.products}/${filename_3.fileName}` : null
-        )
-        if (variants && variants.length > 0) {
-            await Promise.all(variants.map(async variant => {
-                const { insertId: ID_VARIANT } = await query('INSERT INTO restaurant_menu_variants(ID_RESTAURANT_MENU, FRONTEND_VARIANT_ID, VARIANT_NAME) VALUES(?, ?, ?)', [
-                    ID_RESTAURANT_MENU, variant.id, variant.variantName
-                ])
-                const ecommerce_variant_values = []
-                variant.options.forEach(option => {
-                    ecommerce_variant_values.push([
-                        ID_RESTAURANT_MENU,
-                        ID_VARIANT,
-                        option.id,
-                        option.name
-                    ])
-                })
-                if (ecommerce_variant_values.length > 0) {
-                    await query('INSERT INTO restaurant_variant_values(ID_RESTAURANT_MENU, ID_VARIANT, FRONTEND_VALUE_ID, VALUE_NAME) VALUES ?', [ecommerce_variant_values])
-                }
-            }))
-        }
-        if (inventories && inventories.length > 0) {
-            const ecommerce_variant_combination = []
-            inventories.forEach(inventory => {
-                ecommerce_variant_combination.push([ID_RESTAURANT_MENU, inventory.price, inventory.id])
-            })
-            if (ecommerce_variant_combination.length > 0) {
-                await query('INSERT INTO restaurant_variant_combination(ID_RESTAURANT_MENU, PRIX, FRONTEND_COMBINAISON_ID) VALUES ?', [ecommerce_variant_combination])
-            }
-            const newCombinaisons = await query('SELECT * FROM restaurant_variant_combination WHERE ID_RESTAURANT_MENU = ?', [ID_RESTAURANT_MENU])
-            const values = await query('SELECT * FROM restaurant_variant_values WHERE ID_RESTAURANT_MENU = ?', [ID_RESTAURANT_MENU])
-            var ecommerce_variant_combination_values = []
-            newCombinaisons.forEach(combinaison => {
-                const myInventory = inventories.find(inv => inv.id == combinaison.FRONTEND_COMBINAISON_ID)
-                const itemsWithIds = myInventory.items.map(item => {
-                    const myValue = values.find(val => val.FRONTEND_VALUE_ID == item.id)
-                    return {
-                        ...item,
-                        ID_VALUE: myValue.ID_VALUE
+                                        NOM: {
+                                                  required: "nom du produit  est obligatoire",
+                                                  length: "Nom du produit invalide"
+                                        },
+                                        DESCRIPTION: {
+                                                  required: "Vérifier la taille de votre description(max: 3000 caractères)",
+                                        },
+                              }
+                    );
+                    await validation.run();
+                    const isValid = await validation.isValidate()
+                    const errors = await validation.getErrors()
+                    if (!isValid) {
+                              return res.status(RESPONSE_CODES.UNPROCESSABLE_ENTITY).json({
+                                        statusCode: RESPONSE_CODES.UNPROCESSABLE_ENTITY,
+                                        httpStatus: RESPONSE_STATUS.UNPROCESSABLE_ENTITY,
+                                        message: "Probleme de validation des donnees",
+                                        result: errors
+                              })
                     }
-                })
-                itemsWithIds.forEach(item => {
-                    ecommerce_variant_combination_values.push([combinaison.ID_COMBINATION, item.ID_VALUE])
-                })
-            })
-            if (ecommerce_variant_combination_values.length > 0) {
-                await query('INSERT INTO restaurant_variant_combination_values(ID_COMBINATION, ID_VALUE) VALUES ?', [ecommerce_variant_combination_values])
-            }
-        }
-        res.status(RESPONSE_CODES.CREATED).json({
-            statusCode: RESPONSE_CODES.CREATED,
-            httpStatus: RESPONSE_STATUS.CREATED,
-            message: "Enregistrement du produit est fait avec succès",
-            result: {
-                ID_RESTAURANT_MENU
-            }
-        })
-    } catch (error) {
-        console.log(error)
-        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-            message: "Enregistrement echoue",
-        })
-    }
+                    const productUpload = new ProductUpload()
+                    var filename_2
+                    var filename_3
+                    const { fileInfo: fileInfo_1, thumbInfo: thumbInfo_1 } = await productUpload.upload(IMAGE_1, false)
+                    if (IMAGE_2) {
+                              const { fileInfo: fileInfo_2, thumbInfo: thumbInfo_2 } = await productUpload.upload(IMAGE_2, false)
+                              filename_2 = fileInfo_2
+                    }
+                    if (IMAGE_3) {
+                              const { fileInfo: fileInfo_3, thumbInfo: thumbInfo_3 } = await productUpload.upload(IMAGE_3, false)
+                              filename_3 = fileInfo_3
+                    }
+                    
+                    const { insertId: ID_RESTAURANT_MENU } = await restaurant_menus_model.createMenu(
+                              ID_CATEGORIE_MENU,
+                              ID_PARTENAIRE_SERVICE,
+                              PRIX,
+                              NOM,
+                              DESCRIPTION,
+                              `${req.protocol}://${req.get("host")}${IMAGES_DESTINATIONS.products}/${fileInfo_1.fileName}`,
+                              filename_2 ? `${req.protocol}://${req.get("host")}${IMAGES_DESTINATIONS.products}/${filename_2.fileName}` : null,
+                              filename_3 ? `${req.protocol}://${req.get("host")}${IMAGES_DESTINATIONS.products}/${filename_3.fileName}` : null
+                    )
+                    if (variants && variants.length > 0) {
+                              await Promise.all(variants.map(async variant => {
+                                        const { insertId: ID_VARIANT } = await query('INSERT INTO restaurant_menu_variants(ID_RESTAURANT_MENU, FRONTEND_VARIANT_ID, VARIANT_NAME) VALUES(?, ?, ?)', [
+                                                  ID_RESTAURANT_MENU, variant.id, variant.variantName
+                                        ])
+                                        const ecommerce_variant_values = []
+                                        variant.options.forEach(option => {
+                                                  ecommerce_variant_values.push([
+                                                            ID_RESTAURANT_MENU,
+                                                            ID_VARIANT,
+                                                            option.id,
+                                                            option.name
+                                                  ])
+                                        })
+                                        if (ecommerce_variant_values.length > 0) {
+                                                  await query('INSERT INTO restaurant_variant_values(ID_RESTAURANT_MENU, ID_VARIANT, FRONTEND_VALUE_ID, VALUE_NAME) VALUES ?', [ecommerce_variant_values])
+                                        }
+                              }))
+                    }
+                    if (inventories && inventories.length > 0) {
+                              const ecommerce_variant_combination = []
+                              inventories.forEach(inventory => {
+                                        ecommerce_variant_combination.push([ID_RESTAURANT_MENU, inventory.price, inventory.id])
+                              })
+                              if (ecommerce_variant_combination.length > 0) {
+                                        await query('INSERT INTO restaurant_variant_combination(ID_RESTAURANT_MENU, PRIX, FRONTEND_COMBINAISON_ID) VALUES ?', [ecommerce_variant_combination])
+                              }
+                              const newCombinaisons = await query('SELECT * FROM restaurant_variant_combination WHERE ID_RESTAURANT_MENU = ?', [ID_RESTAURANT_MENU])
+                              const values = await query('SELECT * FROM restaurant_variant_values WHERE ID_RESTAURANT_MENU = ?', [ID_RESTAURANT_MENU])
+                              var ecommerce_variant_combination_values = []
+                              newCombinaisons.forEach(combinaison => {
+                                        const myInventory = inventories.find(inv => inv.id == combinaison.FRONTEND_COMBINAISON_ID)
+                                        const itemsWithIds = myInventory.items.map(item => {
+                                                  const myValue = values.find(val => val.FRONTEND_VALUE_ID == item.id)
+                                                  return {
+                                                            ...item,
+                                                            ID_VALUE: myValue.ID_VALUE
+                                                  }
+                                        })
+                                        itemsWithIds.forEach(item => {
+                                                  ecommerce_variant_combination_values.push([combinaison.ID_COMBINATION, item.ID_VALUE])
+                                        })
+                              })
+                              if (ecommerce_variant_combination_values.length > 0) {
+                                        await query('INSERT INTO restaurant_variant_combination_values(ID_COMBINATION, ID_VALUE) VALUES ?', [ecommerce_variant_combination_values])
+                              }
+                    }
+                    res.status(RESPONSE_CODES.CREATED).json({
+                              statusCode: RESPONSE_CODES.CREATED,
+                              httpStatus: RESPONSE_STATUS.CREATED,
+                              message: "Enregistrement du produit est fait avec succès",
+                              result: {
+                                        ID_RESTAURANT_MENU
+                              }
+                    })
+          } catch (error) {
+                    console.log(error)
+                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                              message: "Enregistrement echoue",
+                    })
+          }
 }
 const createNotes = async (req, res) => {
     try {

@@ -16,7 +16,7 @@ const randomInt = require('../../utils/randomInt')
  */
 const create = async (req, res) => {
           try {
-                    const { shipping_info, commandes, numero, service } = req.body
+                    const { shipping_info, commandes, numero, service, ID_COMBINATION } = req.body
                     const validation = new Validation(
                               shipping_info,
                               {
@@ -163,11 +163,21 @@ const create = async (req, res) => {
                                                             commande.ID_PRODUIT,
                                                             commande.QUANTITE,
                                                             commande.PRIX,
-                                                            commande.QUANTITE * commande.PRIX
+                                                            commande.QUANTITE * commande.PRIX,
+                                                            commande.ID_COMBINATION
                                                   ])
+
+                        
                                         })
+                                        await Promise.all(commande.products.map(async comm =>{
+                                                await query(`UPDATE ecommerce_produits SET QUANTITE_TOTAL=QUANTITE_TOTAL-${comm.QUANTITE} WHERE ID_PRODUIT=?`,[comm.ID_PRODUIT])
+                                                if(comm.ID_COMBINATION){
+                                                        await query(`UPDATE ecommerce_variant_combination SET QUANTITE=QUANTITE-${comm.QUANTITE} WHERE ID_COMBINATION=?`,[comm.ID_COMBINATION])
+                                                }
+                                        }))
                               }))
                               await ecommerce_commandes_model.createCommandeDetails(ecommerce_commande_details);
+                              
                               res.status(RESPONSE_CODES.CREATED).json({
                                         statusCode: RESPONSE_CODES.CREATED,
                                         httpStatus: RESPONSE_STATUS.CREATED,
