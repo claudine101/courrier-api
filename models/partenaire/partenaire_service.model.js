@@ -34,9 +34,10 @@ const findAll = async (ID_SERVICE_CATEGORIE, q, limit = 10, offset = 0,) => {
 
 
         var sqlQuery = `
-                    SELECT ps.*,AVG(epn.NOTE) AS MOYENNE, sc.ID_SERVICE_CATEGORIE FROM partenaire_service ps
+                    SELECT ps.*,AVG(epn.NOTE) AS MOYENNE, ebs.ID_BOUTIQUE_SUIVIS, sc.ID_SERVICE_CATEGORIE FROM partenaire_service ps
                     LEFT JOIN services s ON s.ID_SERVICE = ps.ID_SERVICE
                     LEFT JOIN services_categories sc ON sc.ID_SERVICE_CATEGORIE = s.ID_SERVICE_CATEGORIE
+                    LEFT JOIN ecommerce_boutique_suivis ebs ON ebs.ID_PARTENAIRE_SERVICE=ps.ID_PARTENAIRE_SERVICE
                     `
         if (ID_SERVICE_CATEGORIE == 1) {
             sqlQuery += `LEFT JOIN ecommerce_produits ep ON ep.ID_PARTENAIRE_SERVICE=ps.ID_PARTENAIRE_SERVICE 

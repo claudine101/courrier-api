@@ -4,6 +4,7 @@ const restaurant_menus_controller = require('../../controllers/resto/restaurant_
 
 const restaurant_menus_routes = express.Router()
 restaurant_menus_routes.get('/', restaurant_menus_controller.getAllmenu) 
+restaurant_menus_routes.get('/one/:ID_RESTAURANT_MENU', restaurant_menus_controller.getOnemenu) 
 restaurant_menus_routes.put('/:ID_RESTAURANT_MENU', restaurant_menus_controller.modifierMenu) 
 restaurant_menus_routes.delete('/:ID_RESTAURANT_MENU', restaurant_menus_controller.deleteMenu) 
 

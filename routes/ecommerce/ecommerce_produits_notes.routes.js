@@ -8,4 +8,5 @@ ecommerce_produits_notes_routes.get('/', ecommerce_produits_controller.getnotesP
 ecommerce_produits_notes_routes.get('/notes', ecommerce_produits_controller.getuserNotes)
 ecommerce_produits_notes_routes.put('/:ID_NOTE', ecommerce_produits_controller.updateNote)
 ecommerce_produits_notes_routes.delete('/:ID_NOTE',ecommerce_produits_controller.deleteNote)
+ecommerce_produits_notes_routes.get('/notes/:ID_PARTENAIRE_SERVICE', ecommerce_produits_controller.getpartenairesNotes)
 module.exports =ecommerce_produits_notes_routes
