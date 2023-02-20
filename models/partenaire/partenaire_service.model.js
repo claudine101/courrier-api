@@ -65,7 +65,35 @@ const findAll = async (ID_SERVICE_CATEGORIE, q, limit = 10, offset = 0,) => {
     }
 }
 
+const updatePartenaireService = (ID_PARTENAIRE, ID_SERVICE, ID_TYPE_PARTENAIRE, NOM_ORGANISATION, TELEPHONE, NIF, EMAIL, LOGO, BACKGROUND_IMAGE, ADRESSE_COMPLETE, LATITUDE, LONGITUDE, PARTENAIRE_SERVICE_STATUT_ID, ID_PARTENAIRE_SERVICE) => {
+    try {
+              const sqlQuery = `
+              UPDATE partenaire_service
+                        SET ID_PARTENAIRE=?,
+                        ID_SERVICE=?,
+                        ID_TYPE_PARTENAIRE=?,
+                        NOM_ORGANISATION=?,
+                        TELEPHONE=?,
+                        NIF=?,
+                        EMAIL=?,
+                        LOGO=?,
+                        BACKGROUND_IMAGE=?,
+                        ADRESSE_COMPLETE=?,
+                        LATITUDE=?,
+                        LONGITUDE=?,
+                        PARTENAIRE_SERVICE_STATUT_ID=?
+                        WHERE ID_PARTENAIRE_SERVICE=?
+              `
+              return query(sqlQuery, [ID_PARTENAIRE, ID_SERVICE, ID_TYPE_PARTENAIRE, NOM_ORGANISATION, TELEPHONE, NIF, EMAIL, LOGO, BACKGROUND_IMAGE, ADRESSE_COMPLETE, LATITUDE, LONGITUDE, PARTENAIRE_SERVICE_STATUT_ID, ID_PARTENAIRE_SERVICE])
+    }
+    catch (error) {
+
+              throw error
+    }
+}
+
 module.exports = {
-    createPartenaireService,
-    findAll
+          createPartenaireService,
+          findAll,
+          updatePartenaireService
 }
