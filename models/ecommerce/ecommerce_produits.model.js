@@ -1,7 +1,14 @@
 const { query } = require("../../utils/db");
 
-const findproducts = async (q, category, subCategory, partenaireService, limit = 10, offset = 0, userId, min_prix, max_prix) => {
+const findproducts = async (q, category, subCategory, partenaireService, limit = 10, offset = 0, userId, min_prix, max_prix,order_by) => {
           try {
+                        const ORDERBY ={
+                                MOINS_CHER:1,
+                                PLUS_CHER:2,
+                                PLUS_ACHETE:3,
+                                AVUES:4,
+                                NOUVEAUTES:5
+                        }
                     var binds = [userId]
                     var sqlQuery = `
                     SELECT ep.*,
@@ -17,15 +24,23 @@ const findproducts = async (q, category, subCategory, partenaireService, limit =
                               ps.TELEPHONE,
                               epc.NOM NOM_CATEGORIE,
                               epsc.NOM NOM_SOUS_CATEGORIE,
-                              ewp.ID_WISHLIST
-                    FROM ecommerce_produits ep
-                              LEFT JOIN partenaire_service ps ON ps.ID_PARTENAIRE_SERVICE = ep.ID_PARTENAIRE_SERVICE
-                              LEFT JOIN partenaires par ON par.ID_PARTENAIRE = ps.ID_PARTENAIRE
-                              LEFT JOIN ecommerce_produit_categorie epc ON epc.ID_CATEGORIE_PRODUIT = ep.ID_CATEGORIE_PRODUIT
-                              LEFT JOIN ecommerce_produit_sous_categorie epsc ON epsc.ID_PRODUIT_SOUS_CATEGORIE = ep.ID_PRODUIT_SOUS_CATEGORIE
-                              LEFT JOIN ecommerce_wishlist_produit ewp ON ewp.ID_PRODUIT=ep.ID_PRODUIT AND ewp.ID_USER=?
-                    WHERE ep.DATE_SUPPRESSION IS NULL
-                    `
+                              ewp.ID_WISHLIST`
+                        if(order_by==ORDERBY.PLUS_ACHETE){
+                                sqlQuery += ' ,COUNT(ecoD.ID_COMMANDE_DETAIL) AS COMMANDES '
+                        }
+                        sqlQuery +=` FROM ecommerce_produits ep
+                        LEFT JOIN partenaire_service ps ON ps.ID_PARTENAIRE_SERVICE = ep.ID_PARTENAIRE_SERVICE
+                        LEFT JOIN partenaires par ON par.ID_PARTENAIRE = ps.ID_PARTENAIRE
+                        LEFT JOIN ecommerce_produit_categorie epc ON epc.ID_CATEGORIE_PRODUIT = ep.ID_CATEGORIE_PRODUIT
+                        LEFT JOIN ecommerce_produit_sous_categorie epsc ON epsc.ID_PRODUIT_SOUS_CATEGORIE = ep.ID_PRODUIT_SOUS_CATEGORIE
+                        LEFT JOIN ecommerce_wishlist_produit ewp ON ewp.ID_PRODUIT=ep.ID_PRODUIT AND ewp.ID_USER=?`
+                              
+                        if(order_by==ORDERBY.PLUS_ACHETE){
+                        sqlQuery += ' LEFT JOIN ecommerce_commande_details ecoD ON ep.ID_PRODUIT=ecoD.ID_PRODUIT'
+                        }
+                        sqlQuery += ' WHERE ep.DATE_SUPPRESSION IS NULL '
+
+                    
                     if (q && q != "") {
                               sqlQuery +=
                                         "AND  ep.NOM  LIKE ?";
@@ -52,12 +67,24 @@ const findproducts = async (q, category, subCategory, partenaireService, limit =
 
                     } else if (min_prix && max_prix) {
 
-                              sqlQuery += "AND ep.PRIX BETWEEN min_prix=? AND max_prix=?"
-                              binds.push(min_prix && max_prix)
-
+                              sqlQuery += "AND ep.PRIX BETWEEN ? AND ?"
+                              binds.push(min_prix,max_prix)
+                    }
+                    sqlQuery += " GROUP BY ep.ID_PRODUIT "
+                    if(order_by==ORDERBY.MOINS_CHER){
+                        sqlQuery += ` ORDER BY ep.PRIX ASC `;
+                    }else if(order_by==ORDERBY.PLUS_CHER){
+                        sqlQuery += ` ORDER BY ep.PRIX DESC `;
+                    }else if(order_by==ORDERBY.NOUVEAUTES){
+                        sqlQuery += ` ORDER BY ep.DATE_INSERTION DESC `;
+                    }else if(order_by==ORDERBY.PLUS_ACHETE){
+                        sqlQuery += ` ORDER BY COMMANDES DESC `;
+                    }
+                    else{
+                        sqlQuery += ` ORDER BY ep.DATE_INSERTION DESC `;
                     }
 
-                    sqlQuery += ` ORDER BY ep.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
+                    sqlQuery += ` LIMIT ${offset}, ${limit}`
                     return query(sqlQuery, binds);
           }
           catch (error) {
