@@ -9,8 +9,8 @@ const moment = require("moment")
 
 const getAllmenu = async (req, res) => {
           try {
-                    const { q, category, subCategory, partenaireService, limit, offset } = req.query
-                    var Allmenus = await restaurant_menus_model.findAllmenu(q, category, subCategory, partenaireService, limit, offset,req.userId)
+                    const { q, category, subCategory, partenaireService, limit, offset, order_by,min_prix, max_prix } = req.query
+                    var Allmenus = await restaurant_menus_model.findAllmenu(q, category, subCategory, partenaireService, limit, offset,req.userId,min_prix, max_prix,order_by)
                     const menus = Allmenus.map(menu => {
                               return {
                                         produit: {
@@ -18,7 +18,8 @@ const getAllmenu = async (req, res) => {
                                                   NOM: menu.NOM,
                                                   ID_PARTENAIRE_SERVICE: menu.ID_PARTENAIRE_SERVICE,
                                                   IMAGE: menu.IMAGE_1,
-                                                  ID_WISHLIST:menu.ID_WISHLIST
+                                                  ID_WISHLIST:menu.ID_WISHLIST,
+                                                  COMMANDES:menu.COMMANDES
                                         },
                                         partenaire: {
                                                   NOM_ORGANISATION: menu.NOM_ORGANISATION,

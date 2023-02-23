@@ -1,7 +1,14 @@
 const { query } = require("../../utils/db");
 
-const findAllmenu = async (q, category, subCategory, partenaireService, limit = 10, offset = 0, userId, min_prix, max_prix) => {
+const findAllmenu = async (q, category, subCategory, partenaireService, limit = 10, offset = 0, userId, min_prix, max_prix, order_by) => {
         try {
+                const ORDERBY = {
+                        MOINS_CHER: 1,
+                        PLUS_CHER: 2,
+                        PLUS_ACHETE: 3,
+                        AVUES: 4,
+                        NOUVEAUTES: 5
+                }
                 var binds = [userId]
                 var sqlQuery = `
                                   SELECT menu.*,
@@ -16,14 +23,22 @@ const findAllmenu = async (q, category, subCategory, partenaireService, limit = 
                                   ps.EMAIL,
                                   ps.TELEPHONE,
                                   resc.NOM NOM_CATEGORIE,
-                                  rwm.ID_WISHLIST
-                          FROM restaurant_menus menu
+                                  rwm.ID_WISHLIST`
+                if (order_by == ORDERBY.PLUS_ACHETE) {
+                        sqlQuery += ' ,COUNT(resD.ID_COMMANDE_DETAIL) AS COMMANDES '
+                }
+
+                sqlQuery += ` FROM restaurant_menus menu
                                   LEFT JOIN partenaire_service ps ON ps.ID_PARTENAIRE_SERVICE = menu.ID_PARTENAIRE_SERVICE
                                   LEFT JOIN partenaires par ON par.ID_PARTENAIRE = ps.ID_PARTENAIRE
                                   LEFT JOIN restaurant_categorie_menu resc ON resc.ID_CATEGORIE_MENU = menu.ID_CATEGORIE_MENU
-                                  LEFT JOIN restaurant_wishlist_menu rwm ON rwm.ID_RESTAURANT_MENU=menu.ID_RESTAURANT_MENU AND rwm.ID_USER=?
-                          WHERE menu.DATE_SUPPRESSION IS NULL
-                          `
+                                  LEFT JOIN restaurant_wishlist_menu rwm ON rwm.ID_RESTAURANT_MENU=menu.ID_RESTAURANT_MENU AND rwm.ID_USER=?`
+
+                if (order_by == ORDERBY.PLUS_ACHETE) {
+                        sqlQuery += ' LEFT JOIN restaurant_commandes_details resD ON menu.ID_RESTAURANT_MENU=resD.ID_RESTAURANT_MENU'
+                }
+
+                sqlQuery += ' WHERE menu.DATE_SUPPRESSION IS NULL '
                 if (q && q != "") {
                         sqlQuery +=
                                 "AND  menu.NOM  LIKE ?";
@@ -46,11 +61,23 @@ const findAllmenu = async (q, category, subCategory, partenaireService, limit = 
                         binds.push(max_prix)
                 }
                 else if (min_prix && max_prix) {
-                        sqlQuery += "AND menu.PRIX BETWEEN min_prix=? AND max_prix=?"
-                        binds.push(min_prix && max_prix)
+                        sqlQuery += "AND menu.PRIX BETWEEN ? AND ?"
+                        binds.push(min_prix, max_prix)
 
+                } if (order_by == ORDERBY.MOINS_CHER) {
+                        sqlQuery += ` ORDER BY menu.PRIX ASC `;
+                } else if (order_by == ORDERBY.PLUS_CHER) {
+                        sqlQuery += ` ORDER BY menu.PRIX DESC `;
+                } else if (order_by == ORDERBY.NOUVEAUTES) {
+                        sqlQuery += ` ORDER BY menu.DATE_INSERTION DESC `;
                 }
-                sqlQuery += ` ORDER BY menu.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
+                // else if(order_by==ORDERBY.PLUS_ACHETE){
+                //         sqlQuery += ` ORDER BY COMMANDES DESC `;
+                // }
+                else {
+                        sqlQuery += ` ORDER BY menu.DATE_INSERTION DESC `;
+                }
+                sqlQuery += ` LIMIT ${offset}, ${limit}`
                 return query(sqlQuery, binds);
         }
         catch (error) {
@@ -160,12 +187,12 @@ const createwishlist = async (ID_RESTAURANT_MENU, ID_USER, id) => {
         }
 }
 
-    const updateMenu = (ID_CATEGORIE_MENU, ID_PARTENAIRE_SERVICE, PRIX, NOM, DESCRIPTION, IMAGE_1, IMAGE_2, IMAGE_3,ID_RESTAURANT_MENU) => {
+const updateMenu = (ID_CATEGORIE_MENU, ID_PARTENAIRE_SERVICE, PRIX, NOM, DESCRIPTION, IMAGE_1, IMAGE_2, IMAGE_3, ID_RESTAURANT_MENU) => {
         try {
-                  var sqlQuery = "UPDATE restaurant_menus SET ID_CATEGORIE_MENU=?, ID_PARTENAIRE_SERVICE=?,PRIX=?,NOM=?,DESCRIPTION=?,IMAGE_1=?,IMAGE_2=?,IMAGE_3=? WHERE ID_RESTAURANT_MENU=?";
-                  return query(sqlQuery, [ID_CATEGORIE_MENU, ID_PARTENAIRE_SERVICE, PRIX, NOM, DESCRIPTION, IMAGE_1, IMAGE_2, IMAGE_3,ID_RESTAURANT_MENU])
+                var sqlQuery = "UPDATE restaurant_menus SET ID_CATEGORIE_MENU=?, ID_PARTENAIRE_SERVICE=?,PRIX=?,NOM=?,DESCRIPTION=?,IMAGE_1=?,IMAGE_2=?,IMAGE_3=? WHERE ID_RESTAURANT_MENU=?";
+                return query(sqlQuery, [ID_CATEGORIE_MENU, ID_PARTENAIRE_SERVICE, PRIX, NOM, DESCRIPTION, IMAGE_1, IMAGE_2, IMAGE_3, ID_RESTAURANT_MENU])
         } catch (error) {
-                  throw error
+                throw error
         }
 };
 
@@ -178,5 +205,5 @@ module.exports = {
         findNotes,
         finduserNotes,
         changeNote,
-          updateMenu
+        updateMenu
 }
