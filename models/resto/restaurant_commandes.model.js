@@ -65,7 +65,7 @@ const getManyCommandesRestaurantDetails = async (commandesIds) => {
   };
   const createCommandeDetailsResto = async (ecommerce_commande_details) => {
           try {
-                    var sqlQuery = "INSERT INTO  restaurant_commandes_details(ID_COMMANDE, ID_RESTAURANT_MENU, QUANTITE, MONTANT, SOMME)";
+                    var sqlQuery = "INSERT INTO  restaurant_commandes_details(ID_COMMANDE, ID_RESTAURANT_MENU, QUANTITE, MONTANT, SOMME, ID_COMBINATION)";
                     sqlQuery += "VALUES ?"
                     return query(sqlQuery, [ecommerce_commande_details]);
           } catch (error) {

@@ -17,7 +17,7 @@ const randomInt = require("../../utils/randomInt")
 
 const createRestoCommande = async (req, res) => {
           try {
-                    const { shipping_info, commandes, numero, service } = req.body
+                    const { shipping_info, commandes, numero, service, ID_COMBINATION } = req.body
                     console.log(req.body)
                     const validation = new Validation(
                               shipping_info,
@@ -176,7 +176,8 @@ const createRestoCommande = async (req, res) => {
                                                             commande.ID_RESTAURANT_MENU,
                                                             commande.QUANTITE,
                                                             commande.PRIX,
-                                                            commande.QUANTITE * commande.PRIX
+                                                            commande.QUANTITE * commande.PRIX,
+                                                            commande.ID_COMBINATION
                                                   ])
                                         })
                               }))
