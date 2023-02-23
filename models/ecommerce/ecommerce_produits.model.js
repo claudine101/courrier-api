@@ -1,7 +1,14 @@
 const { query } = require("../../utils/db");
 
-const findproducts = async (q, category, subCategory, partenaireService, limit = 10, offset = 0, userId, min_prix, max_prix) => {
+const findproducts = async (q, category, subCategory, partenaireService, limit = 10, offset = 0, userId, min_prix, max_prix, order_by) => {
         try {
+                const ORDERBY = {
+                        MOINS_CHER: 1,
+                        PLUS_CHER: 2,
+                        PLUS_ACHETE: 3,
+                        AVUES: 4,
+                        NOUVEAUTES: 5
+                }
                 var binds = [userId]
                 var sqlQuery = `
                     SELECT ep.*,
@@ -20,40 +27,25 @@ const findproducts = async (q, category, subCategory, partenaireService, limit =
                               ewp.ID_WISHLIST,
                               epn.NOTE,
                               epn.ID_NOTE,
-                              AVG(epn.NOTE) AS MOYENNE FROM ecommerce_produits ep 
-                              LEFT JOIN ecommerce_produit_notes epn ON epn.ID_PRODUIT= ep.ID_PRODUIT
-                              LEFT JOIN partenaire_service ps ON ps.ID_PARTENAIRE_SERVICE = ep.ID_PARTENAIRE_SERVICE
-                              LEFT JOIN partenaires par ON par.ID_PARTENAIRE = ps.ID_PARTENAIRE
-                              LEFT JOIN ecommerce_produit_categorie epc ON epc.ID_CATEGORIE_PRODUIT = ep.ID_CATEGORIE_PRODUIT
-                              LEFT JOIN ecommerce_produit_sous_categorie epsc ON epsc.ID_PRODUIT_SOUS_CATEGORIE = ep.ID_PRODUIT_SOUS_CATEGORIE
-                              
-                              LEFT JOIN ecommerce_wishlist_produit ewp ON ewp.ID_PRODUIT=ep.ID_PRODUIT AND ewp.ID_USER=?
-                    WHERE ep.DATE_SUPPRESSION IS NULL
-                    `
-                if (q && q != "") {
-                        sqlQuery +=
-                                "AND  ep.NOM  LIKE ?";
-                        binds.push(`%${q}%`);
+                              AVG(epn.NOTE) AS MOYENNE `
+
+                if (order_by == ORDERBY.PLUS_ACHETE) {
+                        sqlQuery += ' ,COUNT(ecoD.ID_COMMANDE_DETAIL) AS COMMANDES '
                 }
-                if (category) {
-                        sqlQuery += " AND ep.ID_CATEGORIE_PRODUIT=? "
-                        binds.push(category)
+                sqlQuery += ` FROM ecommerce_produits ep
+                        LEFT JOIN ecommerce_produit_notes epn ON epn.ID_PRODUIT= ep.ID_PRODUIT
+                        LEFT JOIN partenaire_service ps ON ps.ID_PARTENAIRE_SERVICE = ep.ID_PARTENAIRE_SERVICE
+                        LEFT JOIN partenaires par ON par.ID_PARTENAIRE = ps.ID_PARTENAIRE
+                        LEFT JOIN ecommerce_produit_categorie epc ON epc.ID_CATEGORIE_PRODUIT = ep.ID_CATEGORIE_PRODUIT
+                        LEFT JOIN ecommerce_produit_sous_categorie epsc ON epsc.ID_PRODUIT_SOUS_CATEGORIE = ep.ID_PRODUIT_SOUS_CATEGORIE
+                        LEFT JOIN ecommerce_wishlist_produit ewp ON ewp.ID_PRODUIT=ep.ID_PRODUIT AND ewp.ID_USER=?`
+
+                if (order_by == ORDERBY.PLUS_ACHETE) {
+                        sqlQuery += ' LEFT JOIN ecommerce_commande_details ecoD ON ep.ID_PRODUIT=ecoD.ID_PRODUIT'
                 }
-                if (subCategory) {
-                        sqlQuery += " AND ep.ID_PRODUIT_SOUS_CATEGORIE = ? "
-                        binds.push(subCategory)
-                }
-                if (partenaireService) {
-                        sqlQuery += " AND ep.ID_PARTENAIRE_SERVICE = ? "
-                        binds.push(partenaireService)
-                }
-                if (min_prix && !max_prix) {
-                        sqlQuery += " AND ep.PRIX >= ? "
-                        binds.push(min_prix)
-                } else if (!min_prix && max_prix) {
-                        sqlQuery += " AND ep.PRIX <= ? "
-                        binds.push(max_prix)
-                }
+                sqlQuery += ' WHERE ep.DATE_SUPPRESSION IS NULL '
+
+
                 if (q && q != "") {
                         sqlQuery +=
                                 "AND  ep.NOM  LIKE ?";
@@ -80,12 +72,25 @@ const findproducts = async (q, category, subCategory, partenaireService, limit =
 
                 } else if (min_prix && max_prix) {
 
-                        sqlQuery += "AND ep.PRIX BETWEEN min_prix=? AND max_prix=?"
-                        binds.push(min_prix && max_prix)
-
+                        sqlQuery += "AND ep.PRIX BETWEEN ? AND ?"
+                        binds.push(min_prix, max_prix)
                 }
                 sqlQuery += " GROUP BY ep.ID_PRODUIT "
-                sqlQuery += ` ORDER BY ep.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
+                if (order_by == ORDERBY.MOINS_CHER) {
+                        sqlQuery += ` ORDER BY ep.PRIX ASC `;
+                } else if (order_by == ORDERBY.PLUS_CHER) {
+                        sqlQuery += ` ORDER BY ep.PRIX DESC `;
+                } else if (order_by == ORDERBY.NOUVEAUTES) {
+                        sqlQuery += ` ORDER BY ep.DATE_INSERTION DESC `;
+                } else if (order_by == ORDERBY.PLUS_ACHETE) {
+                        sqlQuery += ` ORDER BY COMMANDES DESC `;
+                }else if(order_by == ORDERBY.AVUES){
+                        sqlQuery += ` ORDER BY MOYENNE DESC `;
+                }else {
+                        sqlQuery += ` ORDER BY ep.DATE_INSERTION DESC `;
+                }
+
+                sqlQuery += ` LIMIT ${offset}, ${limit}`
                 return query(sqlQuery, binds);
         }
         catch (error) {
@@ -95,8 +100,8 @@ const findproducts = async (q, category, subCategory, partenaireService, limit =
 }
 
 const createProduit = async (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE = null, NOM, PRIX, DESCRIPTION, ID_PARTENAIRE_SERVICE, IMAGE_1, IMAGE_2, IMAGE_3, QUANTITE_TOTAL) => {
-          try {
-                    var sqlQuery = `
+        try {
+                var sqlQuery = `
                     INSERT INTO ecommerce_produits(
                               ID_CATEGORIE_PRODUIT,
                               ID_PRODUIT_SOUS_CATEGORIE,
@@ -111,11 +116,11 @@ const createProduit = async (ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE = n
                     )
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? , ?)
                     `
-                    return query(sqlQuery, [ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE = null, NOM, PRIX, DESCRIPTION, ID_PARTENAIRE_SERVICE, IMAGE_1, IMAGE_2, IMAGE_3, QUANTITE_TOTAL])
-          }
-          catch (error) {
-                    throw error
-          }
+                return query(sqlQuery, [ID_CATEGORIE_PRODUIT, ID_PRODUIT_SOUS_CATEGORIE = null, NOM, PRIX, DESCRIPTION, ID_PARTENAIRE_SERVICE, IMAGE_1, IMAGE_2, IMAGE_3, QUANTITE_TOTAL])
+        }
+        catch (error) {
+                throw error
+        }
 }
 const findNotes = async (ID_PRODUIT, limit = 10, offset = 0,) => {
         try {
@@ -253,7 +258,7 @@ const findPartenaireNotes = async (ID_PARTENAIRE_SERVICE) => {
         }
 }
 
-const findOneproducts = async ( userId,ID_PRODUCT) => {
+const findOneproducts = async (userId, ID_PRODUCT) => {
         try {
                 var binds = [userId, ID_PRODUCT]
                 var sqlQuery = `

@@ -8,64 +8,65 @@ const { query } = require("../../utils/db");
 const moment = require("moment")
 
 const getAllmenu = async (req, res) => {
-    try {
-        const { q, category, subCategory, partenaireService, limit, offset } = req.query
-        var Allmenus = await restaurant_menus_model.findAllmenu(q, category, subCategory, partenaireService, limit, offset, req.userId)
-        const menus = Allmenus.map(menu => {
-            return {
-                produit: {
-                    ID_RESTAURANT_MENU: menu.ID_RESTAURANT_MENU,
-                    NOM: menu.NOM,
-                    ID_PARTENAIRE_SERVICE: menu.ID_PARTENAIRE_SERVICE,
-                    IMAGE: menu.IMAGE_1,
-                    ID_WISHLIST: menu.ID_WISHLIST,
-                    AVG: menu.MOYENNE
-                },
-                partenaire: {
-                    NOM_ORGANISATION: menu.NOM_ORGANISATION,
-                    ID_PARTENAIRE: menu.ID_PARTENAIRE,
-                    ID_TYPE_PARTENAIRE: menu.ID_TYPE_PARTENAIRE,
-                    NOM: menu.NOM_USER,
-                    PRENOM: menu.PRENOM,
-                    ADRESSE_COMPLETE: menu.ADRESSE_COMPLETE,
-                    ID_SERVICE: menu.ID_SERVICE,
-                    LOGO: menu.LOGO,
-                    BACKGROUND_IMAGE: menu.BACKGROUND_IMAGE,
-                    EMAIL: menu.EMAIL,
-                    TELEPHONE: menu.TELEPHONE,
-                    ID_PARTENAIRE_SERVICE: menu.ID_PARTENAIRE_SERVICE,
-                },
-                produit_partenaire: {
-                    ID_PARTENAIRE_SERVICE: menu.ID_PARTENAIRE_SERVICE,
-                    NOM_ORGANISATION: menu.NOM_ORGANISATION,
-                    NOM: menu.NOM_PRODUIT_PARTENAIRE,
-                    DESCRIPTION: menu.DESCRIPTION,
-                    IMAGE_1: menu.IMAGE_1,
-                    IMAGE_2: menu.IMAGE_2,
-                    IMAGE_3: menu.IMAGE_3,
-                    TAILLE: menu.NOM_TAILLE,
-                    PRIX: menu.PRIX
-                },
-                categorie: {
-                    ID_CATEGORIE_MENU: menu.ID_CATEGORIE_MENU,
-                    NOM: menu.NOM_CATEGORIE
-                },
-            }
-        })
-        res.status(RESPONSE_CODES.OK).json({
-            statusCode: RESPONSE_CODES.OK,
-            httpStatus: RESPONSE_CODES.OK,
-            message: "Liste des  menus restaurants",
-            result: menus
-        })
-    } catch (error) {
-        console.log(error)
-        res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
-            statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
-            httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
-            message: "Erreur interne du serveur, réessayer plus tard",
-        })
-    }
+          try {
+                    const { q, category, subCategory, partenaireService, limit, offset, order_by,min_prix, max_prix } = req.query
+                    var Allmenus = await restaurant_menus_model.findAllmenu(q, category, subCategory, partenaireService, limit, offset,req.userId,min_prix, max_prix,order_by)
+                    const menus = Allmenus.map(menu => {
+                              return {
+                                        produit: {
+                                                  ID_RESTAURANT_MENU: menu.ID_RESTAURANT_MENU,
+                                                  NOM: menu.NOM,
+                                                  ID_PARTENAIRE_SERVICE: menu.ID_PARTENAIRE_SERVICE,
+                                                  IMAGE: menu.IMAGE_1,
+                                                  ID_WISHLIST:menu.ID_WISHLIST,
+                                                  AVG: menu.MOYENNE,
+                                                  COMMANDES:menu.COMMANDES
+                                        },
+                                        partenaire: {
+                                                  NOM_ORGANISATION: menu.NOM_ORGANISATION,
+                                                  ID_PARTENAIRE: menu.ID_PARTENAIRE,
+                                                  ID_TYPE_PARTENAIRE: menu.ID_TYPE_PARTENAIRE,
+                                                  NOM: menu.NOM_USER,
+                                                  PRENOM: menu.PRENOM,
+                                                  ADRESSE_COMPLETE: menu.ADRESSE_COMPLETE,
+                                                  ID_SERVICE: menu.ID_SERVICE,
+                                                  LOGO: menu.LOGO,
+                                                  BACKGROUND_IMAGE: menu.BACKGROUND_IMAGE,
+                                                  EMAIL: menu.EMAIL,
+                                                  TELEPHONE: menu.TELEPHONE,
+                                                  ID_PARTENAIRE_SERVICE: menu.ID_PARTENAIRE_SERVICE,
+                                        },
+                                        produit_partenaire: {
+                                                  ID_PARTENAIRE_SERVICE: menu.ID_PARTENAIRE_SERVICE,
+                                                  NOM_ORGANISATION: menu.NOM_ORGANISATION,
+                                                  NOM: menu.NOM_PRODUIT_PARTENAIRE,
+                                                  DESCRIPTION: menu.DESCRIPTION,
+                                                  IMAGE_1: menu.IMAGE_1,
+                                                  IMAGE_2: menu.IMAGE_2,
+                                                  IMAGE_3: menu.IMAGE_3,
+                                                  TAILLE: menu.NOM_TAILLE,
+                                                  PRIX: menu.PRIX
+                                        },
+                                        categorie: {
+                                                  ID_CATEGORIE_MENU: menu.ID_CATEGORIE_MENU,
+                                                  NOM: menu.NOM_CATEGORIE
+                                        },
+                              }
+                    })
+                    res.status(RESPONSE_CODES.OK).json({
+                              statusCode: RESPONSE_CODES.OK,
+                              httpStatus: RESPONSE_CODES.OK,
+                              message: "Liste des  menus restaurants",
+                              result: menus
+                    })
+          } catch (error) {
+                    console.log(error)
+                    res.status(RESPONSE_CODES.INTERNAL_SERVER_ERROR).json({
+                              statusCode: RESPONSE_CODES.INTERNAL_SERVER_ERROR,
+                              httpStatus: RESPONSE_STATUS.INTERNAL_SERVER_ERROR,
+                              message: "Erreur interne du serveur, réessayer plus tard",
+                    })
+          }
 };
 const deleteNote = async (req, res) => {
     try {

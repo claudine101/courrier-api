@@ -13,8 +13,8 @@ const moment = require("moment")
  **/
 const getAllProducts = async (req, res) => {
     try {
-        const { q, category, subCategory, partenaireService, limit, offset } = req.query
-        const allProducts = await ecommerce_produits_model.findproducts(q, category, subCategory, partenaireService, limit, offset, req.userId)
+        const { q, category, subCategory, partenaireService, limit, offset, order_by,min_prix, max_prix} = req.query
+        const allProducts = await ecommerce_produits_model.findproducts(q, category, subCategory, partenaireService, limit, offset, req.userId,min_prix, max_prix,order_by)
         const products = allProducts.map(product => {
             return {
                 produit: {
@@ -24,7 +24,8 @@ const getAllProducts = async (req, res) => {
                     IMAGE: product.IMAGE_1,
                     ID_WISHLIST: product.ID_WISHLIST,
                     ID_NOTE: product.ID_NOTE,
-                    AVG: product.MOYENNE
+                    AVG: product.MOYENNE,
+                    COMMANDES:product.COMMANDES
                 },
                 partenaire: {
                     NOM_ORGANISATION: product.NOM_ORGANISATION,
