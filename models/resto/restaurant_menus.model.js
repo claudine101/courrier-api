@@ -68,7 +68,7 @@ const findAllmenu = async (q, category, subCategory, partenaireService, limit = 
                         binds.push(min_prix, max_prix)
 
                 }
-                sqlQuery += " GROUP BY menu.ID_RESTAURANT_MENU "
+                sqlQuery += " GROUP BY menu.ID_RESTAURANT_MENU, rmn.ID_RESTAURANT_MENU, rwm.ID_WISHLIST, rmn.ID_NOTE "
                 if (order_by == ORDERBY.MOINS_CHER) {
                         sqlQuery += ` ORDER BY menu.PRIX ASC `;
                 } else if (order_by == ORDERBY.PLUS_CHER) {

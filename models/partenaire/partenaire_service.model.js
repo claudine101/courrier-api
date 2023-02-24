@@ -57,7 +57,7 @@ const findAll = async (ID_SERVICE_CATEGORIE, q, limit = 10, offset = 0,) => {
             sqlQuery += "AND ps.NOM_ORGANISATION LIKE ?";
             binds.push(`%${q}%`);
         }
-        sqlQuery += " GROUP BY ps.ID_PARTENAIRE_SERVICE "
+        sqlQuery += " GROUP BY ps.ID_PARTENAIRE_SERVICE, ebs.ID_BOUTIQUE_SUIVIS "
         sqlQuery += ` ORDER BY ps.DATE_INSERTION DESC LIMIT ${offset}, ${limit}`;
         return query(sqlQuery, binds)
     } catch (error) {
