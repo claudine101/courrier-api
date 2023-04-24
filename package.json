@@ -1,12 +1,12 @@
 {
-          "name": "chapchap-api",
+          "name": "courrier-api",
           "version": "1.0.0",
           "description": "",
-          "main": "server-chapchap.js",
+          "main": "server-courrier.js",
           "scripts": {
-                    "start": "nodemon server-chapchap.js",
-                    "start:dev": "NODE_ENV=dev && pm2 start server-chapchap.js",
-                    "start:prod": "NODE_ENV=prod && pm2 start server-chapchap.js"
+                    "start": "nodemon server-courrier.js",
+                    "start:dev": "NODE_ENV=dev && pm2 start server-courrier.js",
+                    "start:prod": "NODE_ENV=prod && pm2 start server-courrier.js"
           },
           "author": "darcy@mediabox.bi",
           "license": "ISC",
